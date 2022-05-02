@@ -1,7 +1,8 @@
+import './App.css'
 import { useState, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import useLocalStorage from "./hooks/useLocalStorage";
-import Routes from "./routes/Routes";
+import PugRoutes from './routes/PugRoutes';
 import LoadingSpinner from "./common/LoadingSpinner";
 import PugApi from "./api/api";
 import UserContext from "./auth/UserContext";
@@ -121,7 +122,7 @@ function App() {
         value={{ currentUser, setCurrentUser }}
       >
         <div className="App">
-          <Routes login={login} signup={signup} />
+          <PugRoutes login={login} signup={signup} />
         </div>
       </UserContext.Provider>
     </BrowserRouter>

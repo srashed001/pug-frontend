@@ -74,7 +74,7 @@ class PugApi {
 
   static async getUsers(data) {
     let res = await this.request(`users`, data);
-    return res;
+    return res.users;
   }
 
   /** Change user password.
@@ -232,7 +232,7 @@ class PugApi {
    *         - gameStatus 'pending' || 'resolved'
    */
 
-  static async getGames(data) {
+  static async getGames(data = {}) {
     let res = await this.request(`games`, data);
     return res.games;
   }
