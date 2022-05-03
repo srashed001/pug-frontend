@@ -12,7 +12,7 @@ import App from "../App";
 function PugRoutes({ login, signup }) {
   return (
     <div>
-      <Routes>
+      {/* <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<Homepage />} />
           <Route path="users" element={<UsersList />}>
@@ -21,10 +21,10 @@ function PugRoutes({ login, signup }) {
           <Route path="games" element={<GamesList />}>
             <Route path=":gameId" element={<GameDetails />} />
           </Route>
-          <Route path="login" element={<LoginForm />} />
+          <Route path="login" login={login} element={<LoginForm />} />
           <Route path="signup" element={<SignupForm />} />
         </Route>
-      </Routes>
+      </Routes> */}
     </div>
   );
 }
