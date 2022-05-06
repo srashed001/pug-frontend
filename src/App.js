@@ -75,6 +75,7 @@ function App() {
     [token]
   );
 
+
   /** Handles site-wide logout. */
   function logout() {
     setCurrentUser(null);
@@ -104,6 +105,7 @@ function App() {
    */
   async function login(loginData) {
     try {
+      console.log(loginData)
       let token = await PugApi.login(loginData);
       setToken(token);
       return { success: true };
@@ -117,15 +119,9 @@ function App() {
   if (!infoLoaded) return <LoadingSpinner />;
 
   return (
-    <BrowserRouter>
-      <UserContext.Provider
-        value={{ currentUser, setCurrentUser }}
-      >
         <div className="App">
           <PugRoutes login={login} signup={signup} />
         </div>
-      </UserContext.Provider>
-    </BrowserRouter>
   );
 }
 

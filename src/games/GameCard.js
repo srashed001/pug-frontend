@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 
-function GameCard({id, address, city, createdBy, date, daysDiff, isActive, players, state, time, title }){
+function GameCard({ game }){
+    const {id, address, city, createdBy, date, daysDiff, isActive, players, state, time, title } = game
 
     return (
         <div>

@@ -12,19 +12,16 @@ import App from "../App";
 function PugRoutes({ login, signup }) {
   return (
     <div>
-      {/* <Routes>
-        <Route path="/" element={<App />}>
-          <Route index element={<Homepage />} />
-          <Route path="users" element={<UsersList />}>
-            <Route path=":username" element={<UserDetails />} />
-          </Route>
-          <Route path="games" element={<GamesList />}>
-            <Route path=":gameId" element={<GameDetails />} />
-          </Route>
-          <Route path="login" login={login} element={<LoginForm />} />
-          <Route path="signup" element={<SignupForm />} />
-        </Route>
-      </Routes> */}
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" login={login} element={<LoginForm login={login} />} />
+        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/users" element={<UsersList />} />
+        <Route path="/users/:username" element={<UserDetails />} />
+        <Route path="/games" element={<GamesList />} />
+        <Route path="/games/:gameId" element={<GameDetails />} />
+
+      </Routes>
     </div>
   );
 }
