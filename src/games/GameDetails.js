@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { fetchGame, fetchGames } from "../store/games/gamesSlice";
+import { fetchGame, resetGameStatus } from "../store/games/gamesSlice";
 
 function GameDetails() {
   const { gameId } = useParams();
@@ -15,18 +15,26 @@ function GameDetails() {
   console.debug("GameDetail", "gameId=", gameId);
 
   useEffect(() => {
-    if (gameStatus === "idle") {
-      dispatch(fetchGames());
-    } else {
-      dispatch(fetchGame(gameId));
-    }
+    return () => {
+      console.log('GamesDetails cleanup prior', gameStatus)
+      if (gameStatus === "succeeded") dispatch(resetGameStatus());
+      console.log('GamesDetails cleanup after', gameStatus)
+    };
   }, []);
 
-  if (gameStatus === "loading") {
+  useEffect(() => {
+    console.log(gameStatus)
+    if (gameStatus === "idle") {
+      dispatch(fetchGame(gameId));
+    }
+
+  }, [dispatch, gameId, gameStatus]);
+
+  if (gameStatus === "loading" || gameStatus === "idle") {
     return <LoadingSpinner />;
   } else if (gameStatus === "failed") {
     return <div>{error}</div>;
-  } else if (gameStatus === 'succeeded'){
+  } else if (gameStatus === "succeeded") {
     const details = games[gameId];
     return (
       <div>

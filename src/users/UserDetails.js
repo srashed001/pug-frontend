@@ -1,29 +1,39 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"
-import PugApi from "../api/api";
+import { useEffect, useLayoutEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { fetchUser, resetUserStatus } from "../store/users/usersSlice";
 
-function UserDetails(){
+function UserDetails() {
+  const { username } = useParams();
+  console.debug("UserDetails", "username=", username);
 
-    const {username} = useParams();
-    console.debug("UserDetails", "username=", username)
+  const dispatch = useDispatch();
+  const userStatus = useSelector((state) => state.users.status);
+  const users = useSelector((state) => state.users.entities);
+  const error = useSelector((state) => state.users.errors);
 
-    const [bio, setBio] = useState(null)
 
-    useEffect(()=> {
-        async function getUser(){
-            const userDetails = await PugApi.getCurrentUser(username)
-            const {user} = userDetails
-            setBio(user)
-        }
+  useLayoutEffect(()=>{
+     return () => {
+      dispatch(resetUserStatus());
+    };
+  }, [])
 
-        getUser()
-    }, [username])
+  useEffect(() => {
+    console.log(`userdetails useEffect`, userStatus);
+    dispatch(fetchUser(username));
+  }, []);
 
-    if(!bio) return <LoadingSpinner />
+  if (userStatus === "loading") {
+    return <LoadingSpinner />;
+  } else if (userStatus === "failed") {
+    return <div>{error}</div>;
+  } else if (userStatus === "succeeded") {
+    const bio = users[username];
 
     return (
-        <div>
+      <div>
         <h1>User Details: {username}</h1>
         <ul>
           <li>first name: {bio.firstName}</li>
@@ -34,13 +44,14 @@ function UserDetails(){
           <li>email: {bio.email}</li>
           <li>created on: {bio.createdOn}</li>
           <li>phone number: {bio.phoneNumber}</li>
-          <li>following: {bio.following}</li>
-          <li>followed: {bio.followed}</li>
+          { bio.following && <li>following: {bio.following.length}</li>}
+          {bio.followed && <li>followed: {bio.followed.length}</li>}
           <li>is private: {JSON.stringify(bio.isPrivate)}</li>
           <li>is admin: {JSON.stringify(bio.isAdmin)}</li>
         </ul>
       </div>
-    )
+    );
+  }
 }
 
-export default UserDetails
+export default UserDetails;

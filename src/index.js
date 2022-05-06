@@ -6,6 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import store from "./store/rootreducer";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
+import { fetchGames } from "./store/games/gamesSlice";
 
 // import '@fontsource/roboto/300.css';
 // import '@fontsource/roboto/400.css';
@@ -13,6 +14,23 @@ import { BrowserRouter } from "react-router-dom";
 // import '@fontsource/roboto/700.css';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
+// async function start() {
+//   store.dispatch(fetchGames());
+
+//   root.render(
+//     <React.StrictMode>
+//       <Provider store={store}>
+//         <BrowserRouter>
+//           <App />
+//         </BrowserRouter>
+//       </Provider>
+//     </React.StrictMode>
+//   );
+// }
+
+// start()
+
 root.render(
   <React.StrictMode>
     <Provider store={store}>

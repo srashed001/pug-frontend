@@ -1,42 +1,49 @@
-import { useEffect, useState } from "react";
-import PugApi from "../api/api";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { fetchUsers, resetUserStatus } from "../store/users/usersSlice";
 import UserCard from "./UserCard";
 
 function UsersList() {
   console.debug("UsersList");
 
-  const [users, setUsers] = useState(null);
+  const dispatch = useDispatch();
+  const allIds = useSelector(state => state.users.ids)
+  const byId = useSelector(state => state.users.entities)
 
-  async function search(data = {}) {
-    const users = await PugApi.getUsers(data);
-    setUsers(users);
-  }
+  const userStatus = useSelector(state => state.users.status)
+  const error = useSelector(state => state.users.error)
+
+
+
 
   useEffect(() => {
-    console.log("CompanyList useEffect");
-    search();
+    return () => {
+     dispatch(resetUserStatus())
+      console.log(userStatus)
+    }
   }, []);
 
-  if (!users) return <LoadingSpinner />;
+  useEffect(() => {
+    console.log("UserList useEffect");
+      dispatch(fetchUsers())
+    
+  }, []);
 
-  console.log(users)
+  let content; 
+
+  if (userStatus === 'loading') content = <LoadingSpinner />
+  else if (userStatus === 'failed') content = <div>{error}</div>
+  else if (userStatus === 'succeeded') {
+    content = allIds.map(id => <UserCard key={id} user={byId[id]} />);
+  }
+  
+
 
   return (
     <div>
       <h1>GamesList</h1>
-      {users.map((u) => (
-        <UserCard
-          key={u.username}
-          username={u.username}
-          firstName={u.firstName}
-          lastName={u.lastName}
-          city={u.city}
-          state={u.state}
-          profileImg={u.profileImg}
-          isPrivate={u.isPrivate}
-        />
-      ))}
+      {content}
     </div>
   );
 }

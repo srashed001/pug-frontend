@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 
-function UserCard({username, firstName, lastName, city, state, profileImg, isPrivate}){
+function UserCard({user}){
+    const {username, firstName, lastName, city, state, profileImg, isPrivate} = user
 
     return (
         <div>

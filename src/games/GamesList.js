@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { fetchGames } from "../store/games/gamesSlice";
+import { fetchGames, resetGameStatus } from "../store/games/gamesSlice";
 import GameCard from "./GameCard";
 
 function GamesList() {
@@ -20,6 +20,15 @@ function GamesList() {
       dispatch(fetchGames());
     }
   }, [dispatch, gameStatus]);
+
+  useEffect(() => {
+    return () => {
+      console.log('GamesList cleanup prior', gameStatus)
+      if(gameStatus === 'succeeded') dispatch(resetGameStatus())
+      console.log('GamesList cleanup after', gameStatus)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   let content;
 
