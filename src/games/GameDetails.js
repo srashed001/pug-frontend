@@ -1,57 +1,124 @@
-import { useEffect } from "react";
+import { useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams  } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { fetchGame, resetGameStatus } from "../store/games/gamesSlice";
+import {
+  fetchGame,
+  resetGameStatus,
+  selectGameById,
+  joinGame, 
+  leaveGame
+} from "../store/games/gamesSlice";
+
+import { selectCommentsByGame, addComment, deleteComment } from "../store/comments/commentsSlice";
+
 
 function GameDetails() {
   const { gameId } = useParams();
 
   const dispatch = useDispatch();
   const gameStatus = useSelector((state) => state.games.status);
-  const games = useSelector((state) => state.games.entities);
+  const game = useSelector((state) => selectGameById(state, gameId));
   const error = useSelector((state) => state.games.errors);
-
+  const gameComments = useSelector(state => selectCommentsByGame(state, gameId))
+  const users = useSelector(state => state.users.entities)
+  const [fetched, setFetched] = useState(false)
+  
   console.debug("GameDetail", "gameId=", gameId);
 
-  useEffect(() => {
-    return () => {
-      console.log('GamesDetails cleanup prior', gameStatus)
-      if (gameStatus === "succeeded") dispatch(resetGameStatus());
-      console.log('GamesDetails cleanup after', gameStatus)
+  function testAddPlayer(){
+    const data = {
+      gameId,
+      username: 'test4'
+    }
+
+    dispatch(joinGame(data))
+  }
+  
+  function testRemovePlayer(evt){
+    const data = {
+      gameId,
+      username: evt.target.id
+    }
+
+    dispatch(leaveGame(data))
+  }
+
+  function testAddComment() {
+    const data = {
+      gameId,
+      username: "test2",
+      comment: "testComment",
     };
+
+    dispatch(addComment(data))
+  }
+
+  function testDeleteComment(evt){
+    const data = {
+      gameId, 
+      commentId: evt.target.id
+    }
+    dispatch(deleteComment(data))
+  }
+
+  useEffect(() => {
+    return () => dispatch(resetGameStatus());
   }, []);
 
   useEffect(() => {
-    console.log(gameStatus)
+    console.log(`gamedetails useEffect`, gameStatus);
     if (gameStatus === "idle") {
       dispatch(fetchGame(gameId));
+      setFetched(true)
     }
-
   }, [dispatch, gameId, gameStatus]);
 
-  if (gameStatus === "loading" || gameStatus === "idle") {
+  if (gameStatus === "loading" || !fetched ) {
     return <LoadingSpinner />;
   } else if (gameStatus === "failed") {
     return <div>{error}</div>;
-  } else if (gameStatus === "succeeded") {
-    const details = games[gameId];
+  } else if (gameStatus === "succeeded" || fetched) {
+
+
+
     return (
       <div>
-        <h1>Game Details: {gameId}</h1>
-        <ul>
-          <li>id: {details.id}</li>
-          <li>title: {details.title}</li>
-          <li>description: {details.description}</li>
-          <li>date: {details.date}</li>
-          <li>time: {details.time}</li>
-          <li>address: {details.address}</li>
-          <li>city: {details.city}</li>
-          <li>state: {details.state}</li>
-          <li>created on: {details.createdOn}</li>
-          <li>game host: {details.createdBy}</li>
-          <li>{details.daysDiff}</li>
-        </ul>
+        <div>
+          <h1>Game Details: {gameId}</h1>
+          <ul>
+            <li>id: {game.id}</li>
+            <li>title: {game.title}</li>
+            <li>description: {game.description}</li>
+            <li>date: {game.date}</li>
+            <li>time: {game.time}</li>
+            <li>address: {game.address}</li>
+            <li>city: {game.city}</li>
+            <li>state: {game.state}</li>
+            <li>created on: {game.createdOn}</li>
+            <li>game host: {game.createdBy}</li>
+            <li>{game.daysDiff}</li>
+          </ul>
+        </div>
+        <div>
+          Players 
+          <button onClick={testAddPlayer}>add player</button>
+          <ul>
+            {game.players.map(player => (
+              <li key={users[player].username} >{users[player].username}<button id={player} onClick={testRemovePlayer}>X</button></li>
+            ))}
+          </ul>
+        </div>
+        <button onClick={testAddComment}>add comment</button>
+        <div>
+          {gameComments.map(comment => {
+            return (
+            <div key={comment.id}>
+              <li >{comment.comment}</li>
+              <button id={comment.id} onClick={testDeleteComment}>remove</button>
+            </div>)
+          })}
+        </div>
       </div>
     );
   }

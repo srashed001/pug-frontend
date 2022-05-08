@@ -24,7 +24,7 @@ function GamesList() {
   useEffect(() => {
     return () => {
       console.log('GamesList cleanup prior', gameStatus)
-      if(gameStatus === 'succeeded') dispatch(resetGameStatus())
+      dispatch(resetGameStatus())
       console.log('GamesList cleanup after', gameStatus)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,11 +1,10 @@
-import './App.css'
+import "./App.css";
 import { useState, useEffect } from "react";
-import { BrowserRouter } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useLocalStorage from "./hooks/useLocalStorage";
-import PugRoutes from './routes/PugRoutes';
+import PugRoutes from "./routes/PugRoutes";
 import LoadingSpinner from "./common/LoadingSpinner";
 import PugApi from "./api/api";
-import UserContext from "./auth/UserContext";
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "./api/secretKey";
 
@@ -17,7 +16,7 @@ export const TOKEN_STORAGE_ID = "pug-token";
  * - infoLoaded: has user data been pulled from API?
  *   (this manages spinner for "loading...")
  *
- * - currentUser: user obj from API. 
+ * - currentUser: user obj from API.
  *
  * - token: for logged in users, this is their authentication JWT.
  *   Is required to be set for most API calls. This is initially read from
@@ -56,10 +55,10 @@ function App() {
             // put the token on the Api class so it can use it to call the API.
             PugApi.token = token;
             let currentUser = await PugApi.getCurrentUser(username);
-            let invites = await PugApi.getInvites(username)
-            let relationships = await PugApi.getRelationships(username)
-            currentUser.invites = invites
-            currentUser.relationships = relationships
+            let invites = await PugApi.getInvites(username);
+            let relationships = await PugApi.getRelationships(username);
+            currentUser.invites = invites;
+            currentUser.relationships = relationships;
             setCurrentUser(currentUser);
           } catch (err) {
             console.error("App loadUserInfo: problem loading", err);
@@ -74,7 +73,6 @@ function App() {
     },
     [token]
   );
-
 
   /** Handles site-wide logout. */
   function logout() {
@@ -105,7 +103,7 @@ function App() {
    */
   async function login(loginData) {
     try {
-      console.log(loginData)
+      console.log(loginData);
       let token = await PugApi.login(loginData);
       setToken(token);
       return { success: true };
@@ -115,13 +113,16 @@ function App() {
     }
   }
 
-
   if (!infoLoaded) return <LoadingSpinner />;
 
   return (
-        <div className="App">
-          <PugRoutes login={login} signup={signup} />
-        </div>
+    <div className="App">
+      <Link to="/users">Users</Link>
+      <br></br>
+      <Link to="/games">Games</Link>
+
+      <PugRoutes login={login} signup={signup} />
+    </div>
   );
 }
 

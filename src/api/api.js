@@ -280,16 +280,15 @@ class PugApi {
    *        - comment
   */
   static async addComment(gameId, username, data){
-      let res = await this.request(`games/${gameId}/comment/:${username}`, data, 'post')
+      let res = await this.request(`games/${gameId}/comment/${username}`, data, 'post')
       return res.comment
   }
 
   /** deletes a game comment. 
-   *    Data required: 
-   *        - comment
+   *   
   */
   static async deleteComment(gameId, commentId){
-      let res = await this.request(`games/${gameId}/comment/:${commentId}`, {}, 'delete')
+      let res = await this.request(`games/${gameId}/comment/${commentId}`, {}, 'delete')
       return res
   }
 

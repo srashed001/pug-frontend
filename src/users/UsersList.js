@@ -26,15 +26,17 @@ function UsersList() {
 
   useEffect(() => {
     console.log("UserList useEffect");
+    if(userStatus === 'idle'){
       dispatch(fetchUsers())
-    
-  }, []);
+    }
+  }, [dispatch, userStatus]);
 
   let content; 
 
   if (userStatus === 'loading') content = <LoadingSpinner />
   else if (userStatus === 'failed') content = <div>{error}</div>
   else if (userStatus === 'succeeded') {
+    console.log(byId)
     content = allIds.map(id => <UserCard key={id} user={byId[id]} />);
   }
   
@@ -42,7 +44,7 @@ function UsersList() {
 
   return (
     <div>
-      <h1>GamesList</h1>
+      <h1>UsersList</h1>
       {content}
     </div>
   );

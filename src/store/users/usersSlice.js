@@ -1,9 +1,14 @@
 import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import _ from 'lodash'
+
 import PugApi from "../../api/api";
+import { updateGames } from "../games/gamesSlice";
+
+
 
 
 const usersAdapter = createEntityAdapter({
-    selectId: (user) => user.username
+    selectId: (user) => user.username || user.user.username
 })
 
 const initialState = usersAdapter.getInitialState({
@@ -16,9 +21,14 @@ export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
   return resp;
 });
 
-export const fetchUser = createAsyncThunk("users/fetchUser", async (username) => {
-  const resp = await PugApi.getCurrentUser(username);
-  return resp;
+export const fetchUser = createAsyncThunk("users/fetchUser", async (username, {dispatch}) => {
+    const resultPromise = PugApi.getCurrentUser(username)
+    resultPromise.then(data => {
+      const allGames = _.union(data.games.hosted.resolved, data.games.hosted.pending, data.games.joined.resolved, data.games.joined.pending)
+      dispatch(updateGames(allGames))
+    })
+
+    return resultPromise
 });
 
 const usersSlice = createSlice({
@@ -26,8 +36,10 @@ const usersSlice = createSlice({
   initialState,
   reducers: {
       resetUserStatus: (state) => {
-          console.log({...state, status: initialState.status})
           return {...state, status: initialState.status}
+        },
+        updateUsers: (state, action) => {
+            usersAdapter.upsertMany(state, action.payload)
         }
   },
   extraReducers(builder) {
@@ -40,6 +52,7 @@ const usersSlice = createSlice({
         usersAdapter.upsertMany(state, action.payload)
       })
       .addCase(fetchUsers.rejected, (state, action) => {
+
         state.status = "failed";
         state.error = action.error.message;
       })
@@ -48,8 +61,7 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload)
-        state.entities[action.payload.user.username] = {...state.entities,...action.payload.user}
+        usersAdapter.upsertOne(state, action.payload)
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.status = "failed";
@@ -58,7 +70,14 @@ const usersSlice = createSlice({
   },
 });
 
-export const {resetUserStatus} = usersSlice.actions
+
+export const {resetUserStatus, updateUsers} = usersSlice.actions
 
 export default usersSlice.reducer;
+
+export const {
+    selectAll: selectAllUsers,
+    selectById: selectUserById,
+    selectIds: selectUserIds
+} = usersAdapter.getSelectors(state => state.users)
 

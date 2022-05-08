@@ -6,7 +6,6 @@ import reportWebVitals from "./reportWebVitals";
 import store from "./store/rootreducer";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
-import { fetchGames } from "./store/games/gamesSlice";
 
 // import '@fontsource/roboto/300.css';
 // import '@fontsource/roboto/400.css';
@@ -45,3 +44,4 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
