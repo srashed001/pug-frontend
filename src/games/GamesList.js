@@ -1,52 +1,51 @@
-import { useEffect, useState } from "react";
-import PugApi from "../api/api";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { fetchGames, resetGameStatus } from "../store/games/gamesSlice";
 import GameCard from "./GameCard";
 
+function GamesList() {
+  console.debug(`GameList`);
 
-function GamesList(){
-    console.debug(`GameList`);
+  const dispatch = useDispatch();
+  const allIds = useSelector((state) => state.games.ids);
+  const byId = useSelector((state) => state.games.entities);
 
-    const [games, setGames] = useState(null)
+  const gameStatus = useSelector((state) => state.games.status);
+  const error = useSelector((state) => state.games.error);
 
-    async function search(data = {}){
-        const games = await PugApi.getGames(data);
-        setGames(games)
+  useEffect(() => {
+    console.log(`GamesList useEffect`);
+    if (gameStatus === "idle") {
+      dispatch(fetchGames());
     }
+  }, [dispatch, gameStatus]);
 
-    useEffect(()=> {
-        console.log(`GamesList useEffect`)
-        search();
-    }, [])
+  useEffect(() => {
+    return () => {
+      console.log('GamesList cleanup prior', gameStatus)
+      dispatch(resetGameStatus())
+      console.log('GamesList cleanup after', gameStatus)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    if(!games) return <LoadingSpinner /> 
+  let content;
 
-    console.log(games)
-    return (
-        <div> 
-        <h1>GamesList</h1>
-        {games.map(g => (
-            <GameCard
-                key={g.id}
-                id={g.id}
-                address={g.address}
-                city={g.city}
-                createdBy={g.createdBy}
-                date={g.date}
-                daysDiff={g.daysDiff}
-                isActive={g.isActive}
-                players={g.players}
-                state={g.state}
-                time={g.time}
-                title={g.title}
+  if (gameStatus === "loading") {
+    content = <LoadingSpinner />;
+  } else if (gameStatus === "succeeded") {
+    content = allIds.map((id) => <GameCard key={id} game={byId[id]} />);
+  } else if (gameStatus === "failed") {
+    content = <div>{error}</div>;
+  }
 
-            />
-        ))}
-        
-        </div>
-       
-        
-    )
+  return (
+    <div>
+      <h1>GamesList</h1>
+      {content}
+    </div>
+  );
 }
 
-export default GamesList
+export default GamesList;

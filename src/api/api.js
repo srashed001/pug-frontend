@@ -174,7 +174,7 @@ class PugApi {
 
   static async deleteMessage(username, messageId) {
     let res = await this.request(
-      `users/${username}/messages/${messageId}}`,
+      `users/${username}/messages/${messageId}`,
       {},
       "delete"
     );
@@ -184,8 +184,8 @@ class PugApi {
   /** get invites for user */
 
   static async getInvites(username) {
-    let res = await this.request(`users/${username}/invites}`);
-    return res.invtes;
+    let res = await this.request(`users/${username}/invites`);
+    return res;
   }
 
   /** creates group/individual invites for a game.
@@ -195,7 +195,7 @@ class PugApi {
 
   static async createInvites(username, gameId, data) {
     let res = await this.request(
-      `users/${username}/invites/add/${gameId}}`,
+      `users/${username}/invites/add/${gameId}`,
       data,
       "post"
     );
@@ -212,7 +212,7 @@ class PugApi {
 
   static async updateInvite(username, status, inviteId) {
     let res = await this.request(
-      `users/${username}/invites/${status}/${inviteId}}`,
+      `users/${username}/invites/${status}/${inviteId}`,
       {},
       "patch"
     );
@@ -234,7 +234,7 @@ class PugApi {
 
   static async getGames(data = {}) {
     let res = await this.request(`games`, data);
-    return res.games;
+    return res.games
   }
 
   /** gets game.  */
@@ -280,16 +280,15 @@ class PugApi {
    *        - comment
   */
   static async addComment(gameId, username, data){
-      let res = await this.request(`games/${gameId}/comment/:${username}`, data, 'post')
+      let res = await this.request(`games/${gameId}/comment/${username}`, data, 'post')
       return res.comment
   }
 
   /** deletes a game comment. 
-   *    Data required: 
-   *        - comment
+   *   
   */
   static async deleteComment(gameId, commentId){
-      let res = await this.request(`games/${gameId}/comment/:${commentId}`, {}, 'delete')
+      let res = await this.request(`games/${gameId}/comment/${commentId}`, {}, 'delete')
       return res
   }
 
