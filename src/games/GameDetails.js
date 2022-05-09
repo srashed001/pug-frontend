@@ -29,7 +29,7 @@ function GameDetails() {
   function testAddPlayer(){
     const data = {
       gameId,
-      username: 'test4'
+      username: 'test1'
     }
 
     dispatch(joinGame(data))
