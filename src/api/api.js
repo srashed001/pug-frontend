@@ -185,7 +185,7 @@ class PugApi {
 
   static async getInvites(username) {
     let res = await this.request(`users/${username}/invites`);
-    return res;
+    return res.invites;
   }
 
   /** creates group/individual invites for a game.

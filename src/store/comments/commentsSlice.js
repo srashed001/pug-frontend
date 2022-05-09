@@ -29,7 +29,6 @@ export const deleteComment = createAsyncThunk(
   async (data) => {
     const { gameId, commentId } = data;
     const resp = await PugApi.deleteComment(gameId, commentId);
-    console.log(resp);
 
     return resp;
   }

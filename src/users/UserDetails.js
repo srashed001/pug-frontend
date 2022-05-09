@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
 import {
@@ -16,12 +16,11 @@ function UserDetails() {
   const userStatus = useSelector((state) => state.users.status);
   const error = useSelector((state) => state.users.error);
   const user = useSelector((state) => selectUserById(state, username));
-  const games = useSelector(state => state.games.entities)
+  const games = useSelector((state) => state.games.entities);
   const [fetched, setFetched] = useState(false);
 
-
   useEffect(() => {
-    return () =>  dispatch(resetUserStatus());
+    return () => dispatch(resetUserStatus());
   }, []);
 
   useEffect(() => {
@@ -43,9 +42,6 @@ function UserDetails() {
     const gamesJoinedPending = user.games.joined.pending;
     const gamesJoinedResolved = user.games.joined.resolved;
 
-    console.log(games)
-
-
     return (
       <div>
         <h1>User Details: {username}</h1>
@@ -62,32 +58,31 @@ function UserDetails() {
           <li>followed: {bio.followed.length}</li>
           <li>is private: {JSON.stringify(bio.isPrivate)}</li>
           <li>is admin: {JSON.stringify(bio.isAdmin)}</li>
-           </ul>
-          <ul>
-            games hosted pending:{" "}
-            {gamesHostedPending.map((el) => (
-              <li key={el.id}>{el.id}</li>
-            ))}
-          </ul>
-          <ul>
-            games hosted resolved:{" "}
-            {gamesHostedResolved.map((el) => (
-              <li key={el.id}>{el.id}</li>
-            ))}
-          </ul>
-          <ul>
-            games joined pending:{" "}
-            {gamesJoinedPending.map((el) => (
-              <li key={el.id}>{el.id}</li>
-            ))}
-          </ul>
-          <ul>
-            games joined resolved:{" "}
-            {gamesJoinedResolved.map((el) => (
-              <li key={el.id}>{el.id}</li>
-            ))}
-          </ul>
-       
+        </ul>
+        <ul>
+          games hosted pending:
+          {gamesHostedPending.map((el) => (
+            <li key={el.id}>{el.id}</li>
+          ))}
+        </ul>
+        <ul>
+          games hosted resolved:
+          {gamesHostedResolved.map((el) => (
+            <li key={el.id}>{el.id}</li>
+          ))}
+        </ul>
+        <ul>
+          games joined pending:
+          {gamesJoinedPending.map((el) => (
+            <li key={el.id}>{el.id}</li>
+          ))}
+        </ul>
+        <ul>
+          games joined resolved:
+          {gamesJoinedResolved.map((el) => (
+            <li key={el.id}>{el.id}</li>
+          ))}
+        </ul>
       </div>
     );
   }
