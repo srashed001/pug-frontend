@@ -24,6 +24,25 @@ export const TOKEN_STORAGE_ID = "pug-token";
 function App() {
 
   const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
+  const myStatus = useSelector(state => state.my.status)
+  const dispatch = useDispatch()
+
+
+  useEffect(() => {
+    if(token){
+      try{
+        let {username} = jwt.verify(token, SECRET_KEY)
+        PugApi.token = token 
+    
+        if(myStatus === 'idle'){
+          dispatch(fetchInitialMy(username))
+          console.log('dispatch app useEffect')
+        }
+      } catch(err){
+        console.error('App useEffect dispatch error')
+      }
+    }
+  }, [dispatch, myStatus, token])
 
 
   /** Handles site-wide logout. */

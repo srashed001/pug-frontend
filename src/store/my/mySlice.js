@@ -8,6 +8,7 @@ import _ from "lodash";
 import { updateGames } from "../games/gamesSlice";
 import { updateInvites } from "../invites/invitesSlice";
 import { updateUsers } from "../users/usersSlice";
+import { updateThreads } from "../threads/threadsSlice";
 
 export const myAdapter = createEntityAdapter({
   selectId: (user) => user.username || user.details.id,
@@ -28,7 +29,9 @@ export const fetchInitialMy = createAsyncThunk(
   async (username, { dispatch }) => {
     const userAndGames = PugApi.getCurrentUser(username);
     const invites = PugApi.getInvites(username);
-    
+    const threads = PugApi.getThreads(username)
+
+    threads.then(data => dispatch(updateThreads(data)))
 
     userAndGames.then((data) => {
       const allGames = _.union(
