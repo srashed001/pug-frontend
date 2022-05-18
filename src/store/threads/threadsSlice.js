@@ -4,8 +4,10 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import _ from "lodash";
+import { useNavigate } from "react-router-dom";
 import PugApi from "../../api/api";
 import { updateUsers } from "../users/usersSlice";
+
 
 const threadsAdapter = createEntityAdapter({
   selectId: (thread) => thread.id,
@@ -33,6 +35,7 @@ const initialState = threadsAdapter.getInitialState({
  *
  *
  */
+
 export const addMessageInThread = createAsyncThunk(
   `threads/addMessageInThread`,
   async (data) => {
@@ -41,6 +44,13 @@ export const addMessageInThread = createAsyncThunk(
     return resp
   }
 );
+
+export const createMessage = createAsyncThunk(`threads/createMessage`, async(data) => {
+  console.log(data)
+  const {username, users, message} = data 
+  const resp = PugApi.createMessage(username, {message, party: users})
+  return resp
+})
 
 export const deleteMessageInThread = createAsyncThunk(
   `threads/deleteMessageInThread`,
@@ -64,6 +74,7 @@ export const fetchMessages = createAsyncThunk(
 export const fetchThreads = createAsyncThunk(
   "threads/fetchThreads",
   async (username, { dispatch }) => {
+    console.log(`in thunk`)
     const resp = PugApi.getThreads(username);
     resp.then((data) => {
       const users = data.map((thread) => {
@@ -77,24 +88,6 @@ export const fetchThreads = createAsyncThunk(
     return resp;
   }
 );
-
-//   export const fetchUser = createAsyncThunk(
-//     "users/fetchUser",
-//     async (username, { dispatch }) => {
-//       const resultPromise = PugApi.getCurrentUser(username);
-//       resultPromise.then((data) => {
-//         const allGames = _.union(
-//           data.games.hosted.resolved,
-//           data.games.hosted.pending,
-//           data.games.joined.resolved,
-//           data.games.joined.pending
-//         );
-//         dispatch(updateGames(allGames));
-//       });
-
-//       return resultPromise;
-//     }
-//   );
 
 const threadsSlice = createSlice({
   name: "threads",
@@ -110,7 +103,7 @@ const threadsSlice = createSlice({
         party: Object.keys(thread.party),
         messages: messagesAdapter.getInitialState(),
       }));
-      threadsAdapter.upsertMany(state, threads);
+      threadsAdapter.updateMany(state, threads);
     },
   },
   extraReducers(builder) {
@@ -126,7 +119,7 @@ const threadsSlice = createSlice({
           party: Object.keys(thread.party),
           messages: messagesAdapter.getInitialState(),
         }));
-        threadsAdapter.upsertMany(state, threads);
+        threadsAdapter.setAll(state, threads);
       })
       .addCase(fetchThreads.rejected, (state, action) => {
         state.status = "failed";
@@ -170,6 +163,27 @@ const threadsSlice = createSlice({
         messagesAdapter.removeOne(threadEntry.messages, action.payload.message.id);
       })
       .addCase(deleteMessageInThread.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(createMessage.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(createMessage.fulfilled, (state, action) => {
+        console.log(action.payload, action.meta.arg)
+        state.status = "succeeded";
+        const {threadId, messageFrom, createdOn} = action.payload
+        const thread = {
+          id: threadId,
+          lastMessage: {[messageFrom]: createdOn},
+          party: action.meta.arg.users,
+          messages: messagesAdapter.getInitialState()
+        }
+        threadsAdapter.upsertOne(state, thread)
+        const threadEntry = state.entities[threadId]
+        messagesAdapter.upsertOne(threadEntry.messages, action.payload)
+      })
+      .addCase(createMessage.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });

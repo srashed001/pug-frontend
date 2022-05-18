@@ -6,7 +6,7 @@ function Thread({ thread }) {
 
   return (
     <div>
-      <Link to={`/threads/${thread.id}`}>
+      <Link to={`/threads/t/${thread.id}`}>
         <p>id: {thread.id}</p>
       </Link>
 

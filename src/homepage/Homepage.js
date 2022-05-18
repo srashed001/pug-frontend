@@ -14,10 +14,11 @@ import { fetchThreads } from "../store/threads/threadsSlice";
 import { useNavigate } from "react-router-dom";
 
 function Homepage() {
-  const [token] = useLocalStorage(TOKEN_STORAGE_ID);
+  const token = PugApi.token
   const [fetched, setFetched] = useState(false);
   const myStatus = useSelector((state) => state.my.status);
   const my = useSelector((state) => state.my);
+  const user = useSelector(state => state.users)
   const games = useSelector((state) => state.games.entities);
   const users = useSelector((state) => state.users.entities);
   const error = useSelector((state) => state.my.error);
@@ -26,11 +27,24 @@ function Homepage() {
   const navigate = useNavigate()
 
   function getThreads() {
-    navigate('/threads')
+    navigate('/threads/inbox')
   }
 
-  function getMessages() {
-    dispatch(fetch);
+  function getInvites() {
+    navigate('/invites')
+  }
+
+  function editProfile() {
+    navigate('/editProfile')
+  }
+
+  function getFollowers(){
+    navigate(`/relationships/${my.username}`)
+  }
+
+  function createMessage(){
+    navigate(`/threads/new`)
+
   }
 
   useEffect(() => {
@@ -40,24 +54,24 @@ function Homepage() {
     };
   }, []);
 
-  useEffect(
-    function loadUserInfo() {
-      console.log(`loadUserInfo useEffect`);
-      if (token) {
-        try {
-          let { username } = jwt.verify(token, SECRET_KEY);
-          PugApi.token = token;
-          if (myStatus === "idle") {
-            dispatch(fetchInitialMy(username));
-            setFetched(true);
-          }
-        } catch (err) {
-          console.error("App loadUserInfo: problem loading", err);
-        }
-      }
-    },
-    [dispatch, myStatus, token]
-  );
+  // useEffect(
+  //   function loadUserInfo() {
+  //     console.log(`loadUserInfo useEffect`);
+  //     if (token) {
+  //       try {
+  //         let { username } = jwt.verify(token, SECRET_KEY);
+  //         PugApi.token = token;
+  //         if (myStatus === "idle") {
+  //           dispatch(fetchInitialMy(username));
+  //           setFetched(true);
+  //         }
+  //       } catch (err) {
+  //         console.error("App loadUserInfo: problem loading", err);
+  //       }
+  //     }
+  //   },
+  //   [dispatch, myStatus, token]
+  // );
 
   if (!token)
     return (
@@ -71,36 +85,41 @@ function Homepage() {
     return <LoadingSpinner />;
   } else if (myStatus === "failed") {
     return <div>{error}</div>;
-  } else if (myStatus === "succeeded" && fetched) {
+  } else if (myStatus === "succeeded") {
+    console.log(my)
 
     return (
       <div>
         <h1>Homepage</h1>
         <button onClick={getThreads}>get threads</button>
+        <button onClick={createMessage}>create message</button>
+        <button onClick={getInvites}>get invites</button>
+        <button onClick={editProfile}>edit profile</button>
+        <button onClick={getFollowers}>get followers</button>
         <h3>current user: {my.username}</h3>
-        <UserCard user={users[my.username]} />
+        <UserCard user={my.user} />
         <ul>
           Games hosted pending:
-          {my.gamesHostedPending.map((id) => (
-            <li key={id}>{games[id].title}</li>
+          {my.gamesHostedPending.map((game) => (
+            <li key={game.id}>{game.title}</li>
           ))}
         </ul>
         <ul>
           Games hosted resolved:
-          {my.gamesHostedResolved.map((id) => (
-            <li key={id}>{games[id].title}</li>
+          {my.gamesHostedResolved.map((game) => (
+            <li key={game.id}>{game.title}</li>
           ))}
         </ul>
         <ul>
           Games joined pending:
-          {my.gamesJoinedPending.map((id) => (
-            <li key={id}>{games[id].title}</li>
+          {my.gamesJoinedPending.map((game) => (
+            <li key={game.id}>{game.title}</li>
           ))}
         </ul>
         <ul>
           Games joined resolved:
-          {my.gamesJoinedResolved.map((id) => (
-            <li key={id}>{games[id].title}</li>
+          {my.gamesJoinedResolved.map((game) => (
+            <li key={game.id}>{game.title}</li>
           ))}
         </ul>
       </div>

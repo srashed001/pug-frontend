@@ -24,7 +24,9 @@ export const TOKEN_STORAGE_ID = "pug-token";
 function App() {
 
   const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
+
   const myStatus = useSelector(state => state.my.status)
+  const my = useSelector(state => state.my)
   const dispatch = useDispatch()
 
 
@@ -33,6 +35,7 @@ function App() {
       try{
         let {username} = jwt.verify(token, SECRET_KEY)
         PugApi.token = token 
+        console.log(`app useEffect`, myStatus)
     
         if(myStatus === 'idle'){
           dispatch(fetchInitialMy(username))
@@ -42,6 +45,7 @@ function App() {
         console.error('App useEffect dispatch error')
       }
     }
+    
   }, [dispatch, myStatus, token])
 
 
@@ -84,6 +88,7 @@ function App() {
   }
 
 
+  console.log(my)
 
 
   return (

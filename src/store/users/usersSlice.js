@@ -12,8 +12,13 @@ const usersAdapter = createEntityAdapter({
   selectId: (user) => user.username || user.user.username,
 });
 
+const followAdapter = createEntityAdapter({
+  selectId: (user) => user.username,
+});
+
 const initialState = usersAdapter.getInitialState({
   status: "idle",
+  followStatus: "idle",
   error: null,
 });
 
@@ -21,10 +26,25 @@ export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
   const resp = await PugApi.getUsers();
   return resp;
 });
+export const fetchRelationships = createAsyncThunk(
+  "users/fetchRelationships",
+  async (username) => {
+    const resp = await PugApi.getRelationships(username);
+    return resp;
+  }
+);
+
+export const updateProfile = createAsyncThunk(
+  `users/updateProfile`,
+  async ({ username, data }, { dispatch }) => {
+    return PugApi.editUserProfile(username, data);
+  }
+);
 
 export const fetchUser = createAsyncThunk(
   "users/fetchUser",
   async (username, { dispatch }) => {
+    console.log(`fetch User`)
     const resultPromise = PugApi.getCurrentUser(username);
     resultPromise.then((data) => {
       const allGames = _.union(
@@ -33,7 +53,10 @@ export const fetchUser = createAsyncThunk(
         data.games.joined.resolved,
         data.games.joined.pending
       );
+      const allUsers = _.union(data.followers, data.follows);
       dispatch(updateGames(allGames));
+      dispatch(initializeRelationships(data))
+      dispatch(updateUsers(allUsers))
     });
 
     return resultPromise;
@@ -47,8 +70,21 @@ const usersSlice = createSlice({
     resetUserStatus: (state) => {
       return { ...state, status: initialState.status };
     },
+    initializeRelationships: (state, action) => {
+      usersAdapter.upsertOne(state, action.payload)
+      state.entities[action.payload.username].followers = followAdapter.getInitialState()
+      state.entities[action.payload.username].follows = followAdapter.getInitialState()
+    },
+    resetFollowStatus: (state) => {
+      return { ...state, followStatus: initialState.followStatus };
+    },
     updateUsers: (state, action) => {
       usersAdapter.upsertMany(state, action.payload);
+    },
+    updateFollowers: (state, action) => {
+      const { action: status, follower, followed } = action.payload;
+      if (status === "followed") followAdapter.upsertOne( state.entities[followed].followers, {username: follower} )
+      else followAdapter.removeOne( state.entities[followed].followers, follower )
     },
   },
   extraReducers(builder) {
@@ -69,16 +105,51 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        usersAdapter.upsertOne(state, action.payload);
+        const { followers, follows } = action.payload;
+        if(followers.length) followAdapter.upsertMany(state.entities[action.meta.arg].followers, followers)
+        if(follows.length) followAdapter.upsertMany(state.entities[action.meta.arg].follows, follows)
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(updateProfile.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        usersAdapter.upsertOne(state, action.payload);
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(fetchRelationships.pending, (state, action) => {
+        state.followStatus = "loading";
+      })
+      .addCase(fetchRelationships.fulfilled, (state, action) => {
+        state.followStatus = "succeeded";
+        console.log(`fetchRElationships.fullfilled`);
+        console.log(action.payload)
+        const {follows, followers} = action.payload
+        const userEntry = state.entities[action.meta.arg]
+        if(follows.length) followAdapter.upsertMany(userEntry.follows, follows)
+        if(followers.length) followAdapter.upsertMany(userEntry.followers, followers)
+      })
+      .addCase(fetchRelationships.rejected, (state, action) => {
+        state.followStatus = "failed";
         state.error = action.error.message;
       });
   },
 });
 
-export const { resetUserStatus, updateUsers } = usersSlice.actions;
+export const {
+  resetUserStatus,
+  updateUsers,
+  updateFollowers,
+  resetFollowStatus,
+  initializeRelationships
+} = usersSlice.actions;
 
 export default usersSlice.reducer;
 

@@ -97,7 +97,7 @@ function GameDetails() {
             <li>state: {game.state}</li>
             <li>created on: {game.createdOn}</li>
             <li>game host: {game.createdBy}</li>
-            <li>{game.daysDiff}</li>
+            <li>daysDiff: {game.daysDiff}</li>
           </ul>
         </div>
         <div>
