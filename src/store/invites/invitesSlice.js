@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
 import PugApi from "../../api/api";
@@ -24,6 +25,11 @@ export const fetchMyInvites = createAsyncThunk(
     return invites;
   }
 );
+
+export const createInvites = createAsyncThunk(`invites/createInvites`, async ({username, gameId, toUsers})=> {
+  return PugApi.createInvites(username, gameId, {toUsers})
+
+})
 
 export const acceptInvite = createAsyncThunk(
   `invites/acceptInvite`, 
@@ -112,6 +118,18 @@ export const invitesSlice = createSlice({
       .addCase(cancelInvite.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(createInvites.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(createInvites.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log(action.payload)
+        invitesAdapter.upsertMany(state, action.payload)
+      })
+      .addCase(createInvites.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });
@@ -120,8 +138,19 @@ export const { updateInvites, resetInviteStatus } = invitesSlice.actions;
 
 export default invitesSlice.reducer;
 
-//   export const {
-//     selectAll: selectAllGames,
-//     selectById: selectGameById,
-//     selectIds: selectGameIds,
-//   } = invitesAdapter.getSelectors((state) => state.games);
+  export const {
+    selectAll: selectAllInvites,
+    selectById: selectInvitesById,
+    selectIds: selectInviteIds,
+  } = invitesAdapter.getSelectors((state) => state.invites);
+
+  export const selectInvitesReceived = createSelector(
+    [selectAllInvites, (state, username) => username],
+    (invites, username) => invites.filter(invite => invite.toUser === username)
+  )
+
+  export const selectInvitesSent = createSelector(
+    [selectAllInvites, (state, username) => username],
+    (invites, username) => invites.filter(invite => invite.fromUser === username)
+  )
+

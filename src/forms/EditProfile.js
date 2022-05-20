@@ -11,9 +11,9 @@ function EditProfile() {
   const [fetched, setFetched] = useState(false)
 
   const data = {
-    city: "Fresno",
+    city: "Irvine",
     email: "test1@test.com",
-    firstName: "Earon",
+    firstName: "Sami",
     isPrivate: false,
     lastName: "Davis",
     profileImg: "http://f1.img",

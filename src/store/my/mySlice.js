@@ -7,11 +7,15 @@ import PugApi from "../../api/api";
 import _ from "lodash";
 import { updateGames } from "../games/gamesSlice";
 import { updateInvites } from "../invites/invitesSlice";
-import { initializeRelationships, updateFollowers, updateUsers } from "../users/usersSlice";
+import {
+  initializeRelationships,
+  updateFollowers,
+  updateUsers,
+} from "../users/usersSlice";
 import { updateThreads } from "../threads/threadsSlice";
 
 export const myAdapter = createEntityAdapter({
-  selectId: (user) => user.username 
+  selectId: (my) => my.username || my.id,
 });
 
 // const initialState = myAdapter.getInitialState({
@@ -19,29 +23,31 @@ export const myAdapter = createEntityAdapter({
 //   error: null,
 // });
 const initialState = {
-  status: "idle", 
-  error: null, 
+  status: "idle",
+  error: null,
   username: null,
-  user: null, 
-  gamesHostedPending: null,
-  gamesHostedResolved: null,
-  gamesJoinedPending: null, 
-  invitesReceived: null,
-  invitesSent: null,
+  user: null,
+  gamesHostedPending: myAdapter.getInitialState(),
+  gamesHostedResolved: myAdapter.getInitialState(),
+  gamesJoinedPending: myAdapter.getInitialState(),
+  gamesJoinedResolved: myAdapter.getInitialState(),
+  invitesReceived: myAdapter.getInitialState(),
+  invitesSent: myAdapter.getInitialState(),
   follows: myAdapter.getInitialState(),
-  followers: myAdapter.getInitialState()
-}
+  followers: myAdapter.getInitialState(),
+};
 
+export const toggleRelationship = createAsyncThunk(
+  `my/toggleRelationship`,
+  async ({ username, followed }, { dispatch }) => {
+    const resp = PugApi.toggleRelationship(username, followed);
+    resp.then((data) => {
+      dispatch(updateFollowers(data));
+    });
 
-
-export const toggleRelationship = createAsyncThunk(`my/toggleRelationship`, async({username, followed}, {dispatch}) => {
-  const resp =  PugApi.toggleRelationship(username, followed)
-  resp.then(data => {
-    dispatch(updateFollowers(data))
-  })
-
-  return resp
-})
+    return resp;
+  }
+);
 
 export const fetchInitialMy = createAsyncThunk(
   "my/fetchInitialMy",
@@ -50,7 +56,7 @@ export const fetchInitialMy = createAsyncThunk(
     const invites = PugApi.getInvites(username);
     const threads = PugApi.getThreads(username);
 
-    threads.then(data => dispatch(updateThreads(data)))
+    threads.then((data) => dispatch(updateThreads(data)));
 
     user.then((data) => {
       const allGames = _.union(
@@ -59,27 +65,47 @@ export const fetchInitialMy = createAsyncThunk(
         data.games.joined.resolved,
         data.games.joined.pending
       );
-      const allUsers = _.union(data.followers, data.follows);
+      const allUsers = _.union(data.followers, data.follows, data);
       dispatch(updateGames(allGames));
       dispatch(updateUsers(allUsers));
-    })
+    });
 
-    invites.then(data => {
+    invites.then((data) => {
       const allInvites = _.union(data.received, data.sent);
-      dispatch(updateInvites(allInvites))
-    })
+      dispatch(updateInvites(allInvites));
+    });
 
-    return Promise.all([user, invites])
+    return Promise.all([user, invites]);
   }
 );
 
 export const updateProfile = createAsyncThunk(
-  `users/updateProfile`,
+  `my/updateProfile`,
   async ({ username, data }, { dispatch }) => {
     return PugApi.editUserProfile(username, data);
   }
 );
 
+export const acceptInvite = createAsyncThunk(
+  `my/acceptInvite`,
+  async (data) => {
+    const { username, id } = data;
+    return PugApi.updateInvite(username, "accept", id);
+  }
+);
+
+export const denyInvite = createAsyncThunk(`my/denyInvite`, async (data) => {
+  const { username, id } = data;
+  return PugApi.updateInvite(username, "deny", id);
+});
+
+export const cancelInvite = createAsyncThunk(
+  `my/cancelInvite`,
+  async (data) => {
+    const { username, id } = data;
+    return PugApi.updateInvite(username, "cancel", id);
+  }
+);
 
 export const mySlice = createSlice({
   name: "my",
@@ -88,14 +114,16 @@ export const mySlice = createSlice({
     resetMyStatus(state, action) {
       state.status = "idle";
     },
-    updateMyUsername(state, action){
-      state.username = action.payload.username
+    updateMyUsername(state, action) {
+      state.username = action.payload.username;
     },
-    updateMyInvites(state, action){
-      const invites = action.payload
-      if(!_.isEqual(state.invitesReceived, invites.received)) state.invitesReceived = invites.received.map(invite => invite.id)
-      if(!_.isEqual(state.invitesSent, invites.sent)) state.invitesSent = invites.sent.map(invite => invite.id)
-    }
+    updateMyInvites(state, action) {
+      const invites = action.payload;
+      if (!_.isEqual(state.invitesReceived, invites.received))
+        state.invitesReceived = invites.received.map((invite) => invite.id);
+      if (!_.isEqual(state.invitesSent, invites.sent))
+        state.invitesSent = invites.sent.map((invite) => invite.id);
+    },
   },
   extraReducers(builder) {
     builder
@@ -104,19 +132,33 @@ export const mySlice = createSlice({
       })
       .addCase(fetchInitialMy.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const [user, invites] = action.payload
-        const {follows, followers, games, ...userInfo} = user
-        state.username = action.meta.arg
-        state.user = userInfo
-        state.gamesHostedPending = games.hosted.pending
-        state.gamesHostedResolved = games.hosted.resolved
-        state.gamesJoinedPending = games.joined.pending
-        state.gamesJoinedResolved = games.joined.resolved
-        state.invitesReceived = invites.received
-        state.invitesSent = invites.sent
-        if(follows.length)  myAdapter.upsertMany(state.follows, [...follows])
-        if(followers.length) myAdapter.upsertMany(state.followers, [...followers])
+        const [user, invites] = action.payload;
+        const { follows, followers, games, ...userInfo } = user;
+        state.username = action.meta.arg;
+        state.user = userInfo;
+        if (games.hosted.pending.length)
+          myAdapter.setAll(state.gamesHostedPending, games.hosted.pending);
+        if (games.hosted.resolved.length)
+          myAdapter.setAll(
+            state.gamesHostedResolved,
+            games.hosted.resolved
+          );
+        if (games.joined.pending.length)
+          myAdapter.setAll(state.gamesJoinedPending, games.joined.pending);
+        if (games.joined.resolved.length)
+          myAdapter.setAll(
+            state.gamesJoinedResolved,
+            games.joined.resolved
+          );
 
+        if (invites.received.length)
+          myAdapter.setAll(state.invitesReceived, invites.received);
+        if (invites.sent.length)
+          myAdapter.setAll(state.invitesSent, invites.sent);
+
+        if (follows.length) myAdapter.setAll(state.follows, [...follows]);
+        if (followers.length)
+          myAdapter.setAll(state.followers, [...followers]);
       })
       .addCase(fetchInitialMy.rejected, (state, action) => {
         state.status = "failed";
@@ -127,10 +169,11 @@ export const mySlice = createSlice({
       })
       .addCase(toggleRelationship.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload)
-        const {action: status, followed} = action.payload
-        if(status === 'unfollowed') myAdapter.removeOne(state.follows, followed)
-        else myAdapter.upsertOne(state.follows, {username: followed})
+        console.log(action.payload);
+        const { action: status, followed } = action.payload;
+        if (status === "unfollowed")
+          myAdapter.removeOne(state.follows, followed);
+        else myAdapter.upsertOne(state.follows, { username: followed });
       })
       .addCase(toggleRelationship.rejected, (state, action) => {
         state.status = "failed";
@@ -146,12 +189,51 @@ export const mySlice = createSlice({
       .addCase(updateProfile.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(acceptInvite.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(acceptInvite.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log(action.payload);
+        const invite = action.payload.invite;
+        myAdapter.upsertOne(state.invitesReceived, invite);
+      })
+      .addCase(acceptInvite.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(denyInvite.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(denyInvite.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log(action.payload);
+        const invite = action.payload.invite;
+        myAdapter.upsertOne(state.invitesReceived, invite);
+      })
+      .addCase(denyInvite.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(cancelInvite.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(cancelInvite.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        console.log(action.payload);
+        const invite = action.payload.invite;
+        myAdapter.upsertOne(state.invitesSent, invite);
+      })
+      .addCase(cancelInvite.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
-
   },
 });
 
-export const { resetMyStatus, updateMyUsername, updateMyInvites } = mySlice.actions;
+export const { resetMyStatus, updateMyUsername, updateMyInvites } =
+  mySlice.actions;
 
 export default mySlice.reducer;
 

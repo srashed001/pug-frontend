@@ -1,6 +1,6 @@
 import { useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams  } from "react-router-dom";
+import { useNavigate, useParams  } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
 import {
   fetchGame,
@@ -23,6 +23,7 @@ function GameDetails() {
   const gameComments = useSelector(state => selectCommentsByGame(state, gameId))
   const users = useSelector(state => state.users.entities)
   const [fetched, setFetched] = useState(false)
+  const navigate = useNavigate()
   
   console.debug("GameDetail", "gameId=", gameId);
 
@@ -62,30 +63,40 @@ function GameDetails() {
     dispatch(deleteComment(data))
   }
 
+  function testCreateInvites(){
+    navigate(`/invites/${gameId}`)
+    
+  }
+
   useEffect(() => {
-    return () => dispatch(resetGameStatus());
+    return () => {
+      setFetched(false)
+      dispatch(resetGameStatus())
+    };
   }, []);
 
   useEffect(() => {
     console.log(`gamedetails useEffect`, gameStatus);
-    if (gameStatus === "idle") {
       dispatch(fetchGame(gameId));
       setFetched(true)
-    }
-  }, [dispatch, gameId, gameStatus]);
+    }, []);
 
-  if (gameStatus === "loading" || !fetched ) {
+  if (gameStatus === "loading" || gameStatus === 'idle' ) {
     return <LoadingSpinner />;
   } else if (gameStatus === "failed") {
     return <div>{error}</div>;
-  } else if (gameStatus === "succeeded" || fetched) {
+  } else if (gameStatus === "succeeded" && fetched) {
 
+    console.log(game)
 
 
     return (
       <div>
         <div>
           <h1>Game Details: {gameId}</h1>
+          <div>
+            <button onClick={testCreateInvites}>invite players</button>
+          </div>
           <ul>
             <li>id: {game.id}</li>
             <li>title: {game.title}</li>
@@ -104,9 +115,9 @@ function GameDetails() {
           Players 
           <button onClick={testAddPlayer}>add player</button>
           <ul>
-            {game.players.map(player => (
+            {game.players && game.players.map(player => (
               <li key={users[player].username} >{users[player].username}<button id={player} onClick={testRemovePlayer}>X</button></li>
-            ))}
+            )) }
           </ul>
         </div>
         <button onClick={testAddComment}>add comment</button>

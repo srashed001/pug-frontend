@@ -7,6 +7,7 @@ import _ from "lodash";
 import { useNavigate } from "react-router-dom";
 import PugApi from "../../api/api";
 import { updateUsers } from "../users/usersSlice";
+import history from "../../common/history";
 
 
 const threadsAdapter = createEntityAdapter({
@@ -60,6 +61,11 @@ export const deleteMessageInThread = createAsyncThunk(
     return resp
   }
 );
+
+export const deleteThread = createAsyncThunk(`threads/deleteThread`, async({username, threadId}) => {
+  const resp = PugApi.deleteThread(username, threadId)
+  return resp
+})
 
 export const fetchMessages = createAsyncThunk(
   "threads/fetchMessages",
@@ -133,6 +139,7 @@ const threadsSlice = createSlice({
         const threadId = action.meta.arg.threadId;
         const threadEntry = state.entities[threadId];
         console.log(action.payload);
+        console.log(threadEntry)
         messagesAdapter.setAll(threadEntry.messages, action.payload);
       })
       .addCase(fetchMessages.rejected, (state, action) => {
@@ -180,10 +187,22 @@ const threadsSlice = createSlice({
           messages: messagesAdapter.getInitialState()
         }
         threadsAdapter.upsertOne(state, thread)
-        const threadEntry = state.entities[threadId]
-        messagesAdapter.upsertOne(threadEntry.messages, action.payload)
+        
       })
       .addCase(createMessage.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(deleteThread.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(deleteThread.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        threadsAdapter.removeOne(state, action.meta.arg.threadId)
+
+        
+      })
+      .addCase(deleteThread.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });

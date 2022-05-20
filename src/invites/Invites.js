@@ -1,14 +1,15 @@
 import { useDispatch, useSelector } from "react-redux";
-import { acceptInvite, cancelInvite, denyInvite } from "./invitesSlice";
+import { acceptInvite, cancelInvite, denyInvite } from "../store/invites/invitesSlice";
 
 
 function Invite({ invite, state }) {
+  const my = useSelector(state => state.my)
   const { id, gameId: game, fromUser, toUser, status, createdOn } = invite
   const dispatch = useDispatch()
 
   function testAcceptInvite(){
     const data = {
-      username: 'test1',
+      username: my.username,
       id
     }
     dispatch(acceptInvite(data))
@@ -16,7 +17,7 @@ function Invite({ invite, state }) {
 
   function testDenyInvite(){
     const data = {
-      username: 'test1',
+      username: my.username,
       id
     }
     dispatch(denyInvite(data))
@@ -24,7 +25,7 @@ function Invite({ invite, state }) {
 
   function testCancelInvite(){
     const data = {
-      username: 'test1',
+      username: my.username,
       id
     }
     dispatch(cancelInvite(data))

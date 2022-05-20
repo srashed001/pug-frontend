@@ -45,6 +45,10 @@ export const leaveGame = createAsyncThunk("games/leaveGame", async (data, {dispa
   return resultPromise
 });
 
+export const createGame = createAsyncThunk(`games/createGane`, async(data) => {
+  return PugApi.createGame(data)
+})
+
 export const gamesSlice = createSlice({
   name: "games",
   initialState,
@@ -73,10 +77,14 @@ export const gamesSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchGame.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        
         const game = action.payload.details
-        game.players = action.payload.players.map(player => player.username)
-        gamesAdapter.upsertOne(state, game);
+        console.log(action.payload)
+        const players = action.payload.players.map(player => player.username)
+        game.players = [...players]
+        console.log(game)
+        gamesAdapter.upsertMany(state, [game]);
+        state.status = "succeeded";
       })
       .addCase(fetchGame.rejected, (state, action) => {
         state.status = "failed";
@@ -101,6 +109,17 @@ export const gamesSlice = createSlice({
         state.entities[action.meta.arg.gameId].players = action.payload.map(player => player.username)
       })
       .addCase(joinGame.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(createGame.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(createGame.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        gamesAdapter.upsertOne(state, action.payload)
+      })
+      .addCase(createGame.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { useParams } from "react-router-dom"
-import { addMessageInThread, fetchMessages, resetThreadStatus } from "../store/threads/threadsSlice"
+import { Link, useParams } from "react-router-dom"
+import { addMessageInThread, fetchMessages, fetchThreads, resetThreadStatus } from "../store/threads/threadsSlice"
 import LoadingSpinner from "../common/LoadingSpinner"
 import Message from "./Message"
 
@@ -42,6 +42,7 @@ function MessagesList(){
         console.log(threadStatus)
         if(threadStatus === 'idle' && my.status === 'succeeded'){
             console.log(`dispatch`)
+            dispatch(fetchThreads(my.username))
             dispatch(fetchMessages({username: my.username, threadId}))
             setFetched(true)
 
@@ -59,6 +60,7 @@ function MessagesList(){
         return (
           <div>
             <h1>messages</h1>
+            <Link to='/threads/inbox'>Back to threads</Link>
             <button onClick={addMessage}>add message</button>
             {messageIds.map(id => (
                 <Message key={id} message={messages[id]} threadId={threadId} />

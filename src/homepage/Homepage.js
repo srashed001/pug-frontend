@@ -47,6 +47,10 @@ function Homepage() {
 
   }
 
+  function createGame(){
+    navigate(`/games/new`)
+  }
+
   useEffect(() => {
     return () => {
       dispatch(resetMyStatus());
@@ -96,30 +100,31 @@ function Homepage() {
         <button onClick={getInvites}>get invites</button>
         <button onClick={editProfile}>edit profile</button>
         <button onClick={getFollowers}>get followers</button>
+        <button onClick={createGame}>create game</button>
         <h3>current user: {my.username}</h3>
         <UserCard user={my.user} />
         <ul>
           Games hosted pending:
-          {my.gamesHostedPending.map((game) => (
-            <li key={game.id}>{game.title}</li>
+          {my.gamesHostedPending.ids.map((id) => (
+            <li key={id}>{games[id].title}</li>
           ))}
         </ul>
         <ul>
           Games hosted resolved:
-          {my.gamesHostedResolved.map((game) => (
-            <li key={game.id}>{game.title}</li>
+          {my.gamesHostedResolved.ids.map((id) => (
+            <li key={id}>{games[id].title}</li>
           ))}
         </ul>
         <ul>
           Games joined pending:
-          {my.gamesJoinedPending.map((game) => (
-            <li key={game.id}>{game.title}</li>
+          {my.gamesJoinedPending.ids.map((id) => (
+            <li key={id}>{games[id].title}</li>
           ))}
         </ul>
         <ul>
           Games joined resolved:
-          {my.gamesJoinedResolved.map((game) => (
-            <li key={game.id}>{game.title}</li>
+          {my.gamesJoinedResolved.ids.map((id) => (
+            <li key={id}>{games[id].title}</li>
           ))}
         </ul>
       </div>

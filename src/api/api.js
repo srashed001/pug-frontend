@@ -199,7 +199,7 @@ class PugApi {
       data,
       "post"
     );
-    return res.invtes;
+    return res.invites;
   }
 
   /** updates invite status for user.

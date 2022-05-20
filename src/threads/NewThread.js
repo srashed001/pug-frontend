@@ -31,8 +31,10 @@ function NewThread() {
           username: my.username
 
       }
-      dispatch(createMessage(data))
-      navigate(`/threads/inbox`)
+      dispatch(createMessage(data)).unwrap().then(data => {
+        navigate(`/threads/t/${data.threadId}`)
+
+      })
       
 
   }
@@ -43,6 +45,7 @@ function NewThread() {
       <div>
         <div>
           {my.follows.ids.map((id) => {
+            if(id !== my.username) 
             return (
               <div key={id}>
                 <label>{id}</label>

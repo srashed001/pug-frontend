@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import LoadingSpinner from "../common/LoadingSpinner";
-import Invite from "../store/invites/Invites";
-import {
-  fetchMyInvites,
-  resetInviteStatus,
-} from "../store/invites/invitesSlice";
+import Invite from "./Invites";
+
 import { fetchInitialMy, resetMyStatus } from "../store/my/mySlice";
+import { selectInvitesReceived, selectInvitesSent } from "../store/invites/invitesSlice";
 
 function InvitesList() {
   const invites = useSelector((state) => state.invites.entities);
@@ -15,6 +13,9 @@ function InvitesList() {
   const [state, setState] = useState("received");
   const [title, setTitle] = useState(null);
   const [fetched, setFetched] = useState(false);
+  const invitesReceived = useSelector(state => selectInvitesReceived(state, my.username))
+  const invitesSent = useSelector(state => selectInvitesSent(state, my.username))
+
   const dispatch = useDispatch();
   console.log(my);
 
@@ -30,7 +31,7 @@ function InvitesList() {
   } else if (my.status === "failed") {
     return <div>{error}</div>;
   } else if (my.status === "succeeded") {
-      const myInvites = state === 'received' ? my.invitesReceived : my.invitesSent
+      const myInvites = state === 'received' ? invitesReceived : invitesSent
     //   state === 'received' ? setTitle(`Invites Received`) : setTitle('Invites Sent')
 
     return (
