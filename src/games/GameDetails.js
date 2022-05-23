@@ -7,7 +7,8 @@ import {
   resetGameStatus,
   selectGameById,
   joinGame, 
-  leaveGame
+  leaveGame,
+  deactivateGame
 } from "../store/games/gamesSlice";
 
 import { selectCommentsByGame, addComment, deleteComment } from "../store/comments/commentsSlice";
@@ -17,11 +18,12 @@ function GameDetails() {
   const { gameId } = useParams();
 
   const dispatch = useDispatch();
-  const gameStatus = useSelector((state) => state.games.status);
+  const gameStatus = useSelector((state) => state.games.status.game);
   const game = useSelector((state) => selectGameById(state, gameId));
   const error = useSelector((state) => state.games.errors);
   const gameComments = useSelector(state => selectCommentsByGame(state, gameId))
   const users = useSelector(state => state.users.entities)
+  const my = useSelector(state => state.my)
   const [fetched, setFetched] = useState(false)
   const navigate = useNavigate()
   
@@ -68,24 +70,33 @@ function GameDetails() {
     
   }
 
+  function testUpdateGame(){
+    navigate(`/games/update/${gameId}`)
+  }
+
+  function testDeactivateGame(){
+    dispatch(deactivateGame(gameId))
+    navigate(`/inactive/g`)
+  }
+
   useEffect(() => {
     return () => {
-      setFetched(false)
       dispatch(resetGameStatus())
     };
   }, []);
 
   useEffect(() => {
     console.log(`gamedetails useEffect`, gameStatus);
+    if(gameStatus === 'idle' && my.status === 'succeeded')
       dispatch(fetchGame(gameId));
-      setFetched(true)
-    }, []);
+      // setFetched(true)
+    }, [dispatch, gameId, gameStatus, my.status]);
 
-  if (gameStatus === "loading" || gameStatus === 'idle' ) {
+  if (gameStatus === "loading"  ) {
     return <LoadingSpinner />;
   } else if (gameStatus === "failed") {
     return <div>{error}</div>;
-  } else if (gameStatus === "succeeded" && fetched) {
+  } else if (gameStatus === "succeeded"  ) {
 
     console.log(game)
 
@@ -94,6 +105,8 @@ function GameDetails() {
       <div>
         <div>
           <h1>Game Details: {gameId}</h1>
+          <button onClick={testUpdateGame}>update game</button>
+          {game.createdBy === my.username ? <button onClick={testDeactivateGame}>deactivate</button> : <div></div>}
           <div>
             <button onClick={testCreateInvites}>invite players</button>
           </div>
@@ -115,7 +128,7 @@ function GameDetails() {
           Players 
           <button onClick={testAddPlayer}>add player</button>
           <ul>
-            {game.players && game.players.map(player => (
+            {game.players.map(player => (
               <li key={users[player].username} >{users[player].username}<button id={player} onClick={testRemovePlayer}>X</button></li>
             )) }
           </ul>

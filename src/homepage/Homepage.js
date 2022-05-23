@@ -51,6 +51,10 @@ function Homepage() {
     navigate(`/games/new`)
   }
 
+  function getInactiveGames(){
+    navigate(`inactive/g`)
+  }
+
   useEffect(() => {
     return () => {
       dispatch(resetMyStatus());
@@ -101,6 +105,7 @@ function Homepage() {
         <button onClick={editProfile}>edit profile</button>
         <button onClick={getFollowers}>get followers</button>
         <button onClick={createGame}>create game</button>
+        <button onClick={getInactiveGames}>inactive games</button>
         <h3>current user: {my.username}</h3>
         <UserCard user={my.user} />
         <ul>

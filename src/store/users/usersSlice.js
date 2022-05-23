@@ -34,12 +34,7 @@ export const fetchRelationships = createAsyncThunk(
   }
 );
 
-export const updateProfile = createAsyncThunk(
-  `users/updateProfile`,
-  async ({ username, data }, { dispatch }) => {
-    return PugApi.editUserProfile(username, data);
-  }
-);
+
 
 export const fetchUser = createAsyncThunk(
   "users/fetchUser",
@@ -57,9 +52,9 @@ export const fetchUser = createAsyncThunk(
       dispatch(updateGames(allGames));
       dispatch(initializeRelationships(data))
       dispatch(updateUsers(allUsers))
-    });
+    })
 
-    return resultPromise;
+    return PugApi.getCurrentUser(username);
   }
 );
 
@@ -71,6 +66,7 @@ const usersSlice = createSlice({
       return { ...state, status: initialState.status };
     },
     initializeRelationships: (state, action) => {
+      console.log(action.payload)
       usersAdapter.upsertOne(state, action.payload)
       state.entities[action.payload.username].followers = followAdapter.getInitialState()
       state.entities[action.payload.username].follows = followAdapter.getInitialState()
@@ -106,21 +102,11 @@ const usersSlice = createSlice({
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.status = "succeeded";
         const { followers, follows } = action.payload;
+        console.log(followers, follows, action.payload)
         if(followers.length) followAdapter.upsertMany(state.entities[action.meta.arg].followers, followers)
         if(follows.length) followAdapter.upsertMany(state.entities[action.meta.arg].follows, follows)
       })
       .addCase(fetchUser.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message;
-      })
-      .addCase(updateProfile.pending, (state, action) => {
-        state.status = "loading";
-      })
-      .addCase(updateProfile.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        usersAdapter.upsertOne(state, action.payload);
-      })
-      .addCase(updateProfile.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })

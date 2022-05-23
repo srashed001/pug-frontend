@@ -232,7 +232,7 @@ class PugApi {
    *         - gameStatus 'pending' || 'resolved'
    */
 
-  static async getGames(data = {}) {
+  static async getGames(data = {isActive: true}) {
     let res = await this.request(`games`, data);
     return res.games
   }
@@ -242,6 +242,15 @@ class PugApi {
   static async getGame(gameId) {
     let res = await this.request(`games/${gameId}`);
     return res;
+  }
+
+  static async getInactiveGames(username){
+    const data = {
+      host: username, 
+      isActive: false
+    }
+    let res = await this.request(`games`, data)
+    return res.games
   }
 
   /** creates a game. 

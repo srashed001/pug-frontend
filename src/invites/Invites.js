@@ -41,12 +41,14 @@ function Invite({ invite, state }) {
       <p>status: {status}</p>
       <p>createdOn: {createdOn}</p>
       {state === "received" ? (
+        status === 'pending' ?
         <div>
           <button onClick={testAcceptInvite}>accept</button>
           <button onClick={testDenyInvite}>deny</button>
         </div>
+        : <div></div>
       ) : (
-        <button onClick={testCancelInvite}>cancel</button>
+       status === 'pending' ? <button onClick={testCancelInvite}>cancel</button> : <div></div>
       )}
 
       <br></br>

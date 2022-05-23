@@ -125,7 +125,7 @@ const threadsSlice = createSlice({
           party: Object.keys(thread.party),
           messages: messagesAdapter.getInitialState(),
         }));
-        threadsAdapter.setAll(state, threads);
+        threadsAdapter.upsertMany(state, threads);
       })
       .addCase(fetchThreads.rejected, (state, action) => {
         state.status = "failed";

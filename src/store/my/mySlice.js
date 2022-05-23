@@ -33,6 +33,7 @@ const initialState = {
   gamesJoinedResolved: myAdapter.getInitialState(),
   invitesReceived: myAdapter.getInitialState(),
   invitesSent: myAdapter.getInitialState(),
+  inactiveGames: myAdapter.getInitialState(),
   follows: myAdapter.getInitialState(),
   followers: myAdapter.getInitialState(),
 };
@@ -55,6 +56,7 @@ export const fetchInitialMy = createAsyncThunk(
     const user = PugApi.getCurrentUser(username);
     const invites = PugApi.getInvites(username);
     const threads = PugApi.getThreads(username);
+    const inactiveGames = PugApi.getInactiveGames(username);
 
     threads.then((data) => dispatch(updateThreads(data)));
 
@@ -75,7 +77,7 @@ export const fetchInitialMy = createAsyncThunk(
       dispatch(updateInvites(allInvites));
     });
 
-    return Promise.all([user, invites]);
+    return Promise.all([user, invites, inactiveGames]);
   }
 );
 
@@ -124,6 +126,22 @@ export const mySlice = createSlice({
       if (!_.isEqual(state.invitesSent, invites.sent))
         state.invitesSent = invites.sent.map((invite) => invite.id);
     },
+    updateInactiveGames(state, action) {
+      console.log(action.payload);
+      const { action: status, game } = action.payload;
+      if (status === "deactivated") {
+        myAdapter.upsertOne(state.inactiveGames, game);
+        game.daysDiff < 0
+          ? myAdapter.removeOne(state.gamesHostedResolved, game.id)
+          : myAdapter.removeOne(state.gamesHostedPending, game.id);
+      } else if (status === "reactivated") {
+        console.log(game);
+        myAdapter.removeOne(state.inactiveGames, game.id);
+        game.daysDiff < 0
+          ? myAdapter.upsertOne(state.gamesHostedResolved, game)
+          : myAdapter.upsertOne(state.gamesHostedPending, game);
+      }
+    },
   },
   extraReducers(builder) {
     builder
@@ -132,33 +150,27 @@ export const mySlice = createSlice({
       })
       .addCase(fetchInitialMy.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const [user, invites] = action.payload;
+        const [user, invites, inactiveGames] = action.payload;
         const { follows, followers, games, ...userInfo } = user;
         state.username = action.meta.arg;
         state.user = userInfo;
-        if (games.hosted.pending.length)
-          myAdapter.setAll(state.gamesHostedPending, games.hosted.pending);
-        if (games.hosted.resolved.length)
-          myAdapter.setAll(
-            state.gamesHostedResolved,
-            games.hosted.resolved
-          );
-        if (games.joined.pending.length)
-          myAdapter.setAll(state.gamesJoinedPending, games.joined.pending);
-        if (games.joined.resolved.length)
-          myAdapter.setAll(
-            state.gamesJoinedResolved,
-            games.joined.resolved
-          );
+        myAdapter.setAll(state.inactiveGames, inactiveGames);
 
-        if (invites.received.length)
-          myAdapter.setAll(state.invitesReceived, invites.received);
-        if (invites.sent.length)
-          myAdapter.setAll(state.invitesSent, invites.sent);
+        myAdapter.setAll(state.gamesHostedPending, games.hosted.pending);
 
-        if (follows.length) myAdapter.setAll(state.follows, [...follows]);
-        if (followers.length)
-          myAdapter.setAll(state.followers, [...followers]);
+        myAdapter.setAll(state.gamesHostedResolved, games.hosted.resolved);
+
+        myAdapter.setAll(state.gamesJoinedPending, games.joined.pending);
+
+        myAdapter.setAll(state.gamesJoinedResolved, games.joined.resolved);
+
+        myAdapter.setAll(state.invitesReceived, invites.received);
+
+        myAdapter.setAll(state.invitesSent, invites.sent);
+
+        myAdapter.setAll(state.follows, follows);
+
+        myAdapter.setAll(state.followers, followers);
       })
       .addCase(fetchInitialMy.rejected, (state, action) => {
         state.status = "failed";
@@ -232,8 +244,12 @@ export const mySlice = createSlice({
   },
 });
 
-export const { resetMyStatus, updateMyUsername, updateMyInvites } =
-  mySlice.actions;
+export const {
+  resetMyStatus,
+  updateMyUsername,
+  updateMyInvites,
+  updateInactiveGames,
+} = mySlice.actions;
 
 export default mySlice.reducer;
 

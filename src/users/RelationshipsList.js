@@ -10,23 +10,20 @@ function RelationshipsList(){
     const user = useSelector(state => selectUserById(state, username))
     const userStatus = useSelector(state => state.users.status)
     const followStatus = useSelector(state => state.users.followStatus)
+    const my = useSelector(state => state.my)
     const error = useSelector(state => state.users.error)
     const dispatch = useDispatch()
     const [fetched, setFetched] = useState(false)
     const [state, setState] = useState('followers')
 
     useEffect(()=>{
-        return ()=> {
-            console.log(`relationship cleanup`)
-            dispatch(fetchUser(username))
-            setFetched(true)
-        }
-    }, [])
+        if(userStatus === 'idle' && my.status === 'succeeded') dispatch(fetchUser(username))
+    }, [dispatch, my.status, userStatus, username])
 
 
     if(userStatus === 'loading') return <LoadingSpinner />
     else if(userStatus === 'failed') return <div>{error}</div>
-    else if(userStatus === 'succeeded' && fetched){
+    else if(userStatus === 'succeeded'  ){
         console.log(user, followStatus)
         const relationships = state === 'followers' ? user.followers.entities : user.follows.entities
 

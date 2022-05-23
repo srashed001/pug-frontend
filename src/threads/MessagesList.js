@@ -13,6 +13,7 @@ function MessagesList(){
     const threadStatus = useSelector(state => state.threads.status)
     const messageIds = useSelector(state => state.threads.entities[threadId]?.messages.ids)
     const messages = useSelector(state => state.threads.entities[threadId]?.messages.entities)
+const threads = useSelector(state => state.threads)
     const thread = useSelector(state => state.threads.entities[threadId])
     const my = useSelector(state => state.my)
     const error = useSelector(state => state.threads.error)
@@ -54,6 +55,7 @@ function MessagesList(){
       } else if (threadStatus === "failed") {
         return <div>{error}</div>;
       } else if (threadStatus === "succeeded" && fetched ) {
+        console.log(threads)
 
 
     

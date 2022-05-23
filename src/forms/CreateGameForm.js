@@ -19,7 +19,7 @@ function CreateGameForm(){
       date = date.addDays(4).toJSON().slice(0, 10);
 
     const data = {
-        title: 'test game 002',
+        title: 'crzy test4',
         description: 'testing the description',
         date,
         time: "12:00:00",
