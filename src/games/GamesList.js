@@ -15,28 +15,42 @@ function GamesList() {
   const error = useSelector((state) => state.games.error);
   const my = useSelector(state => state.my)
 
-  useEffect(() => {
-    return () => {
-      console.log('GamesList cleanup prior', gameStatus)
-      if(gameStatus === 'succeeded'){
-        console.log('running cleanup')
-        dispatch(resetGamesStatus())
-      }
+  // useEffect(() => {
+  //   return () => {
+  //     console.log('GamesList cleanup prior', gameStatus)
+  //     if(gameStatus === 'succeeded'){
+  //       console.log('running cleanup')
+  //       dispatch(resetGamesStatus())
+  //     }
       
-      console.log('GamesList cleanup after', gameStatus)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //     console.log('GamesList cleanup after', gameStatus)
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
-  useEffect(() => {
-    console.log(`GamesList useEffect`, gameStatus);
+  // useEffect(() => {
+  //   console.log(`GamesList useEffect`, gameStatus);
+  //   if (gameStatus === "idle" && my.status === 'succeeded') {
+  //     console.log('running useEffect')
+  //     dispatch(fetchGames());
+  //   }
+
+    
+  // }, [dispatch, gameStatus, my.status]);
+
+  // useEffect(()=>{
+  //   return () => dispatch(resetGamesStatus())
+
+  // }, [dispatch])
+
+  useEffect(()=> {
+    console.log(`App gamesList useEffect`, gameStatus);
     if (gameStatus === "idle" && my.status === 'succeeded') {
       console.log('running useEffect')
       dispatch(fetchGames());
     }
 
-    
-  }, [dispatch, gameStatus, my.status]);
+  }, [dispatch, gameStatus, my.status])
 
 
   let content;

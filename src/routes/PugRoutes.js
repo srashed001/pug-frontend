@@ -18,12 +18,15 @@ import GameInvite from "../invites/GameInvite";
 import CreateGameForm from "../forms/CreateGameForm";
 import UpdateGameForm from "../forms/UpdateGameForm";
 import InactiveGameList from "../games/InactiveGameList";
+import CourtsList from "../courts/CourtsList";
 
 function PugRoutes({ login, signup }) {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Homepage />} />      
+        <Route path="/" element={<Homepage />} />   
+        <Route path="/courts" element={<CourtsList />} />   
+         
         <Route path="inactive/g" element={<InactiveGameList />} />      
         <Route path="/relationships/:username" element={<RelationshipsList />} />
         <Route path="/invites" element={<InvitesList />} />  
@@ -34,8 +37,11 @@ function PugRoutes({ login, signup }) {
         <Route path="/threads/t/:threadId" element = {<MessagesList />} />
         <Route path="/login" login={login} element={<LoginForm login={login} />} />
         <Route path="/signup" element={<SignupForm />} />
+        
         <Route path="/users" element={<UsersList />} />
-        <Route path="/users/:username" element={<UserDetails />} />
+
+        
+        <Route path="/users/u/:username" element={<UserDetails />} />
    
         <Route path="/games" element={<GamesList />} />
         <Route path="/games/new" element={<CreateGameForm />} />

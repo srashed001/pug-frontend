@@ -12,7 +12,7 @@ function EditProfile() {
 
   const data = {
     city: "Irvine",
-    email: "test1@test.com",
+    email: "test5@test.com",
     firstName: "Sami",
     isPrivate: false,
     lastName: "Davis",

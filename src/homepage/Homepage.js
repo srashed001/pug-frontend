@@ -12,6 +12,7 @@ import UserCard from "../users/UserCard";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { fetchThreads } from "../store/threads/threadsSlice";
 import { useNavigate } from "react-router-dom";
+import GeoLocationApi from "../api/googleMaps";
 
 function Homepage() {
   const token = PugApi.token
@@ -53,6 +54,15 @@ function Homepage() {
 
   function getInactiveGames(){
     navigate(`inactive/g`)
+  }
+
+  function testGooglePlaces(){
+    navigate(`/courts`)
+  }
+
+  async function testGetCurrentLocation(){
+    const res = await GeoLocationApi.get()
+    console.log(res)
   }
 
   useEffect(() => {
@@ -106,6 +116,8 @@ function Homepage() {
         <button onClick={getFollowers}>get followers</button>
         <button onClick={createGame}>create game</button>
         <button onClick={getInactiveGames}>inactive games</button>
+        <button onClick={testGetCurrentLocation}>get current location</button>
+        <button onClick={testGooglePlaces}>google</button>
         <h3>current user: {my.username}</h3>
         <UserCard user={my.user} />
         <ul>

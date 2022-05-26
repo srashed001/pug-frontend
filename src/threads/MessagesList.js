@@ -34,7 +34,7 @@ const threads = useSelector(state => state.threads)
     useEffect(()=> {
              return () => {
             dispatch(resetThreadStatus())
-            setFetched(false)
+
         }
     }, [])
 

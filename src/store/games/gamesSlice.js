@@ -95,7 +95,7 @@ export const gamesSlice = createSlice({
       })
       .addCase(fetchGames.fulfilled, (state, action) => {
         state.status.games = "succeeded";
-        gamesAdapter.upsertMany(state, action.payload);
+        gamesAdapter.setAll(state, action.payload);
       })
       .addCase(fetchGames.rejected, (state, action) => {
         state.status.games = "failed";

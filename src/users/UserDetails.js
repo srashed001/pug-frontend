@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { toggleRelationship } from "../store/my/mySlice";
 import {
@@ -8,23 +8,44 @@ import {
   resetUserStatus,
   selectUserById,
 } from "../store/users/usersSlice";
-
 function UserDetails() {
+
+  const initialUser = {
+    birthDate: "",
+    city: "",
+    createdOn: "",
+    email: "",
+    firstName: "",
+    followers: {entities: {}, ids: []},
+    follows: {entities: {}, ids: []},
+    games: {
+      hosted: { resolved: [], pending: [] },
+      joined: { resolved: [], pending: [] },
+    },
+    isAdmin: false,
+    isPrivate: false,
+    lastName: "",
+    phoneNumber: null,
+    profileImg: "",
+    state: "",
+    username: "",
+  };
+
   const { username } = useParams();
+
   console.debug("UserDetails", "username=", username);
 
   const dispatch = useDispatch();
-  const userStatus = useSelector((state) => state.users.status);
+  const userStatus = useSelector((state) => state.users.status.user);
   const error = useSelector((state) => state.users.error);
   const user = useSelector((state) => selectUserById(state, username));
-  const games = useSelector((state) => state.games.entities);
-  const [fetched, setFetched] = useState(false);
-  const my = useSelector(state => state.my)
-  const users = useSelector(state => state.users)
-  const navigate = useNavigate()
+  const my = useSelector((state) => state.my);
+  const navigate = useNavigate();
+  const [resource, setResource] = useState(initialUser);
+  const [isPending, startTransition] = useTransition();
 
-  function getFollowers(){
-    navigate(`/relationships/${username}`)
+  function getFollowers() {
+    navigate(`/relationships/${username}`);
   }
 
   function toggle() {
@@ -32,37 +53,33 @@ function UserDetails() {
   }
 
   useEffect(() => {
-    return () => dispatch(resetUserStatus());
-  }, []);
+    dispatch(resetUserStatus());
+    dispatch(fetchUser(username));
+    
+  }, [dispatch, username]);
 
-  useEffect(() => {
-    console.log(`userdetails useEffect`, userStatus);
-    if (userStatus === "idle" && my.status === 'succeeded') {
-      dispatch(fetchUser(username));
-      console.log(`dispatch fetchuser`)
-      setFetched(true);
-    }
-  }, [dispatch, my.status, userStatus, username]);
+  useEffect(()=>{
+    startTransition(() => setResource(user));
+  }, [user])
 
-  if (userStatus === "loading") {
-    return <LoadingSpinner />;
-  } else if (userStatus === "failed") {
+  if (userStatus === "failed") {
     return <div>{error}</div>;
-  } else if (userStatus === "succeeded" && fetched) {
-    const bio = user;
-    const gamesHostedPending = user.games.hosted.pending;
-    const gamesHostedResolved = user.games.hosted.resolved;
-    const gamesJoinedPending = user.games.joined.pending;
-    const gamesJoinedResolved = user.games.joined.resolved;
+  } else if (userStatus === "succeeded") {
+    console.log(resource)
+    const bio = resource;
+    const gamesHostedPending = resource.games.hosted.pending;
+    const gamesHostedResolved = resource.games.hosted.resolved;
+    const gamesJoinedPending = resource.games.joined.pending;
+    const gamesJoinedResolved = resource.games.joined.resolved;
 
-    console.log(user)
-    // console.log(my)
-    // console.log(users)
+
 
     return (
-      <div>
+      <div style={{opacity: userStatus === "loading" || isPending ? 0.5 : 1.0}}>
         <h1>User Details: {username}</h1>
-        <button onClick={toggle}>{my.follows.entities[user.username] ? `unfollow` : 'follow'}</button>
+        <button onClick={toggle}>
+          {my.follows.entities[user.username] ? `unfollow` : "follow"}
+        </button>
         <button onClick={getFollowers}>get followers</button>
         <ul>
           <li>first name: {bio.firstName}</li>
@@ -73,8 +90,18 @@ function UserDetails() {
           <li>email: {bio.email}</li>
           <li>created on: {bio.createdOn}</li>
           <li>phone number: {bio.phoneNumber}</li>
-          <li>follows: {bio.follows.ids.length}</li>
-          <li>followers: {bio.followers.ids.length}</li>
+          <li>
+            follows:
+            {bio.follows.ids.map((id) => (
+              <Link to={`/users/u/${id}`}>{id}</Link>
+            ))}
+          </li>
+          <li>
+            followers:
+            {bio.followers.ids.map((id) => (
+              <Link to={`/users/u/${id}`}>{id}</Link>
+            ))}
+          </li>
           <li>is private: {JSON.stringify(bio.isPrivate)}</li>
           <li>is admin: {JSON.stringify(bio.isAdmin)}</li>
         </ul>

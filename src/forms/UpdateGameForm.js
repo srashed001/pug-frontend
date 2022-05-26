@@ -35,7 +35,7 @@ function UpdateGameForm(){
           date = date.addDays(4).toJSON().slice(0, 10);
 
     const data = {
-        title: 'crazy game 5',
+        title: 'new game title',
         description: 'updated description',
         date,
         time: '12:00:00',

@@ -14,30 +14,32 @@ function UsersList() {
   const users = useSelector(selectAllUsers)
   const my = useSelector(state => state.my)
 
-  const userStatus = useSelector(state => state.users.status)
+  const usersStatus = useSelector(state => state.users.status.users)
+  const userStatus = useSelector(state => state.users.status.user)
   const error = useSelector(state => state.users.error)
 
 
-  useEffect(() => {
-    return () => {
-    console.log(`in userlist useeffect dispatch reset user`)
-     dispatch(resetUserStatus())
-      console.log(userStatus)
-    }
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //   console.log(`in userlist useeffect dispatch reset user`)
+  //    dispatch(resetUserStatus())
+  //     console.log(userStatus)
+  //   }
+  // }, []);
 
   useEffect(() => {
-    console.log("UserList useEffect");
-    if(userStatus === 'idle' && my.status === 'succeeded'){
+    console.log("UserList useEffect", usersStatus);
+    if(usersStatus === 'idle' && my.status === 'succeeded'){
+      console.log('running useEffect')
       dispatch(fetchUsers())
     }
-  }, [dispatch, my.status, userStatus]);
+  }, [dispatch, my.status, usersStatus]);
 
   let content; 
 
-  if (userStatus === 'loading') content = <LoadingSpinner />
-  else if (userStatus === 'failed') content = <div>{error}</div>
-  else if (userStatus === 'succeeded') {
+  if (usersStatus === 'loading') content = <LoadingSpinner />
+  else if (usersStatus === 'failed') content = <div>{error}</div>
+  else if (usersStatus === 'succeeded') {
     console.log(users)
     content = users.map(user => (
       <div key={user.username}>

@@ -8,7 +8,7 @@ import RelationshipCard from "./RelationshipCard"
 function RelationshipsList(){
     const {username} = useParams()
     const user = useSelector(state => selectUserById(state, username))
-    const userStatus = useSelector(state => state.users.status)
+    const userStatus = useSelector(state => state.users.status.user)
     const followStatus = useSelector(state => state.users.followStatus)
     const my = useSelector(state => state.my)
     const error = useSelector(state => state.users.error)
@@ -17,8 +17,9 @@ function RelationshipsList(){
     const [state, setState] = useState('followers')
 
     useEffect(()=>{
-        if(userStatus === 'idle' && my.status === 'succeeded') dispatch(fetchUser(username))
-    }, [dispatch, my.status, userStatus, username])
+        resetUserStatus()
+      dispatch(fetchUser(username))
+    }, [dispatch, username])
 
 
     if(userStatus === 'loading') return <LoadingSpinner />

@@ -12,6 +12,7 @@ import {
 } from "../store/games/gamesSlice";
 
 import { selectCommentsByGame, addComment, deleteComment } from "../store/comments/commentsSlice";
+import { resetUserStatus } from "../store/users/usersSlice";
 
 
 function GameDetails() {
@@ -79,24 +80,29 @@ function GameDetails() {
     navigate(`/inactive/g`)
   }
 
-  useEffect(() => {
-    return () => {
-      dispatch(resetGameStatus())
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     dispatch(resetGameStatus())
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    console.log(`gamedetails useEffect`, gameStatus);
-    if(gameStatus === 'idle' && my.status === 'succeeded')
-      dispatch(fetchGame(gameId));
-      // setFetched(true)
-    }, [dispatch, gameId, gameStatus, my.status]);
+  // useEffect(() => {
+  //   console.log(`gamedetails useEffect`, gameStatus);
+  //   if(gameStatus === 'idle' && my.status === 'succeeded')
+  //     dispatch(fetchGame(gameId));
+  //     // setFetched(true)
+  //   }, [dispatch, gameId, gameStatus, my.status]);
+
+  useEffect(()=> {
+    dispatch(resetUserStatus())
+    dispatch(fetchGame(gameId))
+  }, [dispatch, gameId])
 
   if (gameStatus === "loading"  ) {
     return <LoadingSpinner />;
   } else if (gameStatus === "failed") {
     return <div>{error}</div>;
-  } else if (gameStatus === "succeeded"  ) {
+  } else if (gameStatus === "succeeded" && my.status === 'succeeded'  ) {
 
     console.log(game)
 

@@ -1,6 +1,6 @@
 import "./App.css";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import useLocalStorage from "./hooks/useLocalStorage";
 import PugRoutes from "./routes/PugRoutes";
 import LoadingSpinner from "./common/LoadingSpinner";
@@ -10,6 +10,7 @@ import { SECRET_KEY } from "./api/secretKey";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchInitialMy } from "./store/my/mySlice";
 import { fetchGames } from "./store/games/gamesSlice";
+import { resetUserStatus } from "./store/users/usersSlice";
 
 // Key name for storing token in localStorage for "remember me" re-login
 export const TOKEN_STORAGE_ID = "pug-token";
@@ -29,7 +30,9 @@ function App() {
   const myStatus = useSelector(state => state.my.status)
   const my = useSelector(state => state.my)
   const games = useSelector(state => state.games)
+  const users = useSelector(state => state.users)
   const dispatch = useDispatch()
+
 
 
   useEffect(() => {
@@ -51,14 +54,8 @@ function App() {
   }, [dispatch, myStatus, token])
 
 
-  // useEffect(()=> {
-  //   console.log(`App gamesList useEffect`, games.status);
-  //   if (games.status === "idle" && my.status === 'succeeded') {
-  //     console.log('running useEffect')
-  //     dispatch(fetchGames());
-  //   }
 
-  // })
+
 
   /** Handles site-wide logout. */
   function logout() {

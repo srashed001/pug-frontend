@@ -8,7 +8,7 @@ function UserCard({ user }) {
 
   return (
     <div>
-      <Link to={`/users/${username}`}>
+      <Link to={`/users/u/${username}`}>
         <h3>{username}</h3>
       </Link>
       <ul>

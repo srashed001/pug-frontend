@@ -17,8 +17,10 @@ const followAdapter = createEntityAdapter({
 });
 
 const initialState = usersAdapter.getInitialState({
-  status: "idle",
-  followStatus: "idle",
+  status: {
+    user: 'idle',
+    users: 'idle'
+  },
   error: null,
 });
 
@@ -63,8 +65,9 @@ const usersSlice = createSlice({
   initialState,
   reducers: {
     resetUserStatus: (state) => {
-      return { ...state, status: initialState.status };
-    },
+      console.log(state)
+      state.status.user = 'idle'},
+    resetUsersStatus: (state) => state.status.users = 'idle',
     initializeRelationships: (state, action) => {
       console.log(action.payload)
       usersAdapter.upsertOne(state, action.payload)
@@ -86,28 +89,29 @@ const usersSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(fetchUsers.pending, (state, action) => {
-        state.status = "loading";
+        state.status.users = "loading";
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        usersAdapter.upsertMany(state, action.payload);
+        state.status.users = "succeeded";
+        usersAdapter.setAll(state, action.payload);
       })
       .addCase(fetchUsers.rejected, (state, action) => {
-        state.status = "failed";
+        state.status.users = "failed";
         state.error = action.error.message;
       })
       .addCase(fetchUser.pending, (state, action) => {
-        state.status = "loading";
+        state.status.user = "loading";
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        
         const { followers, follows } = action.payload;
         console.log(followers, follows, action.payload)
         if(followers.length) followAdapter.upsertMany(state.entities[action.meta.arg].followers, followers)
         if(follows.length) followAdapter.upsertMany(state.entities[action.meta.arg].follows, follows)
+        state.status.user = "succeeded";
       })
       .addCase(fetchUser.rejected, (state, action) => {
-        state.status = "failed";
+        state.status.user = "failed";
         state.error = action.error.message;
       })
       .addCase(fetchRelationships.pending, (state, action) => {
@@ -131,6 +135,7 @@ const usersSlice = createSlice({
 
 export const {
   resetUserStatus,
+  resetUsersStatus,
   updateUsers,
   updateFollowers,
   resetFollowStatus,
