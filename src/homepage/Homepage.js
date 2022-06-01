@@ -12,7 +12,7 @@ import UserCard from "../users/UserCard";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { fetchThreads } from "../store/threads/threadsSlice";
 import { useNavigate } from "react-router-dom";
-import GeoLocationApi from "../api/googleMaps";
+import GeoLocationApi from "../api/GeoLocationApi";
 
 function Homepage() {
   const token = PugApi.token
