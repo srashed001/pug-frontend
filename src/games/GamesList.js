@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { fetchGames, resetGameStatus } from "../store/games/gamesSlice";
+import { fetchGames,  resetGamesStatus,  resetGameStatus } from "../store/games/gamesSlice";
 import GameCard from "./GameCard";
 
 function GamesList() {
@@ -11,24 +11,47 @@ function GamesList() {
   const allIds = useSelector((state) => state.games.ids);
   const byId = useSelector((state) => state.games.entities);
 
-  const gameStatus = useSelector((state) => state.games.status);
+  const gameStatus = useSelector((state) => state.games.status.games);
   const error = useSelector((state) => state.games.error);
+  const my = useSelector(state => state.my)
 
-  useEffect(() => {
-    console.log(`GamesList useEffect`);
-    if (gameStatus === "idle") {
+  // useEffect(() => {
+  //   return () => {
+  //     console.log('GamesList cleanup prior', gameStatus)
+  //     if(gameStatus === 'succeeded'){
+  //       console.log('running cleanup')
+  //       dispatch(resetGamesStatus())
+  //     }
+      
+  //     console.log('GamesList cleanup after', gameStatus)
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
+  // useEffect(() => {
+  //   console.log(`GamesList useEffect`, gameStatus);
+  //   if (gameStatus === "idle" && my.status === 'succeeded') {
+  //     console.log('running useEffect')
+  //     dispatch(fetchGames());
+  //   }
+
+    
+  // }, [dispatch, gameStatus, my.status]);
+
+  // useEffect(()=>{
+  //   return () => dispatch(resetGamesStatus())
+
+  // }, [dispatch])
+
+  useEffect(()=> {
+    console.log(`App gamesList useEffect`, gameStatus);
+    if (gameStatus === "idle" && my.status === 'succeeded') {
+      console.log('running useEffect')
       dispatch(fetchGames());
     }
-  }, [dispatch, gameStatus]);
 
-  useEffect(() => {
-    return () => {
-      console.log('GamesList cleanup prior', gameStatus)
-      dispatch(resetGameStatus())
-      console.log('GamesList cleanup after', gameStatus)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch, gameStatus, my.status])
+
 
   let content;
 

@@ -1,28 +1,32 @@
 import { useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams  } from "react-router-dom";
+import { useNavigate, useParams  } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
 import {
   fetchGame,
   resetGameStatus,
   selectGameById,
   joinGame, 
-  leaveGame
+  leaveGame,
+  deactivateGame
 } from "../store/games/gamesSlice";
 
 import { selectCommentsByGame, addComment, deleteComment } from "../store/comments/commentsSlice";
+import { resetUserStatus } from "../store/users/usersSlice";
 
 
 function GameDetails() {
   const { gameId } = useParams();
 
   const dispatch = useDispatch();
-  const gameStatus = useSelector((state) => state.games.status);
+  const gameStatus = useSelector((state) => state.games.status.game);
   const game = useSelector((state) => selectGameById(state, gameId));
   const error = useSelector((state) => state.games.errors);
   const gameComments = useSelector(state => selectCommentsByGame(state, gameId))
   const users = useSelector(state => state.users.entities)
+  const my = useSelector(state => state.my)
   const [fetched, setFetched] = useState(false)
+  const navigate = useNavigate()
   
   console.debug("GameDetail", "gameId=", gameId);
 
@@ -62,30 +66,56 @@ function GameDetails() {
     dispatch(deleteComment(data))
   }
 
-  useEffect(() => {
-    return () => dispatch(resetGameStatus());
-  }, []);
+  function testCreateInvites(){
+    navigate(`/invites/${gameId}`)
+    
+  }
 
-  useEffect(() => {
-    console.log(`gamedetails useEffect`, gameStatus);
-    if (gameStatus === "idle") {
-      dispatch(fetchGame(gameId));
-      setFetched(true)
-    }
-  }, [dispatch, gameId, gameStatus]);
+  function testUpdateGame(){
+    navigate(`/games/update/${gameId}`)
+  }
 
-  if (gameStatus === "loading" || !fetched ) {
+  function testDeactivateGame(){
+    dispatch(deactivateGame(gameId))
+    navigate(`/inactive/g`)
+  }
+
+  // useEffect(() => {
+  //   return () => {
+  //     dispatch(resetGameStatus())
+  //   };
+  // }, []);
+
+  // useEffect(() => {
+  //   console.log(`gamedetails useEffect`, gameStatus);
+  //   if(gameStatus === 'idle' && my.status === 'succeeded')
+  //     dispatch(fetchGame(gameId));
+  //     // setFetched(true)
+  //   }, [dispatch, gameId, gameStatus, my.status]);
+
+  useEffect(()=> {
+    dispatch(resetUserStatus())
+    dispatch(fetchGame(gameId))
+  }, [dispatch, gameId])
+
+  if (gameStatus === "loading"  ) {
     return <LoadingSpinner />;
   } else if (gameStatus === "failed") {
     return <div>{error}</div>;
-  } else if (gameStatus === "succeeded" || fetched) {
+  } else if (gameStatus === "succeeded" && my.status === 'succeeded'  ) {
 
+    console.log(game)
 
 
     return (
       <div>
         <div>
           <h1>Game Details: {gameId}</h1>
+          <button onClick={testUpdateGame}>update game</button>
+          {game.createdBy === my.username ? <button onClick={testDeactivateGame}>deactivate</button> : <div></div>}
+          <div>
+            <button onClick={testCreateInvites}>invite players</button>
+          </div>
           <ul>
             <li>id: {game.id}</li>
             <li>title: {game.title}</li>
@@ -97,7 +127,7 @@ function GameDetails() {
             <li>state: {game.state}</li>
             <li>created on: {game.createdOn}</li>
             <li>game host: {game.createdBy}</li>
-            <li>{game.daysDiff}</li>
+            <li>daysDiff: {game.daysDiff}</li>
           </ul>
         </div>
         <div>
@@ -106,7 +136,7 @@ function GameDetails() {
           <ul>
             {game.players.map(player => (
               <li key={users[player].username} >{users[player].username}<button id={player} onClick={testRemovePlayer}>X</button></li>
-            ))}
+            )) }
           </ul>
         </div>
         <button onClick={testAddComment}>add comment</button>

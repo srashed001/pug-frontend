@@ -7,6 +7,7 @@ import invitesReducer from './invites/invitesSlice'
 import threadReducer from './threads/threadsSlice'
 
 
+
 export default configureStore({
     reducer: {
         games: gamesReducer,

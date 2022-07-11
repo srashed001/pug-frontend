@@ -5,7 +5,7 @@ function GameCard({ game }){
 
     return (
         <div>
-            <Link to={`/games/${id}`}>
+            <Link to={`/games/g/${id}`}>
               <h3>{title}</h3>   
             </Link>
             <ul>

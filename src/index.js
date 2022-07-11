@@ -5,14 +5,19 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import store from "./store/rootreducer";
 import { Provider } from "react-redux";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, useLocation } from "react-router-dom";
+import { createBrowserHistory  } from "history";
+import { resetGameStatus } from "./store/games/gamesSlice";
+import { resetUserStatus } from "./store/users/usersSlice";
 
-// import '@fontsource/roboto/300.css';
-// import '@fontsource/roboto/400.css';
-// import '@fontsource/roboto/500.css';
-// import '@fontsource/roboto/700.css';
+
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
 
 // async function start() {
 //   store.dispatch(fetchGames());

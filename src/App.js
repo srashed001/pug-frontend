@@ -1,6 +1,6 @@
 import "./App.css";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import useLocalStorage from "./hooks/useLocalStorage";
 import PugRoutes from "./routes/PugRoutes";
 import LoadingSpinner from "./common/LoadingSpinner";
@@ -9,6 +9,8 @@ import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "./api/secretKey";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchInitialMy } from "./store/my/mySlice";
+import { fetchGames } from "./store/games/gamesSlice";
+import { resetUserStatus } from "./store/users/usersSlice";
 
 // Key name for storing token in localStorage for "remember me" re-login
 export const TOKEN_STORAGE_ID = "pug-token";
@@ -24,6 +26,35 @@ export const TOKEN_STORAGE_ID = "pug-token";
 function App() {
 
   const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
+
+  const myStatus = useSelector(state => state.my.status)
+  const my = useSelector(state => state.my)
+  const games = useSelector(state => state.games)
+  const users = useSelector(state => state.users)
+  const dispatch = useDispatch()
+
+
+
+  useEffect(() => {
+    if(token){
+      try{
+        let {username} = jwt.verify(token, SECRET_KEY)
+        PugApi.token = token 
+        console.log(`app useEffect`, myStatus)
+    
+        if(myStatus === 'idle'){
+          dispatch(fetchInitialMy(username))
+          console.log('dispatch app useEffect')
+        }
+      } catch(err){
+        console.error('App useEffect dispatch error')
+      }
+    }
+    
+  }, [dispatch, myStatus, token])
+
+
+
 
 
   /** Handles site-wide logout. */
@@ -65,10 +96,13 @@ function App() {
   }
 
 
+  console.log(my)
 
 
   return (
     <div className="App">
+      <Link to="/login">Login</Link>
+      <br></br>
       <Link to="/">Home</Link>
       <br></br>
       <Link to="/users">Users</Link>
