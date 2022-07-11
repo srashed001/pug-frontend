@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
 import PugApi from "../../api/api";
@@ -15,7 +16,7 @@ import {
 import { updateThreads } from "../threads/threadsSlice";
 
 export const myAdapter = createEntityAdapter({
-  selectId: (my) => my.username || my.id,
+  selectId: (my) => my.username || my.id || my.primaryuser,
 });
 
 // const initialState = myAdapter.getInitialState({
@@ -27,6 +28,7 @@ const initialState = {
   error: null,
   username: null,
   user: null,
+  activity: myAdapter.getInitialState(),
   gamesHostedPending: myAdapter.getInitialState(),
   gamesHostedResolved: myAdapter.getInitialState(),
   gamesJoinedPending: myAdapter.getInitialState(),
@@ -49,6 +51,10 @@ export const toggleRelationship = createAsyncThunk(
     return resp;
   }
 );
+
+export const fetchMyActivity = createAsyncThunk(`my/fetchMyActivity`, async (username) => {
+  return PugApi.getUserActivity(username)
+})
 
 export const fetchInitialMy = createAsyncThunk(
   "my/fetchInitialMy",
@@ -135,7 +141,6 @@ export const mySlice = createSlice({
           ? myAdapter.removeOne(state.gamesHostedResolved, game.id)
           : myAdapter.removeOne(state.gamesHostedPending, game.id);
       } else if (status === "reactivated") {
-        console.log(game);
         myAdapter.removeOne(state.inactiveGames, game.id);
         game.daysDiff < 0
           ? myAdapter.upsertOne(state.gamesHostedResolved, game)
@@ -145,6 +150,18 @@ export const mySlice = createSlice({
   },
   extraReducers(builder) {
     builder
+      .addCase(fetchMyActivity.pending, (state, action) => {
+        // state.status = "loading";
+      })
+      .addCase(fetchMyActivity.fulfilled, (state, action) => {
+        // state.status = "succeeded";
+        console.log(action.payload)
+        state.activity = action.payload
+      })
+      .addCase(fetchMyActivity.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
       .addCase(fetchInitialMy.pending, (state, action) => {
         state.status = "loading";
       })
@@ -177,7 +194,6 @@ export const mySlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(toggleRelationship.pending, (state, action) => {
-        state.status = "loading";
       })
       .addCase(toggleRelationship.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -192,7 +208,6 @@ export const mySlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(updateProfile.pending, (state, action) => {
-        state.status = "loading";
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -251,10 +266,22 @@ export const {
   updateInactiveGames,
 } = mySlice.actions;
 
+// export const selectMyInactiveGames = createSelector(
+//   state => state.my.inactiveGames.entities,
+//   invites => invites
+// )
+
 export default mySlice.reducer;
 
-//   export const {
-//     selectAll: selectAllGames,
-//     selectById: selectGameById,
-//     selectIds: selectGameIds,
-//   } = myAdapter.getSelectors((state) => state.games);
+
+  export const {
+    selectAll: selectMyInactiveGames,
+    selectById: selectGameById,
+    selectIds: selectGameIds,
+  } = myAdapter.getSelectors((state) => state.my.inactiveGames);
+
+  export const {
+    selectAll: selectAllActivity,
+    selectById: selectActivityById,
+    selectIds: selectActivityIds,
+  } = myAdapter.getSelectors((state) => state.my.activity);

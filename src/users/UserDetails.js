@@ -1,4 +1,4 @@
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
@@ -8,130 +8,128 @@ import {
   resetUserStatus,
   selectUserById,
 } from "../store/users/usersSlice";
+
+import { Stack, Box, Grid, Container, Divider } from "@mui/material";
+import ProfileGamesList from "../games/ProfileGamesList";
+import UserDetailsNav from "./UserDetailsNav";
+import UserDetailsBio from "./UserDetailsBio";
+import initialUser from "../common/initialUser";
+import PugApi from "../api/api";
+import { getThreadId } from "../store/threads/threadsSlice";
+import UserDetailsRelationships from "./UserDetailsRelationships";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import UserDetailsHeader from "./UserDetailsHeader";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: "Montserrat",
+  },
+  palette: {
+    primary: {main: 'rgba(245, 243, 244, .5)'},
+    secondary: {main: "#11cb5f"}
+  }
+});
+
 function UserDetails() {
-
-  const initialUser = {
-    birthDate: "",
-    city: "",
-    createdOn: "",
-    email: "",
-    firstName: "",
-    followers: {entities: {}, ids: []},
-    follows: {entities: {}, ids: []},
-    games: {
-      hosted: { resolved: [], pending: [] },
-      joined: { resolved: [], pending: [] },
-    },
-    isAdmin: false,
-    isPrivate: false,
-    lastName: "",
-    phoneNumber: null,
-    profileImg: "",
-    state: "",
-    username: "",
-  };
-
   const { username } = useParams();
-
-  console.debug("UserDetails", "username=", username);
-
   const dispatch = useDispatch();
   const userStatus = useSelector((state) => state.users.status.user);
   const error = useSelector((state) => state.users.error);
   const user = useSelector((state) => selectUserById(state, username));
   const my = useSelector((state) => state.my);
+  const threads = useSelector((state) => state.threads);
   const navigate = useNavigate();
   const [resource, setResource] = useState(initialUser);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setTransition] = useTransition();
 
-  function getFollowers() {
-    navigate(`/relationships/${username}`);
-  }
 
-  function toggle() {
+
+  const toggle = useCallback(() => {
     dispatch(toggleRelationship({ username: my.username, followed: username }));
-  }
+  }, [dispatch, my.username, username]);
+
+  const initiateNewMessage = useCallback(() => {
+    dispatch(
+      getThreadId({
+        username: my.username,
+        party: [
+          {
+            username: my.username,
+            firstName: my.user.firstName,
+            lastName: my.user.lastName,
+            profileImg: my.user.profileImg,
+          },
+          {
+            username,
+            firstName: resource.firstName,
+            lastName: resource.lastName,
+            profileImg: resource.profileImg,
+          },
+        ],
+      })
+    )
+      .unwrap()
+      .then((data) => {
+        navigate(`/threads/t/${data.id}`);
+      });
+  }, []);
 
   useEffect(() => {
-    dispatch(resetUserStatus());
-    dispatch(fetchUser(username));
-    
-  }, [dispatch, username]);
+    if (my.status === "succeeded") {
+      dispatch(fetchUser(username));
+    }
+  }, [dispatch, my.status, username]);
 
-  useEffect(()=>{
-    startTransition(() => setResource(user));
-  }, [user])
+  useEffect(() => {
+    setTransition(() => setResource((state) => ({ ...state, ...user })));
+  }, [user]);
 
   if (userStatus === "failed") {
     return <div>{error}</div>;
-  } else if (userStatus === "succeeded") {
-    console.log(resource)
-    const bio = resource;
-    const gamesHostedPending = resource.games.hosted.pending;
-    const gamesHostedResolved = resource.games.hosted.resolved;
-    const gamesJoinedPending = resource.games.joined.pending;
-    const gamesJoinedResolved = resource.games.joined.resolved;
-
-
-
-    return (
-      <div style={{opacity: userStatus === "loading" || isPending ? 0.5 : 1.0}}>
-        <h1>User Details: {username}</h1>
-        <button onClick={toggle}>
-          {my.follows.entities[user.username] ? `unfollow` : "follow"}
-        </button>
-        <button onClick={getFollowers}>get followers</button>
-        <ul>
-          <li>first name: {bio.firstName}</li>
-          <li>last name: {bio.lastName}</li>
-          <li>city: {bio.city}</li>
-          <li>state: {bio.state}</li>
-          <li>img: {bio.profileImg}</li>
-          <li>email: {bio.email}</li>
-          <li>created on: {bio.createdOn}</li>
-          <li>phone number: {bio.phoneNumber}</li>
-          <li>
-            follows:
-            {bio.follows.ids.map((id) => (
-              <Link to={`/users/u/${id}`}>{id}</Link>
-            ))}
-          </li>
-          <li>
-            followers:
-            {bio.followers.ids.map((id) => (
-              <Link to={`/users/u/${id}`}>{id}</Link>
-            ))}
-          </li>
-          <li>is private: {JSON.stringify(bio.isPrivate)}</li>
-          <li>is admin: {JSON.stringify(bio.isAdmin)}</li>
-        </ul>
-        <ul>
-          games hosted pending:
-          {gamesHostedPending.map((el) => (
-            <li key={el.id}>{el.id}</li>
-          ))}
-        </ul>
-        <ul>
-          games hosted resolved:
-          {gamesHostedResolved.map((el) => (
-            <li key={el.id}>{el.id}</li>
-          ))}
-        </ul>
-        <ul>
-          games joined pending:
-          {gamesJoinedPending.map((el) => (
-            <li key={el.id}>{el.id}</li>
-          ))}
-        </ul>
-        <ul>
-          games joined resolved:
-          {gamesJoinedResolved.map((el) => (
-            <li key={el.id}>{el.id}</li>
-          ))}
-        </ul>
-      </div>
-    );
   }
+  console.log(resource, threads);
+  const gamesHostedPending = resource.games.hosted.pending;
+  const gamesHostedResolved = resource.games.hosted.resolved;
+  const gamesJoinedPending = resource.games.joined.pending;
+  const gamesJoinedResolved = resource.games.joined.resolved;
+
+  return (
+    <ThemeProvider theme={theme}>
+
+        <Stack sx={{marginTop: 2, width: "100%", marginBottom: 5}} spacing={1} >
+          <UserDetailsHeader user={user} />
+          <UserDetailsNav
+            state={
+              my.follows.entities[resource.username] ? `unfollow` : "follow"
+            }
+            toggle={toggle}
+            initiateNewMessage={initiateNewMessage}
+            user={resource}
+          />
+          <Stack spacing={3}>
+
+          <ProfileGamesList
+            games={gamesHostedPending}
+            set={"gamesHostedPending"}
+          />
+          <ProfileGamesList
+            games={gamesHostedResolved}
+            set={"gamesHostedResolved"}
+          />
+          <ProfileGamesList
+            games={gamesJoinedPending}
+            set={"gamesJoinedPending"}
+          />
+          <ProfileGamesList
+            games={gamesJoinedResolved}
+            set={"gamesJoinedResolved"}
+          />
+          </Stack>
+        </Stack>
+    </ThemeProvider>
+
+
+  );
 }
 
 export default UserDetails;

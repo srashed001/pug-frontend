@@ -1,4 +1,4 @@
-import "./App.css";
+// import "./App.css";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import useLocalStorage from "./hooks/useLocalStorage";
@@ -10,7 +10,11 @@ import { SECRET_KEY } from "./api/secretKey";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchInitialMy } from "./store/my/mySlice";
 import { fetchGames } from "./store/games/gamesSlice";
-import { resetUserStatus } from "./store/users/usersSlice";
+import { fetchUsers, resetUserStatus } from "./store/users/usersSlice";
+import BottomNavigationBar from "./navigation/BottomNavigationBar";
+import {Stack, Box } from '@mui/material'
+import TopAppBar from "./navigation/TopAppBar";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 // Key name for storing token in localStorage for "remember me" re-login
 export const TOKEN_STORAGE_ID = "pug-token";
@@ -22,6 +26,14 @@ export const TOKEN_STORAGE_ID = "pug-token";
  *
  * App -> Routes
  */
+
+ const theme = createTheme({
+  typography: {
+    fontFamily: "Montserrat",
+  },
+
+});
+
 
 function App() {
 
@@ -44,6 +56,8 @@ function App() {
     
         if(myStatus === 'idle'){
           dispatch(fetchInitialMy(username))
+          dispatch(fetchGames())
+          dispatch(fetchUsers())
           console.log('dispatch app useEffect')
         }
       } catch(err){
@@ -100,17 +114,26 @@ function App() {
 
 
   return (
-    <div className="App">
-      <Link to="/login">Login</Link>
-      <br></br>
+    <ThemeProvider theme={theme} >
+
+    <Stack className="App">
+      <TopAppBar />
+      {/* <br></br>
       <Link to="/">Home</Link>
       <br></br>
       <Link to="/users">Users</Link>
       <br></br>
-      <Link to="/games">Games</Link>
-
-      <PugRoutes login={login} signup={signup} />
-    </div>
+      <Link to="/games">Games</Link> */}
+  <Box sx ={{marginTop: 5, marginBottom: 9, width: '100%'}}>
+ <PugRoutes login={login} signup={signup} />
+  </Box>
+  <Box>
+<BottomNavigationBar />
+  </Box>
+     
+      
+    </Stack>
+    </ThemeProvider>
   );
 }
 

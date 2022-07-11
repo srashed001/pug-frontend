@@ -44,6 +44,19 @@ class PugApi {
   
   /****************************************************************************** User API Routes */
 
+
+  static uploadPhoto(file, onUploadProgress){
+    const data = {
+      profileImg: file
+    }
+  }
+
+
+  static async getUserActivity(username){
+    let res = await this.request(`activity/${username}`)
+    return res.activity
+  }
+
   /** Get the current user. */
 
   static async getCurrentUser(username) {
@@ -83,9 +96,10 @@ class PugApi {
    *       - newPassword
    */
 
-  static async changePassword(username) {
-    let res = await this.request(`users/${username}/password`, {}, "patch");
-    return res.user;
+  static async changePassword(username, data) {
+    console.log(data)
+    let res = await this.request(`users/${username}/password`, data, "patch");
+    return res;
   }
 
   /** Deactivate user. */
@@ -124,6 +138,7 @@ class PugApi {
 
   static async getThreads(username) {
     let res = await this.request(`users/${username}/threads`);
+    console.log(res)
     return res.threads;
   }
 
@@ -131,7 +146,7 @@ class PugApi {
 
   static async getMessages(username, threadId) {
     let res = await this.request(`users/${username}/threads/${threadId}`);
-    return res.messages;
+    return res.thread;
   }
 
   /** create a message outside responding in thread.
@@ -143,6 +158,12 @@ class PugApi {
   static async createMessage(username, data) {
     let res = await this.request(`users/${username}/threads`, data, "post");
     return res.message;
+  }
+
+  static async getThreadId(username, data){
+    let res = await this.request(`users/${username}/threadId`, data, "post")
+    return res
+
   }
 
   /** respond with a message in thread.
@@ -220,7 +241,7 @@ class PugApi {
   }
 
   /********************************************************************************* Game API routes */
-
+  
   /** get games (pass search filters as data).
    *    Data can include:
    *         - date
@@ -232,18 +253,18 @@ class PugApi {
    *         - gameStatus 'pending' || 'resolved'
    */
 
-  static async getGames(data = {isActive: true}) {
+  static async getGames(data) {
     let res = await this.request(`games`, data);
     return res.games
   }
 
   /** gets game.  */
-
+  
   static async getGame(gameId) {
     let res = await this.request(`games/${gameId}`);
     return res;
   }
-
+  
   static async getInactiveGames(username){
     const data = {
       host: username, 
@@ -252,7 +273,7 @@ class PugApi {
     let res = await this.request(`games`, data)
     return res.games
   }
-
+  
   /** creates a game. 
    *    Data required: 
    *        - title
@@ -263,12 +284,12 @@ class PugApi {
    *        = city 
    *        - state
   */
-  static async createGame(data){
-      let res = await this.request(`games`, data, 'post')
-      return res.details
-
+ static async createGame(data){
+   let res = await this.request(`games`, data, 'post')
+   return res.details
+   
   }
-
+  
   /** updates a game. 
    *    Data can include: 
    *        - titile 
@@ -278,57 +299,66 @@ class PugApi {
    *        = address 
    *        = city 
    *        - state
-  */
+   */
   static async updateGame(gameId, data){
-      let res = await this.request(`games/${gameId}`, data, 'patch')
-      return res.details
+    let res = await this.request(`games/${gameId}`, data, 'patch')
+    return res.details
   }
-
+  
   /** creates a game comment. 
    *    Data required: 
    *        - comment
-  */
+   */
   static async addComment(gameId, username, data){
-      let res = await this.request(`games/${gameId}/comment/${username}`, data, 'post')
-      return res.comment
+    let res = await this.request(`games/${gameId}/comment/${username}`, data, 'post')
+    return res.comment
   }
-
+  
   /** deletes a game comment. 
    *   
-  */
+   */
   static async deleteComment(gameId, commentId){
-      let res = await this.request(`games/${gameId}/comment/${commentId}`, {}, 'delete')
-      return res
+    let res = await this.request(`games/${gameId}/comment/${commentId}`, {}, 'delete')
+    return res
   }
-
+  
   /** joins a game.  */
-
+  
   static async joinGame(gameId, username){
-      let res = await this.request(`games/${gameId}/join/${username}`, {}, 'post')
-      return res.players
+    let res = await this.request(`games/${gameId}/join/${username}`, {}, 'post')
+    return res.players
   }
-
+  
   /** leave game.  */
-
+  
   static async leaveGame(gameId, username){
-      let res = await this.request(`games/${gameId}/join/${username}`, {}, 'delete')
-      return res.players
+    let res = await this.request(`games/${gameId}/join/${username}`, {}, 'delete')
+    return res.players
   }
-
+  
   /** deactivate game.  */
-
+  
   static async deactivateGame(gameId){
-      let res = await this.request(`games/${gameId}/deactivate`, {}, 'patch')
-      return res
+    let res = await this.request(`games/${gameId}/deactivate`, {}, 'patch')
+    return res
   }
-
+  
   /** reactivate game.  */
-
+  
   static async reactivateGame(gameId){
       let res = await this.request(`games/${gameId}/reactivate`, {}, 'patch')
       return res
+    }
+    
+    /********************************************************************************* Court API routes */
+
+    static async getCourts(location){
+      let res = await this.request(`courts`, location)
+      return res.courts
+    }
+    
+    
   }
-
-}
-
-export default PugApi;
+  
+  export default PugApi;
+  

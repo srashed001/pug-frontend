@@ -1,52 +1,55 @@
-import { useEffect, useState } from "react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import LoadingSpinner from "../common/LoadingSpinner";
-import Invite from "./Invites";
-
-import { fetchInitialMy, resetMyStatus } from "../store/my/mySlice";
-import { selectInvitesReceived, selectInvitesSent } from "../store/invites/invitesSlice";
+import { useEffect, useState, useTransition } from "react";
+import { useSelector } from "react-redux";
+import Invite from "./Invite";
+import {
+  selectInvitesReceived,
+  selectInvitesSent,
+} from "../store/invites/invitesSlice";
+import { Stack, Box, Tabs, Tab } from "@mui/material";
 
 function InvitesList() {
-  const invites = useSelector((state) => state.invites.entities);
   const error = useSelector((state) => state.my.error);
   const my = useSelector((state) => state.my);
-  const [state, setState] = useState("received");
-  const [title, setTitle] = useState(null);
-  const [fetched, setFetched] = useState(false);
-  const invitesReceived = useSelector(state => selectInvitesReceived(state, my.username))
-  const invitesSent = useSelector(state => selectInvitesSent(state, my.username))
+  const invitesReceived = useSelector((state) =>
+    selectInvitesReceived(state, my.username)
+  );
+  const invitesSent = useSelector((state) =>
+    selectInvitesSent(state, my.username)
+  );
+  const [value, setValue] = useState(0);
 
-  const dispatch = useDispatch();
-  console.log(my);
+  const handleChange = (e, newValue) => {
+    setValue(newValue);
+  };
 
-    // useEffect(() => {
-    //   return () => {
-    //     dispatch(resetMyStatus());
-    //     setFetched(false);
-    //   };
-    // }, []);
+  const [resource, setResource] = useState([]);
+  const [isPending, setTransition] = useTransition();
 
-  if (my.status === "loading") {
-    return <LoadingSpinner />;
-  } else if (my.status === "failed") {
+  useEffect(() => {
+    setTransition(() => {
+      setResource((state) => (value === 0 ? invitesReceived : invitesSent));
+    });
+  }, [invitesReceived, invitesSent, value]);
+
+  if (my.status === "failed") {
     return <div>{error}</div>;
-  } else if (my.status === "succeeded") {
-      const myInvites = state === 'received' ? invitesReceived : invitesSent
-    //   state === 'received' ? setTitle(`Invites Received`) : setTitle('Invites Sent')
-
+  } else {
     return (
-      <div>
-        <h1>{title}</h1>
-        <div>
-          <button onClick={() => setState("received")}>Received</button>
-          <button onClick={() => setState("sent")}>Sent</button>
-        </div>
-        <div>
-                  {myInvites.map(invite => (
-                      <Invite key={invite.id} invite={invite} state={state} />
-                  ))}
-              </div>
-      </div>
+      <Stack mt={4}>
+        <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
+          <Tabs value={value} onChange={handleChange} centered>
+            <Tab label="Received" />
+            <Tab label="Sent" />
+          </Tabs>
+        </Box>
+        <Box>
+          <Stack spacing={1} sx={{ margin: 2 }}>
+            {resource.map((invite) => (
+              <Invite key={invite.id} invite={invite} value={value} />
+            ))}
+          </Stack>
+        </Box>
+      </Stack>
     );
   }
 }

@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
 import _ from "lodash";
@@ -37,6 +38,20 @@ const initialState = threadsAdapter.getInitialState({
  *
  */
 
+
+export const getThreadId = createAsyncThunk(
+  `threads/getThreadId`, 
+  async (data, {dispatch}) => {
+    const {username, party} = data
+    const res = PugApi.getThreadId(username, {party: party.map(user => user.username)})
+    res.then(data => {
+      dispatch(initializeThread({...data, party}))
+
+    })
+    return res
+  }
+)
+
 export const addMessageInThread = createAsyncThunk(
   `threads/addMessageInThread`,
   async (data) => {
@@ -69,10 +84,15 @@ export const deleteThread = createAsyncThunk(`threads/deleteThread`, async({user
 
 export const fetchMessages = createAsyncThunk(
   "threads/fetchMessages",
-  async (data) => {
+  async (data, {dispatch}) => {
     console.log("in thunk");
     const { username, threadId } = data;
     const res = PugApi.getMessages(username, threadId);
+    res.then(data => {
+      console.log(data)
+      dispatch(initializeThread(data))
+
+    })
     return res;
   }
 );
@@ -81,17 +101,17 @@ export const fetchThreads = createAsyncThunk(
   "threads/fetchThreads",
   async (username, { dispatch }) => {
     console.log(`in thunk`)
-    const resp = PugApi.getThreads(username);
-    resp.then((data) => {
-      const users = data.map((thread) => {
-        return Object.entries(thread.party).map(([k, v]) => ({
-          username: k,
-          profileImg: v,
-        }));
-      });
-      dispatch(updateUsers(_.union(...users)));
-    });
-    return resp;
+    return PugApi.getThreads(username);
+    // resp.then((data) => {
+    //   const users = data.map((thread) => {
+    //     return Object.entries(thread.party).map(([k, v]) => ({
+    //       username: k,
+    //       profileImg: v,
+    //     }));
+    //   });
+    //   dispatch(updateUsers(_.union(...users)));
+    // });
+
   }
 );
 
@@ -103,14 +123,22 @@ const threadsSlice = createSlice({
       return { ...state, status: initialState.status };
     },
     updateThreads: (state, action) => {
+      console.log(action.payload)
       const threads = action.payload.map((thread) => ({
         id: thread.threadId,
-        lastMessage: thread.lastMessage,
-        party: Object.keys(thread.party),
+        lastMessage: thread.lastMessage[0],
+        party: thread.party,
         messages: messagesAdapter.getInitialState(),
       }));
-      threadsAdapter.updateMany(state, threads);
+      console.log(threads)
+      threadsAdapter.setAll(state, threads);
     },
+    initializeThread: (state, action) => {
+      const {id, party} = action.payload
+      if (state.entities[id]) return 
+      const thread = {id, party, lastMessage: null, messages: messagesAdapter.getInitialState()}
+      threadsAdapter.upsertOne(state, thread)
+    }
   },
   extraReducers(builder) {
     builder
@@ -121,11 +149,11 @@ const threadsSlice = createSlice({
         state.status = "succeeded";
         const threads = action.payload.map((thread) => ({
           id: thread.threadId,
-          lastMessage: thread.lastMessage,
-          party: Object.keys(thread.party),
+          lastMessage: thread.lastMessage[0],
+          party: thread.party,
           messages: messagesAdapter.getInitialState(),
         }));
-        threadsAdapter.upsertMany(state, threads);
+        threadsAdapter.setAll(state, threads);
       })
       .addCase(fetchThreads.rejected, (state, action) => {
         state.status = "failed";
@@ -136,18 +164,19 @@ const threadsSlice = createSlice({
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const threadId = action.meta.arg.threadId;
-        const threadEntry = state.entities[threadId];
+        const {id, messages } = action.payload
+        // const threadId = action.meta.arg.threadId;
+        const threadEntry = state.entities[id];
         console.log(action.payload);
         console.log(threadEntry)
-        messagesAdapter.setAll(threadEntry.messages, action.payload);
+        messagesAdapter.setAll(threadEntry.messages, messages);
       })
       .addCase(fetchMessages.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
       .addCase(addMessageInThread.pending, (state, action) => {
-        state.status = "loading";
+        // state.status = "loading";
       })
       .addCase(addMessageInThread.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -160,7 +189,6 @@ const threadsSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(deleteMessageInThread.pending, (state, action) => {
-        state.status = "loading";
       })
       .addCase(deleteMessageInThread.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -205,16 +233,37 @@ const threadsSlice = createSlice({
       .addCase(deleteThread.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(getThreadId.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(getThreadId.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        // console.log(action.payload)
+        // const {id} = action.payload
+        // threadsAdapter.upsertOne(state, {id, party: action.meta.arg.party, messages: messagesAdapter.getInitialState()})
+      })
+      .addCase(getThreadId.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });
 
-export const { resetThreadStatus, updateThreads } = threadsSlice.actions;
+export const { resetThreadStatus, updateThreads, initializeThread } = threadsSlice.actions;
 
 export default threadsSlice.reducer;
 
-// export const {
-//   selectAll: selectAllUsers,
-//   selectById: selectUserById,
-//   selectIds: selectUserIds,
-// } = usersAdapter.getSelectors((state) => state.users);
+export const {
+  selectAll: selectAllThreads,
+  selectById: selectThreadById,
+  selectIds: selectThreadIds,
+} = threadsAdapter.getSelectors((state) => state.threads);
+
+
+export const selectMessagesByThreadId = createSelector(
+  [(state, threadId) => selectThreadById(state, threadId)],
+  (thread) => Object.values(thread.messages.entities)
+)
+
+

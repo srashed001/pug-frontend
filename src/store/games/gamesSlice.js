@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
 import PugApi from "../../api/api";
@@ -53,23 +54,34 @@ export const leaveGame = createAsyncThunk("games/leaveGame", async (data, {dispa
   return resultPromise
 });
 
-export const createGame = createAsyncThunk(`games/createGane`, async(data) => {
-  return PugApi.createGame(data)
+export const createGame = createAsyncThunk(`games/createGane`, async({data, createdBy}) => {
+  const game = await PugApi.createGame(data)
+  return {game , createdBy}
 })
 
 export const updateGame = createAsyncThunk(`games/updateGame`, async({id, data}) => {
   return PugApi.updateGame(id, data)
 })
 
-export const deactivateGame = createAsyncThunk(`games/deactivateGame`, async(gameId, {dispatch}) => {
+export const deactivateGame = createAsyncThunk(`games/deactivateGame`, async(gameId, {dispatch, getState}) => {
+  const rootState = getState()
   const res = PugApi.deactivateGame(gameId)
-  res.then(data => dispatch(updateInactiveGames(data)))
+  res.then(data => {
+    const game = {...rootState.games.entities[data.game.id], ...data.game}
+    game.isActive = false
+    dispatch(updateInactiveGames({...data, game}))
+  })
   return res
 
 })
-export const reactivateGame = createAsyncThunk(`games/reactivateGame`, async(gameId, {dispatch}) => {
+export const reactivateGame = createAsyncThunk(`games/reactivateGame`, async(gameId, {dispatch, getState}) => {
+  const rootState = getState()
   const res = PugApi.reactivateGame(gameId)
-  res.then(data => dispatch(updateInactiveGames(data)))
+  res.then(data => {
+    const game = {...rootState.games.entities[data.game.id], ...data.game}
+    console.log(game, rootState)
+    dispatch(updateInactiveGames({...data, game}))
+  })
   return res
 
 })
@@ -95,6 +107,7 @@ export const gamesSlice = createSlice({
       })
       .addCase(fetchGames.fulfilled, (state, action) => {
         state.status.games = "succeeded";
+        console.log(action.payload)
         gamesAdapter.setAll(state, action.payload);
       })
       .addCase(fetchGames.rejected, (state, action) => {
@@ -120,7 +133,6 @@ export const gamesSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(leaveGame.pending, (state, action) => {
-        state.status.game = "loading";
       })
       .addCase(leaveGame.fulfilled, (state, action) => {
         state.status.game = "succeeded";
@@ -131,7 +143,6 @@ export const gamesSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(joinGame.pending, (state, action) => {
-        state.status.game = "loading";
       })
       .addCase(joinGame.fulfilled, (state, action) => {
         state.status.game = "succeeded";
@@ -146,8 +157,11 @@ export const gamesSlice = createSlice({
       })
       .addCase(createGame.fulfilled, (state, action) => {
         state.status.game = "succeeded";
-        action.payload.players = []
-        gamesAdapter.upsertOne(state, action.payload)
+        console.log(action.payload)
+        const {game, createdBy} = action.payload
+        const formattedGame = {...game, players: [], createdBy}
+        console.log(formattedGame)
+        gamesAdapter.upsertOne(state, formattedGame)
       })
       .addCase(createGame.rejected, (state, action) => {
         state.status.game = "failed";
@@ -169,12 +183,8 @@ export const gamesSlice = createSlice({
       })
       .addCase(deactivateGame.fulfilled, (state, action) => {
         state.status.game = "succeeded";
-        console.log(action.payload)
-        const {action: status, game} = action.payload
-        if(status === 'deactivated'){
-          console.log(`deactivating`)
-          gamesAdapter.removeOne(state, game.id)
-        }
+        const game = {...state.entities[action.payload.game.id], ...action.payload.game}
+        gamesAdapter.upsertOne(state, game)
 
       })
       .addCase(deactivateGame.rejected, (state, action) => {
@@ -186,12 +196,10 @@ export const gamesSlice = createSlice({
       })
       .addCase(reactivateGame.fulfilled, (state, action) => {
         state.status.game = "succeeded";
-        console.log(action.payload)
-        const {action: status, game} = action.payload
-        if(status === 'reactivated'){
-          console.log(`reactivating`)
-          gamesAdapter.upsertOne(state, game)
-        }
+        const oldGame = state.entities[action.payload.game.id]
+        const game = {...state.entities[action.payload.game.id], ...action.payload.game}
+        console.log(game, oldGame)
+        gamesAdapter.upsertOne(state, game)
 
       })
       .addCase(reactivateGame.rejected, (state, action) => {
@@ -210,3 +218,8 @@ export const {
   selectById: selectGameById,
   selectIds: selectGameIds,
 } = gamesAdapter.getSelectors((state) => state.games);
+
+export const selectAllActiveGames = createSelector(
+  [selectAllGames],
+  (games) => games.filter(game => game.isActive === true)
+)

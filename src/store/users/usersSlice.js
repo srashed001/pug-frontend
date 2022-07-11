@@ -3,7 +3,7 @@ import {
   createEntityAdapter,
   createSlice,
 } from "@reduxjs/toolkit";
-import _ from "lodash";
+import _, { result } from "lodash";
 
 import PugApi from "../../api/api";
 import { updateGames } from "../games/gamesSlice";
@@ -14,7 +14,11 @@ const usersAdapter = createEntityAdapter({
 
 const followAdapter = createEntityAdapter({
   selectId: (user) => user.username,
+
+
+
 });
+
 
 const initialState = usersAdapter.getInitialState({
   status: {
@@ -40,8 +44,11 @@ export const fetchRelationships = createAsyncThunk(
 
 export const fetchUser = createAsyncThunk(
   "users/fetchUser",
-  async (username, { dispatch }) => {
+  async (username, { dispatch, getState }) => {
     console.log(`fetch User`)
+
+    dispatch(initializeRelationships(username))
+
     const resultPromise = PugApi.getCurrentUser(username);
     resultPromise.then((data) => {
       const allGames = _.union(
@@ -52,11 +59,10 @@ export const fetchUser = createAsyncThunk(
       );
       const allUsers = _.union(data.followers, data.follows);
       dispatch(updateGames(allGames));
-      dispatch(initializeRelationships(data))
       dispatch(updateUsers(allUsers))
     })
 
-    return PugApi.getCurrentUser(username);
+    return resultPromise
   }
 );
 
@@ -69,15 +75,15 @@ const usersSlice = createSlice({
       state.status.user = 'idle'},
     resetUsersStatus: (state) => state.status.users = 'idle',
     initializeRelationships: (state, action) => {
+      const initialUser = {username: action.payload, followers: followAdapter.getInitialState(), follows: followAdapter.getInitialState()}
       console.log(action.payload)
-      usersAdapter.upsertOne(state, action.payload)
-      state.entities[action.payload.username].followers = followAdapter.getInitialState()
-      state.entities[action.payload.username].follows = followAdapter.getInitialState()
+      usersAdapter.upsertOne(state, initialUser)
     },
     resetFollowStatus: (state) => {
       return { ...state, followStatus: initialState.followStatus };
     },
     updateUsers: (state, action) => {
+      console.log(action.payload)
       usersAdapter.upsertMany(state, action.payload);
     },
     updateFollowers: (state, action) => {
@@ -104,11 +110,12 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         
-        const { followers, follows } = action.payload;
-        console.log(followers, follows, action.payload)
-        if(followers.length) followAdapter.upsertMany(state.entities[action.meta.arg].followers, followers)
-        if(follows.length) followAdapter.upsertMany(state.entities[action.meta.arg].follows, follows)
         state.status.user = "succeeded";
+        const { followers, follows, ...user } = action.payload;
+        console.log(followers, follows, action.payload)
+        usersAdapter.upsertOne(state, user)
+        followAdapter.upsertMany(state.entities[user.username].followers, followers)
+        followAdapter.upsertMany(state.entities[user.username].follows, follows)
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.status.user = "failed";

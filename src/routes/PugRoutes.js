@@ -1,36 +1,38 @@
-import React from "react";
+import React, {Suspense} from "react";
 import { Routes, Route } from "react-router-dom";
-import Homepage from "../homepage/Homepage";
-import LoginForm from "../forms/LoginForm";
-import SignupForm from "../forms/SignupForm";
-import GamesList from "../games/GamesList";
-import UsersList from "../users/UsersList";
-import GameDetails from "../games/GameDetails";
-import UserDetails from "../users/UserDetails";
-import App from "../App";
-import ThreadsList from "../threads/ThreadsList";
-import MessagesList from "../threads/MessagesList";
-import InvitesList from "../invites/InvitesList";
-import EditProfile from "../forms/EditProfile";
-import RelationshipsList from "../users/RelationshipsList";
-import NewThread from "../threads/NewThread";
-import GameInvite from "../invites/GameInvite";
-import CreateGameForm from "../forms/CreateGameForm";
-import UpdateGameForm from "../forms/UpdateGameForm";
-import InactiveGameList from "../games/InactiveGameList";
-import CourtsList from "../courts/CourtsList";
+const GameMapAndDetails = React.lazy(() => import("../games/GameMapAndDetails"));
+const Homepage = React.lazy(() => import("../homepage/Homepage"));
+const LoginForm = React.lazy(() => import("../forms/LoginForm"));
+const SignupForm = React.lazy(() => import("../forms/SignupForm"));
+const UserDetails = React.lazy(() => import("../users/UserDetails"));
+const ThreadsList = React.lazy(() => import("../threads/ThreadsList"));
+const MessagesList = React.lazy(() => import("../threads/MessagesList"));
+const InvitesList = React.lazy(() => import("../invites/InvitesList"));
+const EditProfile = React.lazy(() => import("../forms/EditProfile"));
+const RelationshipsList = React.lazy(() => import("../users/RelationshipsList"));
+const NewThread = React.lazy(() => import("../threads/NewThread"));
+const GameInvite = React.lazy(() => import("../invites/GameInvite"));
+const CreateGameForm = React.lazy(() => import("../forms/CreateGameForm"));
+const UpdateGameForm = React.lazy(() => import("../forms/UpdateGameForm"));
+const InactiveGameList = React.lazy(() => import("../games/InactiveGameList"));
+const CourtsList = React.lazy(() => import("../courts/CourtsList"));
+const GamesList = React.lazy(() => import("../games/GamesList"));
+const UsersList = React.lazy(() => import("../users/UsersList"));
+const GameInviteList = React.lazy(() => import('../invites/GameInviteList'))
+
 
 function PugRoutes({ login, signup }) {
   return (
-    <div>
+    <Suspense >
       <Routes>
         <Route path="/" element={<Homepage />} />   
         <Route path="/courts" element={<CourtsList />} />   
          
         <Route path="inactive/g" element={<InactiveGameList />} />      
-        <Route path="/relationships/:username" element={<RelationshipsList />} />
+        <Route path="/relationships/f/:username" element={<RelationshipsList state={'followers'} />} />
+        <Route path="/relationships/g/:username" element={<RelationshipsList  />} />
         <Route path="/invites" element={<InvitesList />} />  
-        <Route path="/invites/:gameId" element={<GameInvite />} />  
+        <Route path="/invites/:gameId" element={<GameInviteList />} />  
         <Route path="/editProfile" element={<EditProfile />} />  
         <Route path="/threads/new" element = {<NewThread />} />
         <Route path="/threads/inbox" element = {<ThreadsList />} />
@@ -45,12 +47,12 @@ function PugRoutes({ login, signup }) {
    
         <Route path="/games" element={<GamesList />} />
         <Route path="/games/new" element={<CreateGameForm />} />
-        <Route path="/games/g/:gameId" element={<GameDetails />} />
+        <Route path="/games/g/:gameId" element={<GameMapAndDetails />} />
         <Route path="/games/update/:gameId" element={<UpdateGameForm />} />
       
 
       </Routes>
-    </div>
+    </Suspense>
   );
 }
 
