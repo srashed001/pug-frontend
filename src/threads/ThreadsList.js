@@ -1,9 +1,6 @@
 import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchThreads,
-  selectAllThreads,
-} from "../store/threads/threadsSlice";
+import { fetchThreads, selectAllThreads } from "../store/threads/threadsSlice";
 import Thread from "./Thread";
 import { Divider, Stack } from "@mui/material";
 import ThreadsListNav from "./ThreadsListNav";
@@ -37,8 +34,7 @@ function ThreadsList() {
   if (threadStatus === "failed") {
     return <div>{error}</div>;
   } else {
-    console.log(resource)
-    
+
     return (
       <Stack mt={12}>
         <ThreadsListNav
@@ -47,7 +43,7 @@ function ThreadsList() {
         />
 
         <Stack
-          sx={{padding: 1 }}
+          sx={{ padding: 1 }}
           divider={<Divider orientation="horizontal" flexItem />}
         >
           {resource.map((thread) => (
@@ -56,7 +52,6 @@ function ThreadsList() {
         </Stack>
       </Stack>
     );
-
   }
 }
 

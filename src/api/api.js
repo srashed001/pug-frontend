@@ -44,17 +44,11 @@ class PugApi {
   
   /****************************************************************************** User API Routes */
 
-
-  static uploadPhoto(file, onUploadProgress){
-    const data = {
-      profileImg: file
-    }
-  }
-
+  /** Get user activity */
 
   static async getUserActivity(username){
     let res = await this.request(`activity/${username}`)
-    return res.activity
+    return res
   }
 
   /** Get the current user. */
@@ -264,6 +258,8 @@ class PugApi {
     let res = await this.request(`games/${gameId}`);
     return res;
   }
+
+  /** Gets inactive games */
   
   static async getInactiveGames(username){
     const data = {

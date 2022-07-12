@@ -5,11 +5,11 @@ import { addMessageInThread } from "../store/threads/threadsSlice";
 import { useParams } from "react-router-dom";
 
 function MessageInput() {
-    const {threadId} = useParams()
-    const dispatch = useDispatch()
-    const my = useSelector(state => state.my)
+  const { threadId } = useParams();
+  const dispatch = useDispatch();
+  const my = useSelector((state) => state.my);
   const {
-      reset,
+    reset,
     control,
     handleSubmit,
     formState: { errors },
@@ -28,20 +28,30 @@ function MessageInput() {
         justifyContent: "center",
         alignItems: "center",
         border: 1,
-        backgroundColor: "#660708"
+        backgroundColor: "#660708",
       }}
-      onSubmit={handleSubmit(({message}, e) => {
-
-        dispatch(addMessageInThread({username: my.username, threadId, message}))
-        reset({message: ''})
-        
+      onSubmit={handleSubmit(({ message }, e) => {
+        dispatch(
+          addMessageInThread({ username: my.username, threadId, message })
+        );
+        reset({ message: "" });
       })}
     >
       <Controller
         name="message"
         control={control}
         render={({ field }) => (
-          <TextField size='small'  sx={{fontSize: 10, width: "80%", backgroundColor: '#ffffff', borderRadius: 1 }}  {...field} label="message" />
+          <TextField
+            size="small"
+            sx={{
+              fontSize: 10,
+              width: "80%",
+              backgroundColor: "#ffffff",
+              borderRadius: 1,
+            }}
+            {...field}
+            label="message"
+          />
         )}
       />
     </Box>

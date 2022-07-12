@@ -4,9 +4,9 @@
 
 
 import axios from "axios";
+import API_KEY from "./googleApiKey";
 
-const api_key = `AIzaSyApojF0t8e5G5hTZuwtV3D_3Rimwd2M-NE`
-const BASE_URL = `https://www.googleapis.com/geolocation/v1/geolocate?key=${api_key}`;
+const BASE_URL = `https://www.googleapis.com/geolocation/v1/geolocate?key=${API_KEY}`;
 
 /** API Class.
  *
@@ -16,7 +16,7 @@ const BASE_URL = `https://www.googleapis.com/geolocation/v1/geolocate?key=${api_
 
 class GeoLocationApi {
   // the token for interactive with the API will be stored here.
-  static api_key = `AIzaSyApojF0t8e5G5hTZuwtV3D_3Rimwd2M-NE`;
+  static api_key = API_KEY;
 
   static async request(data = {}, method = "get") {
     console.debug("API Call:", data, method);

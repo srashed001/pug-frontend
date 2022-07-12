@@ -1,7 +1,4 @@
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
+import usePlacesAutocomplete from "use-places-autocomplete";
 import { Controller } from "react-hook-form";
 import {
   Autocomplete,
@@ -11,19 +8,16 @@ import {
   FormHelperText,
 } from "@mui/material";
 import statesArr from "../common/50states";
-import { useEffect } from "react";
 
 const inputOptions = {
   width: {
-    xs: "100%",
+    xs: "95%",
     sm: "80%",
   },
 };
 
 function AddressAutoComplete({ control, watch, setFormValue, reset, errors, getValues }) {
   const {
-    ready,
-    value,
     suggestions: { status, data },
     setValue,
     clearSuggestions,

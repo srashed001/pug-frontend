@@ -4,6 +4,17 @@
 /node_modules
 /.pnp
 .pnp.js
+/src/invites/GameInvite.js
+/src/api/googleApiKey.js
+/src/api/googlePlaces.js
+/src/api/NearbySearchApi.js
+/src/api/secretKey.js
+/src/common/history.js
+/src/courts/CourtListDraft.js
+/src/invites/GameInvite.js
+/src/games/InactiveGameList.js
+/src/users/RelationshipCard.js
+/src/users/UserDetailsBio.js
 
 # testing
 /coverage

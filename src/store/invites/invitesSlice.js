@@ -26,34 +26,33 @@ export const fetchMyInvites = createAsyncThunk(
   }
 );
 
-export const createInvites = createAsyncThunk(`invites/createInvites`, async ({username, gameId, toUsers})=> {
-  return PugApi.createInvites(username, gameId, {toUsers})
-
-})
+export const createInvites = createAsyncThunk(
+  `invites/createInvites`,
+  async ({ username, gameId, toUsers }) => {
+    return PugApi.createInvites(username, gameId, { toUsers });
+  }
+);
 
 export const acceptInvite = createAsyncThunk(
-  `invites/acceptInvite`, 
-  async(data) => {
-    const {username, id} = data
-    return PugApi.updateInvite(username, 'accept', id)
+  `invites/acceptInvite`,
+  async ({ username, id }) => {
+    return PugApi.updateInvite(username, "accept", id);
   }
-)
+);
 
 export const denyInvite = createAsyncThunk(
-  `invites/denyInvite`, 
-  async(data) => {
-    const {username, id} = data
-    return PugApi.updateInvite(username, 'deny', id)
+  `invites/denyInvite`,
+  async ({ username, id }) => {
+    return PugApi.updateInvite(username, "deny", id);
   }
-)
+);
 
 export const cancelInvite = createAsyncThunk(
-  `invites/cancelInvite`, 
-  async(data) => {
-    const {username, id} = data
-    return PugApi.updateInvite(username, 'cancel', id)
+  `invites/cancelInvite`,
+  async ({ username, id }) => {
+    return PugApi.updateInvite(username, "cancel", id);
   }
-)
+);
 
 export const invitesSlice = createSlice({
   name: "invites",
@@ -74,7 +73,10 @@ export const invitesSlice = createSlice({
       .addCase(fetchMyInvites.fulfilled, (state, action) => {
         state.status = "succeeded";
         const invites = action.payload;
-        invitesAdapter.upsertMany(state, [...invites.received, ...invites.sent])
+        invitesAdapter.upsertMany(state, [
+          ...invites.received,
+          ...invites.sent,
+        ]);
       })
       .addCase(fetchMyInvites.rejected, (state, action) => {
         state.status = "failed";
@@ -85,9 +87,8 @@ export const invitesSlice = createSlice({
       })
       .addCase(acceptInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload)
-        const invite = action.payload.invite;
-        invitesAdapter.upsertOne(state, invite)
+        const invite = action.payload
+        invitesAdapter.upsertOne(state, invite);
       })
       .addCase(acceptInvite.rejected, (state, action) => {
         state.status = "failed";
@@ -98,9 +99,8 @@ export const invitesSlice = createSlice({
       })
       .addCase(denyInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload)
-        const invite = action.payload.invite;
-        invitesAdapter.upsertOne(state, invite)
+        const invite = action.payload
+        invitesAdapter.upsertOne(state, invite);
       })
       .addCase(denyInvite.rejected, (state, action) => {
         state.status = "failed";
@@ -111,9 +111,8 @@ export const invitesSlice = createSlice({
       })
       .addCase(cancelInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload)
-        const invite = action.payload.invite;
-        invitesAdapter.upsertOne(state, invite)
+        const invite = action.payload
+        invitesAdapter.upsertOne(state, invite);
       })
       .addCase(cancelInvite.rejected, (state, action) => {
         state.status = "failed";
@@ -124,8 +123,7 @@ export const invitesSlice = createSlice({
       })
       .addCase(createInvites.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload)
-        invitesAdapter.upsertMany(state, action.payload)
+        invitesAdapter.upsertMany(state, action.payload);
       })
       .addCase(createInvites.rejected, (state, action) => {
         state.status = "failed";
@@ -138,19 +136,19 @@ export const { updateInvites, resetInviteStatus } = invitesSlice.actions;
 
 export default invitesSlice.reducer;
 
-  export const {
-    selectAll: selectAllInvites,
-    selectById: selectInvitesById,
-    selectIds: selectInviteIds,
-  } = invitesAdapter.getSelectors((state) => state.invites);
+export const {
+  selectAll: selectAllInvites,
+  selectById: selectInvitesById,
+  selectIds: selectInviteIds,
+} = invitesAdapter.getSelectors((state) => state.invites);
 
-  export const selectInvitesReceived = createSelector(
-    [selectAllInvites, (state, username) => username],
-    (invites, username) => invites.filter(invite => invite.toUser === username)
-  )
+export const selectInvitesReceived = createSelector(
+  [selectAllInvites, (state, username) => username],
+  (invites, username) => invites.filter((invite) => invite.toUser === username)
+);
 
-  export const selectInvitesSent = createSelector(
-    [selectAllInvites, (state, username) => username],
-    (invites, username) => invites.filter(invite => invite.fromUser === username)
-  )
-
+export const selectInvitesSent = createSelector(
+  [selectAllInvites, (state, username) => username],
+  (invites, username) =>
+    invites.filter((invite) => invite.fromUser === username)
+);

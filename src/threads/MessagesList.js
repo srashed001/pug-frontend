@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
-import { fetchMessages, resetThreadStatus, selectThreadById } from "../store/threads/threadsSlice";
-import LoadingSpinner from "../common/LoadingSpinner";
+import { useParams } from "react-router-dom";
+import {
+  fetchMessages,
+  resetThreadStatus,
+  selectThreadById,
+} from "../store/threads/threadsSlice";
 import Message from "./Message";
 import MessagesListNav from "./MessageListNav";
-import { Grid, Stack, Box } from "@mui/material";
+import { Stack, Box } from "@mui/material";
 import MessageBottomNav from "./MessageBottomNav";
-import MessageFrom from "./MessageFrom";
 
 function MessagesList() {
   const { threadId } = useParams();
@@ -23,12 +25,11 @@ function MessagesList() {
     party: [],
   });
   const [isPending, setTransition] = useTransition();
-  const [openDelete, setOpenDelete] = useState(false)
+  const [openDelete, setOpenDelete] = useState(false);
 
   const toggleOpenDelete = () => {
     setOpenDelete((state) => !state);
   };
-
 
   const scrollRef = useRef(null);
 
@@ -43,7 +44,7 @@ function MessagesList() {
       dispatch(fetchMessages({ username: my.username, threadId }));
     }
 
-    return () => dispatch(resetThreadStatus())
+    return () => dispatch(resetThreadStatus());
   }, [dispatch, my.status, my.username, threadId]);
 
   useEffect(() => {
@@ -53,17 +54,21 @@ function MessagesList() {
   if (threadStatus === "failed") {
     return <div>{error}</div>;
   } else {
-    console.log(resource, openDelete);
-
     return (
       <Stack>
-        <MessagesListNav thread={thread} handleOpenDelete={toggleOpenDelete} openDelete={openDelete} />
-        <Stack
-          sx={{ marginTop: 16, marginBottom: 6 }}
-          spacing={1}
-        >
+        <MessagesListNav
+          thread={thread}
+          handleOpenDelete={toggleOpenDelete}
+          openDelete={openDelete}
+        />
+        <Stack sx={{ marginTop: 16, marginBottom: 6 }} spacing={1}>
           {Object.values(resource.messages.entities).map((message) => (
-            <Message key={message.id} message={message} threadId={threadId} openDelete={openDelete} />
+            <Message
+              key={message.id}
+              message={message}
+              threadId={threadId}
+              openDelete={openDelete}
+            />
           ))}
           <Box ref={scrollRef}></Box>
         </Stack>

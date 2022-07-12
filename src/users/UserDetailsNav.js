@@ -1,10 +1,4 @@
-import {
-  Box,
-  Grid,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Grid, IconButton, Stack, Typography } from "@mui/material";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import PersonRemoveAlt1Icon from "@mui/icons-material/PersonRemoveAlt1";
 import MessageIcon from "@mui/icons-material/Message";
@@ -12,25 +6,16 @@ import PeopleIcon from "@mui/icons-material/People";
 import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 
+function UserDetailsNav({ user, state, toggle, initiateNewMessage }) {
+  const navigate = useNavigate();
+  const getFollowers = useCallback(() => {
+    navigate(`/relationships/f/${user.username}`);
+  }, [navigate, user.username]);
 
-function UserDetailsNav({
-  user,
-  state,
-  toggle,
-  initiateNewMessage,
-}) {
-    const navigate = useNavigate()
-    const getFollowers = useCallback(() => {
-        navigate(`/relationships/f/${user.username}`);
-      }, [navigate, user.username]);
-    
   return (
     <Grid container justifyContent={"center"} sx={{ marginTop: 1 }}>
-      <Grid
-        item
-        xs={12}
-      >
-        <Box >
+      <Grid item xs={12}>
+        <Box>
           <Box sx={{ paddingY: 1, boxShadow: 3 }}>
             <Stack justifyContent="space-evenly" direction="row">
               <Typography component={"div"} variant={"subtitle1"}>
@@ -46,7 +31,7 @@ function UserDetailsNav({
             direction="row"
             sx={{ margin: 1 }}
           >
-            <Typography component={"div"} sx={{fontSize: {xs: '12px'}}}>
+            <Typography component={"div"} sx={{ fontSize: { xs: "12px" } }}>
               followers:{" "}
               <Link
                 style={{ textDecoration: "none" }}
@@ -55,7 +40,7 @@ function UserDetailsNav({
                 {user.followers.ids.length}
               </Link>
             </Typography>
-            <Typography component={"div"} sx={{fontSize: {xs: '12px'}}}>
+            <Typography component={"div"} sx={{ fontSize: { xs: "12px" } }}>
               following:{" "}
               <Link
                 style={{ textDecoration: "none" }}
@@ -64,12 +49,12 @@ function UserDetailsNav({
                 {user.follows.ids.length}
               </Link>
             </Typography>
-            <Typography component={"div"} sx={{fontSize: {xs: '12px'}}}>
+            <Typography component={"div"} sx={{ fontSize: { xs: "12px" } }}>
               hosted:{" "}
               {user.games.hosted.pending.length +
                 user.games.hosted.resolved.length}
             </Typography>
-            <Typography component={"div"} sx={{fontSize: {xs: '12px'}}}>
+            <Typography component={"div"} sx={{ fontSize: { xs: "12px" } }}>
               joined:{" "}
               {user.games.joined.pending.length +
                 user.games.joined.resolved.length}
@@ -84,7 +69,7 @@ function UserDetailsNav({
             }}
           >
             {state === "follow" ? (
-              <IconButton  onClick={toggle} component="span">
+              <IconButton onClick={toggle} component="span">
                 <PersonAddAlt1Icon />
               </IconButton>
             ) : (

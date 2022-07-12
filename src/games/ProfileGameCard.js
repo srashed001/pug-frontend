@@ -1,33 +1,16 @@
-import {
-  Box,
-  Grid,
-  Typography,
-  Stack,
-  Divider,
-} from "@mui/material";
+import { Box, Grid, Typography, Stack, Divider } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectUserById } from "../store/users/usersSlice";
 import { Link } from "react-router-dom";
-import { formatDistanceToNowStrict,format } from "date-fns";
+import { formatDistanceToNowStrict, format } from "date-fns";
 
-function ProfileGameCard({ game }) {
-  const {
-    id,
-    address,
-    city,
-    createdBy,
-    date,
-    daysDiff,
-    isActive,
-    players,
-    state,
-    time,
-    title,
-  } = game;
+function ProfileGameCard({ game, inactive }) {
 
-  const user = useSelector((state) => selectUserById(state, game.createdBy.username));
+  const user = useSelector((state) =>
+    selectUserById(state, game.createdBy.username)
+  );
 
-  if (!game.isActive) return null;
+  if (!game.isActive && !inactive) return null;
 
   return (
     <Grid
@@ -36,10 +19,10 @@ function ProfileGameCard({ game }) {
         maxWidth: 250,
         minWidth: 250,
         margin: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: "#FFFFFF",
         boxShadow: 3,
-    
-        borderRadius: 2
+
+        borderRadius: 2,
       }}
     >
       <Grid item xs={12}>
@@ -51,7 +34,7 @@ function ProfileGameCard({ game }) {
           }}
         >
           <Typography
-            sx={{ fontSize: {xs: '20px', sm:"24px"} }}
+            sx={{ fontSize: { xs: "20px", sm: "24px" } }}
             noWrap
             component={"div"}
             marginBottom={2}
@@ -59,25 +42,45 @@ function ProfileGameCard({ game }) {
           >
             {game.title}
           </Typography>
-          <Typography sx={{ fontSize: {xs: '12px', sm: "16px"} }} component={"div"}>
+          <Typography
+            sx={{ fontSize: { xs: "12px", sm: "16px" } }}
+            component={"div"}
+          >
             Address
           </Typography>
           <Divider />
-          <Typography sx={{ fontSize: {xs: '12px', sm: "14px"} }} component={"div"}>
+          <Typography
+            sx={{ fontSize: { xs: "12px", sm: "14px" } }}
+            component={"div"}
+          >
             {game.address}
           </Typography>
-          <Typography sx={{ fontSize: {xs: '12px', sm: "14px"} }} component={"div"} marginBottom={2}>
+          <Typography
+            sx={{ fontSize: { xs: "12px", sm: "14px" } }}
+            component={"div"}
+            marginBottom={2}
+          >
             {game.city}, {game.state}
           </Typography>
-          <Typography sx={{ fontSize: {xs: '12px', sm: "16px"} }}  component={"div"}>
+          <Typography
+            sx={{ fontSize: { xs: "12px", sm: "16px" } }}
+            component={"div"}
+          >
             Date
           </Typography>
           <Divider />
-          <Typography sx={{ fontSize: {xs: '12px', sm: "14px"} }} component={"div"}>
-            {format(new Date(game.date), 'PP')}
+          <Typography
+            sx={{ fontSize: { xs: "12px", sm: "14px" } }}
+            component={"div"}
+          >
+            {format(new Date(game.date), "PP")}
           </Typography>
-          <Typography sx={{ fontSize: {xs: '12px', sm: "14px"} }} component={"div"} marginBottom={2}>
-            {format(new Date(`1995-12-17T${game.time}`), 'p')}
+          <Typography
+            sx={{ fontSize: { xs: "12px", sm: "14px" } }}
+            component={"div"}
+            marginBottom={2}
+          >
+            {format(new Date(`1995-12-17T${game.time}`), "p")}
           </Typography>
         </Stack>
       </Grid>
@@ -90,7 +93,7 @@ function ProfileGameCard({ game }) {
                 width: { xs: 100, sm: 100 },
                 backgroundColor: "#ffffff",
                 boxShadow: "1px 1px 3px #D3D3D3",
-                borderRadius: '50%'
+                borderRadius: "50%",
               }}
               component="img"
               src={user.profileImg}

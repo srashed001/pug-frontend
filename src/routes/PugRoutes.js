@@ -1,6 +1,8 @@
-import React, {Suspense} from "react";
+import React, { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-const GameMapAndDetails = React.lazy(() => import("../games/GameMapAndDetails"));
+const GameMapAndDetails = React.lazy(() =>
+  import("../games/GameMapAndDetails")
+);
 const Homepage = React.lazy(() => import("../homepage/Homepage"));
 const LoginForm = React.lazy(() => import("../forms/LoginForm"));
 const SignupForm = React.lazy(() => import("../forms/SignupForm"));
@@ -9,48 +11,53 @@ const ThreadsList = React.lazy(() => import("../threads/ThreadsList"));
 const MessagesList = React.lazy(() => import("../threads/MessagesList"));
 const InvitesList = React.lazy(() => import("../invites/InvitesList"));
 const EditProfile = React.lazy(() => import("../forms/EditProfile"));
-const RelationshipsList = React.lazy(() => import("../users/RelationshipsList"));
+const RelationshipsList = React.lazy(() =>
+  import("../users/RelationshipsList")
+);
 const NewThread = React.lazy(() => import("../threads/NewThread"));
-const GameInvite = React.lazy(() => import("../invites/GameInvite"));
 const CreateGameForm = React.lazy(() => import("../forms/CreateGameForm"));
 const UpdateGameForm = React.lazy(() => import("../forms/UpdateGameForm"));
-const InactiveGameList = React.lazy(() => import("../games/InactiveGameList"));
 const CourtsList = React.lazy(() => import("../courts/CourtsList"));
 const GamesList = React.lazy(() => import("../games/GamesList"));
 const UsersList = React.lazy(() => import("../users/UsersList"));
-const GameInviteList = React.lazy(() => import('../invites/GameInviteList'))
-
+const GameInviteList = React.lazy(() => import("../invites/GameInviteList"));
 
 function PugRoutes({ login, signup }) {
   return (
-    <Suspense >
+    <Suspense>
       <Routes>
-        <Route path="/" element={<Homepage />} />   
-        <Route path="/courts" element={<CourtsList />} />   
-         
-        <Route path="inactive/g" element={<InactiveGameList />} />      
-        <Route path="/relationships/f/:username" element={<RelationshipsList state={'followers'} />} />
-        <Route path="/relationships/g/:username" element={<RelationshipsList  />} />
-        <Route path="/invites" element={<InvitesList />} />  
-        <Route path="/invites/:gameId" element={<GameInviteList />} />  
-        <Route path="/editProfile" element={<EditProfile />} />  
-        <Route path="/threads/new" element = {<NewThread />} />
-        <Route path="/threads/inbox" element = {<ThreadsList />} />
-        <Route path="/threads/t/:threadId" element = {<MessagesList />} />
-        <Route path="/login" login={login} element={<LoginForm login={login} />} />
+        <Route path="/" element={<Homepage />} />
+        <Route path="/courts" element={<CourtsList />} />
+
+        <Route
+          path="/relationships/f/:username"
+          element={<RelationshipsList state={"followers"} />}
+        />
+        <Route
+          path="/relationships/g/:username"
+          element={<RelationshipsList />}
+        />
+        <Route path="/invites" element={<InvitesList />} />
+        <Route path="/invites/:gameId" element={<GameInviteList />} />
+        <Route path="/editProfile" element={<EditProfile />} />
+        <Route path="/threads/new" element={<NewThread />} />
+        <Route path="/threads/inbox" element={<ThreadsList />} />
+        <Route path="/threads/t/:threadId" element={<MessagesList />} />
+        <Route
+          path="/login"
+          login={login}
+          element={<LoginForm login={login} />}
+        />
         <Route path="/signup" element={<SignupForm />} />
-        
+
         <Route path="/users" element={<UsersList />} />
 
-        
         <Route path="/users/u/:username" element={<UserDetails />} />
-   
+
         <Route path="/games" element={<GamesList />} />
         <Route path="/games/new" element={<CreateGameForm />} />
         <Route path="/games/g/:gameId" element={<GameMapAndDetails />} />
         <Route path="/games/update/:gameId" element={<UpdateGameForm />} />
-      
-
       </Routes>
     </Suspense>
   );

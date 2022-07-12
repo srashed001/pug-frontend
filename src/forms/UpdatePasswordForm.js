@@ -1,6 +1,6 @@
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { useForm, Controller } from "react-hook-form";
-import { Typography, Alert, Stack, Grid, TextField, Button } from "@mui/material";
+import { Typography, Alert, Stack, TextField, Button } from "@mui/material";
 import PugApi from "../api/api";
 import { useState } from "react";
 
@@ -27,8 +27,6 @@ function UpdatePasswordForm() {
     }
   }
 
-
-  console.log(errors);
 
   const inputOptions = {width: {
     xs: '100%',

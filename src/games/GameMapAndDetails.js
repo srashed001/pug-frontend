@@ -42,7 +42,12 @@ function GameMapAndDetails() {
     libraries,
   });
   const [selected, setSelected] = useState(null);
-  const [location, setLocation] = useState();
+  const [location, setLocation] = useState({
+    address: "",
+    city: "",
+    state: "",
+  });
+  const [game, setGame] = useState();
   const markers = useSelector(selectAllCourts);
 
   const mapRef = useRef();
@@ -76,13 +81,34 @@ function GameMapAndDetails() {
     service.getDetails(request, (place, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         if (!disabled) setSelected(place);
+        const location = place.address_components.reduce((accum, curr) => {
+          if (curr.types[0] === "street_number")
+            return { ...accum, address: curr.long_name };
+          if (curr.types[0] === "route")
+            return {
+              ...accum,
+              address: accum.address
+                ? accum.address + " " + curr.short_name
+                : curr.short_name,
+            };
+          if (curr.types[0] === "locality")
+            return { ...accum, city: curr.long_name };
+          if (curr.types[0] === "administrative_area_level_1")
+            return { ...accum, state: curr.short_name };
+          return accum;
+        }, {});
+
+        if (!location.address) location.address = place.name;
+        setLocation(location);
       }
     });
   }, []);
 
+  if (loadError) return <div>Error</div>;
+
   if (isLoaded)
     return (
-      <Stack sx={{ width: "100%" , marginBottom: 10}}>
+      <Stack sx={{ width: "100%", marginBottom: 10 }}>
         <Box className="google">
           {isLoaded && (
             <GoogleMap
@@ -94,9 +120,9 @@ function GameMapAndDetails() {
               onLoad={onMapLoad}
               onClick={() => setSelected(null)}
             >
-              {location && (
+              {game && (
                 <MarkerF
-                  position={location}
+                  position={game}
                   visible={true}
                   title={`Game Location`}
                   icon={{
@@ -107,7 +133,6 @@ function GameMapAndDetails() {
                   }}
                 ></MarkerF>
               )}
-
               {markers &&
                 markers.map((marker) => (
                   <MarkerF
@@ -120,20 +145,30 @@ function GameMapAndDetails() {
                   >
                     {selected && selected.place_id === marker.place_id && (
                       <InfoWindowF
+                        className="info"
+                        onLoad={() => {
+                          mapRef.current.panTo(selected.geometry.location);
+                        }}
                         onCloseClick={() => {
                           setSelected(null);
                         }}
+                        position={selected.geometry.location}
                       >
-                        <CourtInfoWindow selected={selected} />
+                        <CourtInfoWindow
+                          selected={selected}
+                          location={location}
+                        />
                       </InfoWindowF>
                     )}
                   </MarkerF>
                 ))}
             </GoogleMap>
           )}
-          <Button sx={{color: 'rgba(177, 167, 166)'}} onClick={getCourts}>Find courts in area</Button>
+          <Button sx={{ color: "rgba(177, 167, 166)" }} onClick={getCourts}>
+            Find courts in area
+          </Button>
         </Box>
-        <GameDetails panTo={panTo} gameId={gameId} setLocation={setLocation} />
+        <GameDetails panTo={panTo} gameId={gameId} setLocation={setGame} />
       </Stack>
     );
 }

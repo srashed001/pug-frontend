@@ -25,7 +25,7 @@ function Invite({ invite, value }) {
   const { id, gameId, fromUser, toUser, status, createdOn } = invite;
 
   const user = useSelector((state) =>
-    selectUserById(state, value === 0 ? fromUser : toUser)
+    selectUserById(state, value === "received" ? fromUser : toUser)
   );
   const game = useSelector((state) => selectGameById(state, gameId));
 
@@ -55,18 +55,14 @@ function Invite({ invite, value }) {
     dispatch(cancelInvite(data));
   }
 
-  console.log(user)
+  console.log(user);
   return (
     <Card elevation={10}>
       <CardHeader
-        avatar={
-          <Avatar
-            src={
-              "https://image.shutterstock.com/image-photo/basketball-600w-678814261.jpg"
-            }
-          />
-        }
-        title={`${user.firstName} ${user.lastName}`}
+        avatar={<Avatar src={user.profileImg} />}
+        title={`${value === "received" ? "From:" : "To:"} ${user.firstName} ${
+          user.lastName
+        }`}
         subheader={formatDistanceToNowStrict(new Date(createdOn))}
       />
       <Divider variant="middle" />
@@ -94,7 +90,7 @@ function Invite({ invite, value }) {
         />
       </CardContent>
       <CardActions>
-        {value === 0 ? (
+        {value === "received" ? (
           status === "pending" ? (
             <>
               <Button onClick={dispatchAcceptInvite}>accept</Button>

@@ -29,7 +29,8 @@ if (my.status === "failed") {
         <Tabs
           value={value}
           onChange={handleChange}
-          aria-label="icon label tabs example"
+          aria-label="update profile options"
+          sx={{boxShadow: 3}}
           centered
         >
           <Tab icon={<PersonIcon />} label="profile" />

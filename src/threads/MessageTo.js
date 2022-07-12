@@ -1,9 +1,8 @@
 import { Avatar, Box, IconButton, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectUserById } from "../store/users/usersSlice";
-import {formatDistanceToNowStrict} from 'date-fns'
+import { formatDistanceToNowStrict } from "date-fns";
 import DeleteIcon from "@mui/icons-material/Delete";
-
 
 function MessageTo({ message, deleteMessage, openDelete }) {
   const user = useSelector((state) =>
@@ -13,7 +12,7 @@ function MessageTo({ message, deleteMessage, openDelete }) {
   return (
     <Stack>
       <Box sx={{ display: "inline-flex", paddingX: 1 }}>
-      {openDelete && (
+        {openDelete && (
           <Box>
             <IconButton
               onClick={deleteMessage}
@@ -28,14 +27,28 @@ function MessageTo({ message, deleteMessage, openDelete }) {
           <Avatar src={user.profileImg} />
         </Box>
         <Box
-          sx={{ maxWidth: "50%", padding: 1, paddingX: 3, borderRadius: 5, boxShadow: 3 }}
+          sx={{
+            maxWidth: "50%",
+            padding: 1,
+            paddingX: 3,
+            borderRadius: 5,
+            boxShadow: 3,
+          }}
         >
-          <Typography component={'pre'}
-            sx={{ fontSize: { xs: 14 },  textAlign: 'center' }}
-          >{message.message}</Typography>
+          <Typography
+            component={"pre"}
+            sx={{ fontSize: { xs: 14 }, textAlign: "center" }}
+          >
+            {message.message}
+          </Typography>
         </Box>
       </Box>
-      <Typography variant="caption" sx={{fontSize: 10, color: '#B1A7A6', marginLeft: 10, marginTop: 1 }} >{formatDistanceToNowStrict(new Date(message.createdOn), 'Pp')}</Typography>
+      <Typography
+        variant="caption"
+        sx={{ fontSize: 10, color: "#B1A7A6", marginLeft: 10, marginTop: 1 }}
+      >
+        {formatDistanceToNowStrict(new Date(message.createdOn), "Pp")}
+      </Typography>
     </Stack>
   );
 }

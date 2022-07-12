@@ -3,19 +3,10 @@ import GameDetailsDescription from "./GameDetailsDescription";
 import GameDetailsAddressDate from "./GameDetailsAddressDate";
 import GameDetailsPlayers from "./GameDetailsPlayers";
 import GameDetailsComment from "./GameDetailsComments";
-import {
-  Stack,
-  Typography,
-  Box,
-  Paper,
-  Button,
-  Divider,
-  Avatar,
-} from "@mui/material";
-import { useParams } from "react-router-dom";
+import { Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { selectGameById } from "../store/games/gamesSlice";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { selectCommentsByGame } from "../store/comments/commentsSlice";
 import { fetchGame } from "../store/games/gamesSlice";
 import initialGame from "../common/initialGame";
@@ -65,7 +56,6 @@ function GameDetails({ panTo, gameId, setLocation }) {
   if (gameStatus === "failed") return <div>{error}</div>;
 
   const joined = resource.players.find((player) => player === my.username);
-  console.log(resource, game);
 
   return (
     <>

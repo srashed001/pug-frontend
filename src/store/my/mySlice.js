@@ -1,34 +1,26 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
-  createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
 import PugApi from "../../api/api";
 import _ from "lodash";
 import { updateGames } from "../games/gamesSlice";
 import { updateInvites } from "../invites/invitesSlice";
-import {
-  initializeRelationships,
-  updateFollowers,
-  updateUsers,
-} from "../users/usersSlice";
+import { updateFollowers, updateUsers } from "../users/usersSlice";
 import { updateThreads } from "../threads/threadsSlice";
 
 export const myAdapter = createEntityAdapter({
   selectId: (my) => my.username || my.id || my.primaryuser,
 });
 
-// const initialState = myAdapter.getInitialState({
-//   status: "idle",
-//   error: null,
-// });
 const initialState = {
   status: "idle",
   error: null,
   username: null,
   user: null,
-  activity: myAdapter.getInitialState(),
+  activity: [],
+  myActivity: [],
   gamesHostedPending: myAdapter.getInitialState(),
   gamesHostedResolved: myAdapter.getInitialState(),
   gamesJoinedPending: myAdapter.getInitialState(),
@@ -52,9 +44,12 @@ export const toggleRelationship = createAsyncThunk(
   }
 );
 
-export const fetchMyActivity = createAsyncThunk(`my/fetchMyActivity`, async (username) => {
-  return PugApi.getUserActivity(username)
-})
+export const fetchMyActivity = createAsyncThunk(
+  `my/fetchMyActivity`,
+  async (username) => {
+    return PugApi.getUserActivity(username);
+  }
+);
 
 export const fetchInitialMy = createAsyncThunk(
   "my/fetchInitialMy",
@@ -89,28 +84,28 @@ export const fetchInitialMy = createAsyncThunk(
 
 export const updateProfile = createAsyncThunk(
   `my/updateProfile`,
-  async ({ username, data }, { dispatch }) => {
+  async ({ username, data }) => {
     return PugApi.editUserProfile(username, data);
   }
 );
 
 export const acceptInvite = createAsyncThunk(
   `my/acceptInvite`,
-  async (data) => {
-    const { username, id } = data;
+  async ({ username, id }) => {
     return PugApi.updateInvite(username, "accept", id);
   }
 );
 
-export const denyInvite = createAsyncThunk(`my/denyInvite`, async (data) => {
-  const { username, id } = data;
-  return PugApi.updateInvite(username, "deny", id);
-});
+export const denyInvite = createAsyncThunk(
+  `my/denyInvite`,
+  async ({ username, id }) => {
+    return PugApi.updateInvite(username, "deny", id);
+  }
+);
 
 export const cancelInvite = createAsyncThunk(
   `my/cancelInvite`,
-  async (data) => {
-    const { username, id } = data;
+  async ({ username, id }) => {
     return PugApi.updateInvite(username, "cancel", id);
   }
 );
@@ -133,7 +128,6 @@ export const mySlice = createSlice({
         state.invitesSent = invites.sent.map((invite) => invite.id);
     },
     updateInactiveGames(state, action) {
-      console.log(action.payload);
       const { action: status, game } = action.payload;
       if (status === "deactivated") {
         myAdapter.upsertOne(state.inactiveGames, game);
@@ -150,13 +144,11 @@ export const mySlice = createSlice({
   },
   extraReducers(builder) {
     builder
-      .addCase(fetchMyActivity.pending, (state, action) => {
-        // state.status = "loading";
-      })
+      .addCase(fetchMyActivity.pending, (state, action) => {})
       .addCase(fetchMyActivity.fulfilled, (state, action) => {
-        // state.status = "succeeded";
-        console.log(action.payload)
-        state.activity = action.payload
+        const { activity, myActivity } = action.payload;
+        state.activity = activity;
+        state.myActivity = myActivity;
       })
       .addCase(fetchMyActivity.rejected, (state, action) => {
         state.status = "failed";
@@ -193,11 +185,9 @@ export const mySlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(toggleRelationship.pending, (state, action) => {
-      })
+      .addCase(toggleRelationship.pending, (state, action) => {})
       .addCase(toggleRelationship.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload);
         const { action: status, followed } = action.payload;
         if (status === "unfollowed")
           myAdapter.removeOne(state.follows, followed);
@@ -207,8 +197,7 @@ export const mySlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(updateProfile.pending, (state, action) => {
-      })
+      .addCase(updateProfile.pending, (state, action) => {})
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload;
@@ -222,8 +211,7 @@ export const mySlice = createSlice({
       })
       .addCase(acceptInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload);
-        const invite = action.payload.invite;
+        const invite = action.payload;
         myAdapter.upsertOne(state.invitesReceived, invite);
       })
       .addCase(acceptInvite.rejected, (state, action) => {
@@ -235,8 +223,7 @@ export const mySlice = createSlice({
       })
       .addCase(denyInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload);
-        const invite = action.payload.invite;
+        const invite = action.payload;
         myAdapter.upsertOne(state.invitesReceived, invite);
       })
       .addCase(denyInvite.rejected, (state, action) => {
@@ -248,8 +235,7 @@ export const mySlice = createSlice({
       })
       .addCase(cancelInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload);
-        const invite = action.payload.invite;
+        const invite = action.payload;
         myAdapter.upsertOne(state.invitesSent, invite);
       })
       .addCase(cancelInvite.rejected, (state, action) => {
@@ -266,22 +252,16 @@ export const {
   updateInactiveGames,
 } = mySlice.actions;
 
-// export const selectMyInactiveGames = createSelector(
-//   state => state.my.inactiveGames.entities,
-//   invites => invites
-// )
-
 export default mySlice.reducer;
 
+export const {
+  selectAll: selectMyInactiveGames,
+  selectById: selectInactiveGameById,
+  selectIds: selectInactiveGameIds,
+} = myAdapter.getSelectors((state) => state.my.inactiveGames);
 
-  export const {
-    selectAll: selectMyInactiveGames,
-    selectById: selectGameById,
-    selectIds: selectGameIds,
-  } = myAdapter.getSelectors((state) => state.my.inactiveGames);
-
-  export const {
-    selectAll: selectAllActivity,
-    selectById: selectActivityById,
-    selectIds: selectActivityIds,
-  } = myAdapter.getSelectors((state) => state.my.activity);
+export const {
+  selectAll: selectAllActivity,
+  selectById: selectActivityById,
+  selectIds: selectActivityIds,
+} = myAdapter.getSelectors((state) => state.my.activity);

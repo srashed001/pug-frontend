@@ -10,12 +10,12 @@ function UserDetailsHeader({ user }) {
               height: "100px",
               backgroundColor: "rgba(164, 22, 26,.5)",
               borderRadius: 0,
-              boxShadow: 2
+              boxShadow: 2,
             }}
           ></Paper>
         </Grid>
       </Grid>
-      <Grid container >
+      <Grid container>
         <Grid item xs={12}>
           <Paper sx={{ borderRadius: 0, boxShadow: 0 }}>
             <Box paddingLeft={18} marginY={1} paddingBottom={1}>

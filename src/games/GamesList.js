@@ -2,7 +2,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchGames, selectAllActiveGames } from "../store/games/gamesSlice";
 import GameCard from "./GameCard";
-import { Stack, Typography, Box, Paper } from "@mui/material";
+import { Stack, Typography, Paper } from "@mui/material";
 import { useForm } from "react-hook-form";
 import GamesHostListInput from "./GamesListHostInput";
 import GamesHostLocationInput from "./GamesListLocationInput";
@@ -43,8 +43,8 @@ function GamesList() {
   }
 
   return (
-    <Stack sx={{marginTop: {xs: 23, sm: 25}}}>
-      <Stack sx={{ position: "fixed", top: 60, zIndex: 5, width: '100%' }}>
+    <Stack sx={{ marginTop: { xs: 23, sm: 25 } }}>
+      <Stack sx={{ position: "fixed", top: 60, zIndex: 5, width: "100%" }}>
         <Stack
           component="form"
           sx={{ width: "100%", backgroundColor: "#F24346" }}
@@ -67,7 +67,7 @@ function GamesList() {
           Games
         </Typography>
       </Stack>
-      <Stack sx={{ position: 'relative', zIndex: 0}} >
+      <Stack sx={{ position: "relative", zIndex: 0 }}>
         {searchMode === "host" &&
           matchSorter(resource, hostQuery, {
             keys: [

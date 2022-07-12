@@ -96,7 +96,6 @@ function CourtListGameForm({ location }) {
           <TextField
             {...field}
             multiline
-            rows={3}
             variant="standard"
             sx={inputOptions}
             error={!!errors.description}

@@ -1,12 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { createMessage, getThreadId } from "../store/threads/threadsSlice";
+import { getThreadId } from "../store/threads/threadsSlice";
 import { fetchUsers, selectAllUsers } from "../store/users/usersSlice";
-import { Stack, Box, TextField, Input, IconButton } from "@mui/material";
+import { Stack, Box, TextField, IconButton } from "@mui/material";
 import NewThreadPartyList from "./NewThreadPartyList";
-import useAutocomplete from "@mui/material/useAutocomplete";
-import UserCard from "../users/UserCard";
 import NewThreadUserCard from "./NewThreadUserCard";
 import { matchSorter } from "match-sorter";
 import { useForm, Controller } from "react-hook-form";
@@ -21,13 +19,7 @@ function NewThread() {
 
   const navigate = useNavigate();
 
-  const {
-    reset,
-    control,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm({
+  const { control, watch } = useForm({
     defaultValues: {
       query: "",
     },
@@ -51,14 +43,13 @@ function NewThread() {
         },
         ...Object.values(users),
       ],
-    }
-    ;
-    dispatch(getThreadId(data)).unwrap().then((data) => navigate(`/threads/t/${data.id}`));
+    };
+    dispatch(getThreadId(data))
+      .unwrap()
+      .then((data) => navigate(`/threads/t/${data.id}`));
   }
 
   if (usersStatus === "succeeded") {
-    console.log(searchQuery);
-
     return (
       <Stack spacing={2}>
         <NewThreadPartyList users={users} />
@@ -95,14 +86,16 @@ function NewThread() {
                 (item) => `${item.firstName} ${item.lastName}`,
                 "username",
               ],
-            }).map((user) => user.username !== my.username ? (
-              <NewThreadUserCard
-              key={user.username}
-                user={user}
-                users={users}
-                setUsers={setUsers}
-              />
-            ): null)}
+            }).map((user) =>
+              user.username !== my.username ? (
+                <NewThreadUserCard
+                  key={user.username}
+                  user={user}
+                  users={users}
+                  setUsers={setUsers}
+                />
+              ) : null
+            )}
           </Stack>
         </Box>
       </Stack>

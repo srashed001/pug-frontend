@@ -23,7 +23,7 @@ function GameDetailsPlayers({ game }) {
         spacing={1}
         padding={1}
         direction={"row"}
-        sx={{ overflow: "auto"}}
+        sx={{ overflow: "auto" }}
       >
         {game.players.map((player) => (
           <GameDetailsPlayerCard key={player} user={users[player]} />

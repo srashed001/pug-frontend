@@ -5,7 +5,9 @@ import {
   selectInvitesReceived,
   selectInvitesSent,
 } from "../store/invites/invitesSlice";
-import { Stack, Box, Tabs, Tab } from "@mui/material";
+import { Stack, Box } from "@mui/material";
+import { useForm } from "react-hook-form";
+import HomepageInviteSelect from "../homepage/HomepageInviteSelect";
 
 function InvitesList() {
   const error = useSelector((state) => state.my.error);
@@ -16,36 +18,48 @@ function InvitesList() {
   const invitesSent = useSelector((state) =>
     selectInvitesSent(state, my.username)
   );
-  const [value, setValue] = useState(0);
-
-  const handleChange = (e, newValue) => {
-    setValue(newValue);
-  };
 
   const [resource, setResource] = useState([]);
   const [isPending, setTransition] = useTransition();
 
+  const { control, watch } = useForm({
+    defaultValues: {
+      inviteMode: "received",
+    },
+  });
+
+  const { inviteMode } = watch();
+
   useEffect(() => {
     setTransition(() => {
-      setResource((state) => (value === 0 ? invitesReceived : invitesSent));
+      setResource((state) =>
+        inviteMode === "received" ? invitesReceived : invitesSent
+      );
     });
-  }, [invitesReceived, invitesSent, value]);
+  }, [inviteMode, invitesReceived, invitesSent]);
 
   if (my.status === "failed") {
     return <div>{error}</div>;
   } else {
     return (
       <Stack mt={4}>
-        <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
-          <Tabs value={value} onChange={handleChange} centered>
-            <Tab label="Received" />
-            <Tab label="Sent" />
-          </Tabs>
-        </Box>
+        <Stack
+          component={"form"}
+          sx={{
+            width: "100%",
+            backgroundColor: "#F24346",
+            position: "fixed",
+            top: "6.5rem",
+            zIndex: "10",
+            boxShadow: 3,
+          }}
+        >
+          <HomepageInviteSelect control={control} />
+        </Stack>
         <Box>
           <Stack spacing={1} sx={{ margin: 2 }}>
             {resource.map((invite) => (
-              <Invite key={invite.id} invite={invite} value={value} />
+              <Invite key={invite.id} invite={invite} value={inviteMode} />
             ))}
           </Stack>
         </Box>

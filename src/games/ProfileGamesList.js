@@ -1,12 +1,4 @@
-import {
-  Button,
-  Divider,
-  Grid,
-  Typography,
-  Stack,
-  Box,
-  Paper,
-} from "@mui/material";
+import { Button, Grid, Typography, Stack, Paper } from "@mui/material";
 import ProfileGameCard from "./ProfileGameCard";
 
 function ProfileGamesList({ games, set }) {
@@ -31,7 +23,7 @@ function ProfileGamesList({ games, set }) {
     },
     inactiveGames: {
       title: "Inactive Games",
-      caption: "games inactivates by user",
+      caption: "games inactivated by user",
     },
   };
 
@@ -40,7 +32,9 @@ function ProfileGamesList({ games, set }) {
   return (
     <Grid container sx={{ boxShadow: 3 }}>
       <Grid item xs={12}>
-        <Paper sx={{ position: "relative", zIndex: 3, boxShadow: 3, padding: 1 }}>
+        <Paper
+          sx={{ position: "relative", zIndex: 3, boxShadow: 3, padding: 1 }}
+        >
           <Typography component={"div"} sx={{ fontSize: { xs: "20px" } }}>
             {headings.title}: {games.length}
           </Typography>
@@ -54,7 +48,7 @@ function ProfileGamesList({ games, set }) {
           sx={{ overflowX: "auto", backgroundColor: "rgba(211, 211, 211, .7)" }}
         >
           {games.length ? (
-            games.map((game) => <ProfileGameCard key={game.id} game={game} />)
+            games.map((game) => <ProfileGameCard inactive={set === 'inactiveGames'} key={game.id} game={game} />)
           ) : (
             <Typography
               sx={{

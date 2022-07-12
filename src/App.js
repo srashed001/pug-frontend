@@ -1,75 +1,48 @@
 // import "./App.css";
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import {  useEffect } from "react";
 import useLocalStorage from "./hooks/useLocalStorage";
 import PugRoutes from "./routes/PugRoutes";
-import LoadingSpinner from "./common/LoadingSpinner";
 import PugApi from "./api/api";
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "./api/secretKey";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchInitialMy } from "./store/my/mySlice";
 import { fetchGames } from "./store/games/gamesSlice";
-import { fetchUsers, resetUserStatus } from "./store/users/usersSlice";
+import { fetchUsers } from "./store/users/usersSlice";
 import BottomNavigationBar from "./navigation/BottomNavigationBar";
-import {Stack, Box } from '@mui/material'
+import { Stack, Box } from "@mui/material";
 import TopAppBar from "./navigation/TopAppBar";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 // Key name for storing token in localStorage for "remember me" re-login
 export const TOKEN_STORAGE_ID = "pug-token";
 
-/** Jobly application.
- * - token: for logged in users, this is their authentication JWT.
- *   Is required to be set for most API calls. This is initially read from
- *   localStorage and synced to there via the useLocalStorage hook.
- *
- * App -> Routes
- */
-
- const theme = createTheme({
+const theme = createTheme({
   typography: {
     fontFamily: "Montserrat",
   },
-
 });
 
-
 function App() {
-
   const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
-
-  const myStatus = useSelector(state => state.my.status)
-  const my = useSelector(state => state.my)
-  const games = useSelector(state => state.games)
-  const users = useSelector(state => state.users)
-  const dispatch = useDispatch()
-
-
+  const myStatus = useSelector((state) => state.my.status);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if(token){
-      try{
-        let {username} = jwt.verify(token, SECRET_KEY)
-        PugApi.token = token 
-        console.log(`app useEffect`, myStatus)
-    
-        if(myStatus === 'idle'){
-          dispatch(fetchInitialMy(username))
-          dispatch(fetchGames())
-          dispatch(fetchUsers())
-          console.log('dispatch app useEffect')
+    if (token) {
+      try {
+        let { username } = jwt.verify(token, SECRET_KEY);
+        PugApi.token = token;
+        if (myStatus === "idle") {
+          dispatch(fetchGames());
+          dispatch(fetchUsers());
+          dispatch(fetchInitialMy(username));
         }
-      } catch(err){
-        console.error('App useEffect dispatch error')
+      } catch (err) {
+        console.error("App useEffect dispatch error");
       }
     }
-    
-  }, [dispatch, myStatus, token])
-
-
-
-
+  }, [dispatch, myStatus, token]);
 
   /** Handles site-wide logout. */
   function logout() {
@@ -110,29 +83,17 @@ function App() {
   }
 
 
-  console.log(my)
-
-
   return (
-    <ThemeProvider theme={theme} >
-
-    <Stack className="App">
-      <TopAppBar />
-      {/* <br></br>
-      <Link to="/">Home</Link>
-      <br></br>
-      <Link to="/users">Users</Link>
-      <br></br>
-      <Link to="/games">Games</Link> */}
-  <Box sx ={{marginTop: 5, marginBottom: 9, width: '100%'}}>
- <PugRoutes login={login} signup={signup} />
-  </Box>
-  <Box>
-<BottomNavigationBar />
-  </Box>
-     
-      
-    </Stack>
+    <ThemeProvider theme={theme}>
+      <Stack className="App">
+        <TopAppBar />
+        <Box sx={{ marginTop: 5, marginBottom: 9, width: "100%" }}>
+          <PugRoutes login={login} signup={signup} />
+        </Box>
+        <Box>
+          <BottomNavigationBar />
+        </Box>
+      </Stack>
     </ThemeProvider>
   );
 }

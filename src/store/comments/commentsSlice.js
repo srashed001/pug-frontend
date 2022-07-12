@@ -18,9 +18,7 @@ export const addComment = createAsyncThunk(
   "comments/addComment",
   async (data) => {
     const { gameId, username, comment } = data;
-    const resp = await PugApi.addComment(gameId, username, { comment });
-
-    return resp;
+    return PugApi.addComment(gameId, username, { comment });
   }
 );
 
@@ -28,9 +26,7 @@ export const deleteComment = createAsyncThunk(
   "comments/deleteComment",
   async (data) => {
     const { gameId, commentId } = data;
-    const resp = await PugApi.deleteComment(gameId, commentId);
-
-    return resp;
+    return PugApi.deleteComment(gameId, commentId);
   }
 );
 

@@ -1,12 +1,4 @@
-import {
-  Grid,
-  Avatar,
-  Typography,
-  Box,
-  Stack,
-  Button,
-  IconButton,
-} from "@mui/material";
+import { Grid, Avatar, Typography, Box, IconButton } from "@mui/material";
 import { formatDistanceToNowStrict } from "date-fns";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,7 +18,7 @@ function GameComment({ comment, user }) {
   }
 
   return (
-    <Grid container sx={{}}>
+    <Grid container>
       <Grid
         item
         xs={2}

@@ -15,16 +15,15 @@ function GameCommentInput({ gameId }) {
   } = useForm({
     defaultValues: {
       comment: "",
-
     },
   });
 
   function handleAddComment(comment) {
-      console.log(comment)
+    console.log(comment);
     const data = {
       gameId,
       username: my.username,
-      comment
+      comment,
     };
 
     dispatch(addComment(data));
@@ -37,22 +36,27 @@ function GameCommentInput({ gameId }) {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: 1
+        padding: 1,
       }}
       onSubmit={handleSubmit(({ comment }, e) => {
-          console.log(comment)
-          handleAddComment(comment)
+        console.log(comment);
+        handleAddComment(comment);
         reset({ comment: "" });
       })}
     >
       <Controller
         name="comment"
         control={control}
-        onChange={e => {
-            console.log(e)
+        onChange={(e) => {
+          console.log(e);
         }}
         render={({ field }) => (
-          <TextField  sx={{width: '100%'}} size="small" {...field} label="comment" />
+          <TextField
+            sx={{ width: "100%" }}
+            size="small"
+            {...field}
+            label="comment"
+          />
         )}
       />
     </Box>

@@ -1,24 +1,16 @@
 import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import LoadingSpinner from "../common/LoadingSpinner";
-import {
-  fetchRelationships,
-  fetchUser,
-  resetFollowStatus,
-  resetUserStatus,
-  selectUserById,
-} from "../store/users/usersSlice";
-import RelationshipCard from "./RelationshipCard";
-import { Typography, Tabs, Tab, Stack } from "@mui/material";
+import { fetchUser, selectUserById } from "../store/users/usersSlice";
+import { Typography, Stack } from "@mui/material";
 import UserCard from "./UserCard";
+import { useForm } from "react-hook-form";
+import RelationshipListNav from "./RelationshipListNav";
 
 function RelationshipsList({ state }) {
-  const initialState = state === "followers" ? 0 : 1;
   const { username } = useParams();
   const user = useSelector((state) => selectUserById(state, username));
   const userStatus = useSelector((state) => state.users.status.user);
-  const followStatus = useSelector((state) => state.users.followStatus);
   const error = useSelector((state) => state.users.error);
   const dispatch = useDispatch();
   const [isPending, setTransition] = useTransition();
@@ -26,57 +18,44 @@ function RelationshipsList({ state }) {
     followers: { entities: {} },
     follows: { entities: {} },
   });
-  const [value, setValue] = useState(initialState);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  const { control, watch } = useForm({
+    defaultValues: {
+      relationshipMode: state,
+    },
+  });
+  const { relationshipMode } = watch();
 
   useEffect(() => {
     dispatch(fetchUser(username));
   }, [dispatch, username]);
 
   useEffect(() => {
-    setTransition(() => setResource(state => ({...state, ...user})));
+    setTransition(() => setResource((state) => ({ ...state, ...user })));
   }, [user]);
 
   if (userStatus === "failed") return <div>{error}</div>;
 
-  console.log(resource, followStatus);
   const relationships =
-    value === 0 ? resource.followers.entities : resource.follows.entities;
-
-  console.log(relationships);
+    relationshipMode === "followers"
+      ? resource.followers.entities
+      : resource.follows.entities;
 
   return (
     <Stack>
-      <Tabs value={value} onChange={handleChange} centered>
-        <Tab label="followers" />
-        <Tab label="following" />
-      </Tabs>
-      {Object.values(relationships).length ? (
-        Object.values(relationships).map((user) => (
-          <UserCard key={user.username} user={user} />
-        ))
-      ) : (
-        <Typography align={"center"} component={"div"} variant="h5">
-          No Users
-        </Typography>
-      )}
+      <RelationshipListNav control={control} username={username} />
+      <Stack mt={14}>
+        {Object.values(relationships).length ? (
+          Object.values(relationships).map((user) => (
+            <UserCard key={user.username} user={user} />
+          ))
+        ) : (
+          <Typography align={"center"} component={"div"} variant="h5">
+            No Users
+          </Typography>
+        )}
+      </Stack>
     </Stack>
-
-    // <div>
-    //     <div>
-    //         <button onClick={()=>setState('followers')}>followers</button>
-    //         <button onClick={()=>setState('follows')}>follows</button>
-    //     </div>
-    //     <div>
-    //            {Object.values(relationships).length ? Object.values(relationships).map(user => (
-    //         <RelationshipCard user={user} />
-    //     )) : <Typography component={'div'} variant="h5">No Users</Typography>}
-    //     </div>
-
-    // </div>
   );
 }
 

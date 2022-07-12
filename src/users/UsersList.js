@@ -1,9 +1,8 @@
 import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import LoadingSpinner from "../common/LoadingSpinner";
 import { fetchUsers, selectAllUsers } from "../store/users/usersSlice";
 import UserCard from "./UserCard";
-import { Stack, Container, Typography, Box, Paper } from "@mui/material";
+import { Stack, Typography, Paper } from "@mui/material";
 import { useForm } from "react-hook-form";
 import UserListNameSearch from "./UserListNameSearch";
 import UserListLocationSearch from "./UserListLocationSearch";
@@ -11,8 +10,6 @@ import UserListSearchMode from "./UserListSearchMode";
 import { matchSorter } from "match-sorter";
 
 function UsersList() {
-  console.debug("UsersList");
-
   const dispatch = useDispatch();
   const users = useSelector(selectAllUsers);
   const my = useSelector((state) => state.my);
@@ -30,9 +27,7 @@ function UsersList() {
   });
 
   useEffect(() => {
-    console.log("UserList useEffect", usersStatus);
     if (usersStatus === "idle" && my.status === "succeeded") {
-      console.log("running useEffect");
       dispatch(fetchUsers());
     }
   }, [dispatch, my.status, usersStatus]);
@@ -46,8 +41,8 @@ function UsersList() {
   if (usersStatus === "failed") return <div>{error}</div>;
 
   return (
-    <Stack sx={{marginTop: {xs: 23, sm: 25}}}>
-      <Stack sx={{ position: "fixed", top: 60, zIndex: 5, width: '100%' }}>
+    <Stack sx={{ marginTop: { xs: 23, sm: 25 } }}>
+      <Stack sx={{ position: "fixed", top: 60, zIndex: 5, width: "100%" }}>
         <Stack
           component="form"
           sx={{ width: "100%", backgroundColor: "#F24346" }}
@@ -70,7 +65,7 @@ function UsersList() {
           Users
         </Typography>
       </Stack>
-      <Stack sx={{ position: 'relative', zIndex: 0}}>
+      <Stack sx={{ position: "relative", zIndex: 0 }}>
         {searchMode === "name" &&
           matchSorter(resource, nameQuery, {
             keys: [

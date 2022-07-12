@@ -1,47 +1,36 @@
 import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { createGame, fetchGame, updateGame } from "../store/games/gamesSlice";
+import {
+  fetchGame,
+  updateGame,
+} from "../store/games/gamesSlice";
 import {
   Paper,
   TextField,
   Button,
   Typography,
-  Select,
-  MenuItem,
-  Box,
   Stack,
-  InputLabel,
+  Box,
 } from "@mui/material";
-import stateOptions from "../common/selectOptionsStates";
-import {
-  GoogleMap,
-  useLoadScript,
-  useJsApiLoader,
-  MarkerF,
-  InfoWindowF,
-} from "@react-google-maps/api";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
+import { useJsApiLoader } from "@react-google-maps/api";
+
 import GeoLocationApi from "../api/GeoLocationApi";
 import AddressAutoComplete from "./AddressAutoComplete";
-import { selectGameById } from "../store/my/mySlice";
-import { useEffect, useState } from "react";
-import initialGame from "../common/initialGame";
+import { useEffect } from "react";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
-const createGameSchema = yup.object().shape({
-  title: yup.string().required().max(25),
-  description: yup.string().required,
-  date: yup.date().required(),
-  time: yup.string().required(),
-  address: yup.string().required(),
-  city: yup.string().required().max(25),
-  state: yup.string().required().max(2),
-});
+// import { yupResolver } from "@hookform/resolvers/yup";
+// import * as yup from "yup";
+// const createGameSchema = yup.object().shape({
+//   title: yup.string().required().max(25),
+//   description: yup.string().required,
+//   date: yup.date().required(),
+//   time: yup.string().required(),
+//   address: yup.string().required(),
+//   city: yup.string().required().max(25),
+//   state: yup.string().required().max(2),
+// });
 
 const api_key = GeoLocationApi.api_key;
 const libraries = ["places"];
@@ -52,7 +41,7 @@ const inputOptions = {
   },
 };
 
-function UpdateGameForm({ address, city, state }) {
+function UpdateGameForm() {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: api_key,
     libraries,
@@ -62,7 +51,6 @@ function UpdateGameForm({ address, city, state }) {
   const navigate = useNavigate();
   const my = useSelector((state) => state.my);
   const { gameId } = useParams();
-  const game = useSelector((state) => selectGameById(state, gameId));
 
   const {
     reset,
@@ -85,6 +73,10 @@ function UpdateGameForm({ address, city, state }) {
     // resolver: yupResolver(createGameSchema),
     mode: "onChange",
   });
+  
+  const returnToGame = () => {
+    navigate(`/games/g/${gameId}`)
+  }
 
   useEffect(() => {
     if (my.status === "succeeded") {
@@ -106,34 +98,44 @@ function UpdateGameForm({ address, city, state }) {
       });
   }
 
-  console.log(stateOptions, errors);
-
   if (loadError) return "Error Loading Maps";
   if (!isLoaded) return "Loading maps";
-  console.log(isLoaded);
 
   return (
-    <>
-      <Typography
-        component={Paper}
+    <Stack>
+      <Box
         sx={{
-          marginY: 1,
-          padding: 1,
-          fontSize: { xs: "20px", sm: "24px" },
-          borderRadius: 0,
-          boxShadow: "1px 1px 3px #D3D3D3",
+          display: "inline-flex",
+          backgroundColor: "#F24346",
+          position: "fixed",
+          top: "3.5rem",
+          zIndex: "10",
+          width: "100%",
+          boxShadow: 3,
         }}
       >
-        Update Game Information
-      </Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Button
+            sx={{ color: "#FFFFFF", marginX: 1 }}
+            startIcon={<ArrowBackIosIcon />}
+            onClick={returnToGame}
+          >
+            Game
+          </Button>
+        </Box>
+        <Box>
+          <Typography sx={{ fontSize: 20, padding: 1, color: "#FFFFFF" }}>
+            Update PUG
+          </Typography>
+        </Box>
+      </Box>
       <Stack
+      my={10}
         component="form"
-        sx={{ padding: 2}}
+        sx={{ padding: 2 }}
         onSubmit={handleSubmit(dispatchUpdateGame)}
         alignItems="center"
- 
       >
-
         <Controller
           name="title"
           control={control}
@@ -157,7 +159,6 @@ function UpdateGameForm({ address, city, state }) {
             <TextField
               {...field}
               multiline
-              rows={5}
               variant="standard"
               sx={inputOptions}
               error={!!errors.description}
@@ -208,7 +209,7 @@ function UpdateGameForm({ address, city, state }) {
         />
         <Button onClick={handleSubmit(dispatchUpdateGame)}>submit</Button>
       </Stack>
-    </>
+    </Stack>
   );
 }
 

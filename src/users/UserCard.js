@@ -11,7 +11,7 @@ import {
 import LocationIcon from "@mui/icons-material/LocationOn";
 
 function UserCard({ user }) {
-  const { username, firstName, lastName, city, state, profileImg, isPrivate } =
+  const { username, firstName, lastName, city, state, profileImg} =
     user;
 
   return (
@@ -36,10 +36,7 @@ function UserCard({ user }) {
           sx={{ padding: 0.5, paddingLeft: 1, marginLeft: 2 }}
         >
           <Grid item>
-            <Typography
-              variant="body1"
-              sx={{  fontSize: 16, lineHeight: 1 }}
-            >
+            <Typography variant="body1" sx={{ fontSize: 16, lineHeight: 1 }}>
               {firstName} {lastName}
             </Typography>
             <Typography
@@ -66,8 +63,6 @@ function UserCard({ user }) {
       </Card>
     </CardActionArea>
   );
-
-
 }
 
 export default UserCard;

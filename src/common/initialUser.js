@@ -1,4 +1,4 @@
-const date = new Date()
+
 const initialUser = {
     birthDate: "",
     city: "",

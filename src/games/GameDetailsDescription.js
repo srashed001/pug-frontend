@@ -6,7 +6,6 @@ function GameDetailsDescription({ body }) {
       <Typography
         component={Paper}
         sx={{
-          
           marginY: 1,
           padding: 1,
           fontSize: { xs: "20px", sm: "24px" },
@@ -20,7 +19,6 @@ function GameDetailsDescription({ body }) {
         variant={"body1"}
         component={Paper}
         sx={{
-          
           marginY: 1,
           paddingLeft: 2,
           minHeight: 200,
