@@ -12,6 +12,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectUserById } from "../store/users/usersSlice";
+import { format } from "date-fns";
 
 function ActivityGameCard({ game, disabled = false }) {
   const {
@@ -52,7 +53,7 @@ function ActivityGameCard({ game, disabled = false }) {
               component="div"
               variant="h6"
               sx={{
-                fontFamily: "Roboto",
+   
                 fontWeight: 700,
                 fontSize: 16,
                 marginBottom: 0.5,
@@ -100,7 +101,7 @@ function ActivityGameCard({ game, disabled = false }) {
               component="div"
               variant="body1"
               sx={{
-                fontFamily: "Roboto",
+   
                 fontSize: 12,
                 color: "#555555",
               }}
@@ -111,7 +112,7 @@ function ActivityGameCard({ game, disabled = false }) {
               component="div"
               variant="body1"
               sx={{
-                fontFamily: "Roboto",
+   
                 fontSize: 12,
                 color: "#555555",
               }}
@@ -121,9 +122,9 @@ function ActivityGameCard({ game, disabled = false }) {
             <Typography
               component="div"
               variant="body1"
-              sx={{ fontFamily: "Roboto", fontSize: 12, color: "#555555" }}
+              sx={{ fontSize: 12, color: "#555555" }}
             >
-              <strong>Time:</strong> {time}
+              <strong>Time:</strong> {format(new Date(`1995-12-17T${time}`), 'p')}
             </Typography>
           </Grid>
         </Grid>

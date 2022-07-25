@@ -4,6 +4,7 @@ import {
   CardContent,
   CardHeader,
   Typography,
+  alpha,
 } from "@mui/material";
 import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
 import { useSelector } from "react-redux";
@@ -26,11 +27,11 @@ function Unfollow({ activity }) {
   return (
     <Card elevation={3}>
       <CardHeader
-        sx={{ backgroundColor: "#F45E60", color: "#FFFFFF" }}
+        sx={{ backgroundColor: alpha("#A5ACB1", 0.5), boxShadow: 2 }}
         avatar={
           <Avatar
             src={primaryUser.profileImg}
-            sx={{ backgroundColor: "#FFFFFF" }}
+            sx={{ backgroundColor: "#FFFFFF", boxShadow: 3 }}
           />
         }
         title={`${primaryUser.firstName} ${primaryUser.lastName}`}

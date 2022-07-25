@@ -6,7 +6,6 @@ import {
 } from "@reduxjs/toolkit";
 import PugApi from "../../api/api";
 
-
 const threadsAdapter = createEntityAdapter({
   selectId: (thread) => thread.id,
 });
@@ -19,54 +18,95 @@ const initialState = threadsAdapter.getInitialState({
 });
 
 export const getThreadId = createAsyncThunk(
-  `threads/getThreadId`, 
-  async ({username, party}, {dispatch}) => {
-    const res = PugApi.getThreadId(username, {party: party.map(user => user.username)})
-    res.then(data => {
-      dispatch(initializeThread({...data, party}))
-
-    })
-    return res
+  `threads/getThreadId`,
+  async ({ username, party }, { dispatch, rejectWithValue }) => {
+    try {
+      const result = await PugApi.getThreadId(username, {
+        party: party.map((user) => user.username),
+      });
+      dispatch(initializeThread({ ...result, party }));
+      return result;
+    } catch (err) {
+      rejectWithValue(err[0]);
+    }
   }
-)
+);
 
 export const addMessageInThread = createAsyncThunk(
   `threads/addMessageInThread`,
-  async ({username, threadId, message}) => {
-    return PugApi.respondThread(username, threadId, {message})
+  async ({ username, threadId, message }, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.respondThread(username, threadId, {
+        message,
+      });
+      return result;
+    } catch (err) {
+      rejectWithValue(err[0]);
+    }
   }
 );
 
-export const createMessage = createAsyncThunk(`threads/createMessage`, async({username, users, message}) => {
-  return PugApi.createMessage(username, {message, party: users})
-})
+export const createMessage = createAsyncThunk(
+  `threads/createMessage`,
+  async ({ username, users, message }, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.createMessage(username, {
+        message,
+        party: users,
+      });
+      return result;
+    } catch (err) {
+      rejectWithValue(err[0]);
+    }
+  }
+);
 
 export const deleteMessageInThread = createAsyncThunk(
   `threads/deleteMessageInThread`,
-  async ({username, id}) => {
-    return PugApi.deleteMessage(username, id)
+  async ({ username, id }, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.deleteMessage(username, id);
+      return result;
+    } catch (err) {
+      rejectWithValue(err[0]);
+    }
   }
 );
 
-export const deleteThread = createAsyncThunk(`threads/deleteThread`, async({username, threadId}) => {
-  return PugApi.deleteThread(username, threadId)
-})
+export const deleteThread = createAsyncThunk(
+  `threads/deleteThread`,
+  async ({ username, threadId }, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.deleteThread(username, threadId);
+      return result;
+    } catch (err) {
+      rejectWithValue(err[0]);
+    }
+  }
+);
 
 export const fetchMessages = createAsyncThunk(
   "threads/fetchMessages",
-  async ({ username, threadId }, {dispatch}) => {
-    const res = PugApi.getMessages(username, threadId);
-    res.then(data => {
-      dispatch(initializeThread(data))
-    })
-    return res;
+  async ({ username, threadId }, { dispatch, rejectWithValue }) => {
+    try {
+      const result = await PugApi.getMessages(username, threadId);
+      dispatch(initializeThread(result));
+      return result;
+    } catch (err) {
+      rejectWithValue(err[0]);
+    }
   }
 );
 
 export const fetchThreads = createAsyncThunk(
   "threads/fetchThreads",
-  async (username) => {
-    return PugApi.getThreads(username);
+  async (username, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.getThreads(username);
+      return result;
+    } catch (err) {
+      rejectWithValue(err[0]);
+    }
   }
 );
 
@@ -78,20 +118,35 @@ const threadsSlice = createSlice({
       return { ...state, status: initialState.status };
     },
     updateThreads: (state, action) => {
-      const threads = action.payload.map((thread) => ({
-        id: thread.threadId,
-        lastMessage: thread.lastMessage[0],
-        party: thread.party,
-        messages: messagesAdapter.getInitialState(),
-      }));
-      threadsAdapter.setAll(state, threads);
+      try {
+        const threads = action.payload.map((thread) => ({
+          id: thread.threadId,
+          lastMessage: thread.lastMessage[0],
+          party: thread.party,
+          messages: messagesAdapter.getInitialState(),
+        }));
+        threadsAdapter.setAll(state, threads);
+      } catch (err) {
+        state.status = "failed";
+        state.error = { message: err.message };
+      }
     },
     initializeThread: (state, action) => {
-      const {id, party} = action.payload
-      if (state.entities[id]) return 
-      const thread = {id, party, lastMessage: null, messages: messagesAdapter.getInitialState()}
-      threadsAdapter.upsertOne(state, thread)
-    }
+      try {
+        const { id, party } = action.payload;
+        if (state.entities[id]) return;
+        const thread = {
+          id,
+          party,
+          lastMessage: null,
+          messages: messagesAdapter.getInitialState(),
+        };
+        threadsAdapter.upsertOne(state, thread);
+      } catch (err) {
+        state.status = "failed";
+        state.error = { message: err.message };
+      }
+    },
   },
   extraReducers(builder) {
     builder
@@ -110,23 +165,22 @@ const threadsSlice = createSlice({
       })
       .addCase(fetchThreads.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(fetchMessages.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const {id, messages } = action.payload
+        const { id, messages } = action.payload;
         const threadEntry = state.entities[id];
         messagesAdapter.setAll(threadEntry.messages, messages);
       })
       .addCase(fetchMessages.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
-      .addCase(addMessageInThread.pending, (state, action) => {
-      })
+      .addCase(addMessageInThread.pending, (state, action) => {})
       .addCase(addMessageInThread.fulfilled, (state, action) => {
         state.status = "succeeded";
         const threadId = action.meta.arg.threadId;
@@ -135,50 +189,50 @@ const threadsSlice = createSlice({
       })
       .addCase(addMessageInThread.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
-      .addCase(deleteMessageInThread.pending, (state, action) => {
-      })
+      .addCase(deleteMessageInThread.pending, (state, action) => {})
       .addCase(deleteMessageInThread.fulfilled, (state, action) => {
         state.status = "succeeded";
         const threadId = action.meta.arg.threadId;
         const threadEntry = state.entities[threadId];
-        messagesAdapter.removeOne(threadEntry.messages, action.payload.message.id);
+        messagesAdapter.removeOne(
+          threadEntry.messages,
+          action.payload.message.id
+        );
       })
       .addCase(deleteMessageInThread.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(createMessage.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(createMessage.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const {threadId, messageFrom, createdOn} = action.payload
+        const { threadId, messageFrom, createdOn } = action.payload;
         const thread = {
           id: threadId,
-          lastMessage: {[messageFrom]: createdOn},
+          lastMessage: { [messageFrom]: createdOn },
           party: action.meta.arg.users,
-          messages: messagesAdapter.getInitialState()
-        }
-        threadsAdapter.upsertOne(state, thread)
-        
+          messages: messagesAdapter.getInitialState(),
+        };
+        threadsAdapter.upsertOne(state, thread);
       })
       .addCase(createMessage.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(deleteThread.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(deleteThread.fulfilled, (state, action) => {
         state.status = "succeeded";
-        threadsAdapter.removeOne(state, action.meta.arg.threadId)
-        
+        threadsAdapter.removeOne(state, action.meta.arg.threadId);
       })
       .addCase(deleteThread.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(getThreadId.pending, (state, action) => {
         state.status = "loading";
@@ -188,12 +242,13 @@ const threadsSlice = createSlice({
       })
       .addCase(getThreadId.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       });
   },
 });
 
-export const { resetThreadStatus, updateThreads, initializeThread } = threadsSlice.actions;
+export const { resetThreadStatus, updateThreads, initializeThread } =
+  threadsSlice.actions;
 
 export default threadsSlice.reducer;
 
@@ -203,10 +258,7 @@ export const {
   selectIds: selectThreadIds,
 } = threadsAdapter.getSelectors((state) => state.threads);
 
-
 export const selectMessagesByThreadId = createSelector(
   [(state, threadId) => selectThreadById(state, threadId)],
   (thread) => Object.values(thread.messages.entities)
-)
-
-
+);

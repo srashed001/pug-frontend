@@ -28,7 +28,7 @@ function UserListSearchMode({ control }) {
                 />
               }
               label={
-                <Typography sx={{ fontSize: 14, color: "#ffffff" }}>
+                <Typography sx={{ fontSize: 14, color: "#FFFFFF" }}>
                   Name
                 </Typography>
               }
@@ -46,7 +46,7 @@ function UserListSearchMode({ control }) {
                 />
               }
               label={
-                <Typography sx={{ fontSize: 14, color: "#ffffff" }}>
+                <Typography sx={{ fontSize: 14, color: "#FFFFFF" }}>
                   Location
                 </Typography>
               }

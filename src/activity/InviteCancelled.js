@@ -4,8 +4,10 @@ import {
   CardContent,
   CardHeader,
   Typography,
+  Box,
+  alpha
 } from "@mui/material";
-import { Box } from "@mui/system";
+
 import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -31,11 +33,11 @@ function InviteCancelled({ activity }) {
   return (
     <Card elevation={3}>
       <CardHeader
-        sx={{ backgroundColor: "#F45E60", color: "#FFFFFF" }}
-        avatar={
+        sx={{ backgroundColor: alpha("#A5ACB1", .50),  boxShadow: 2 }}
+                avatar={
           <Avatar
             src={primaryUser.profileImg}
-            sx={{ backgroundColor: "#FFFFFF" }}
+            sx={{ backgroundColor: "#FFFFFF", boxShadow: 3 }}
           />
         }
         title={`${primaryUser.firstName} ${primaryUser.lastName}`}

@@ -22,11 +22,15 @@ import {
     initialState,
     reducers: {
         updateCourts: (state, action) => {
+          try {
             const {results, next_page_token} = action.payload
-            console.log(results)
             state.status = 'succeeded';
             state.nextPageToken = next_page_token
             courtsAdapter.setAll(state, results)
+          } catch(error){
+            state.status = 'failed'
+            state.error = {message: error.message}
+          }
         }
     },
   });

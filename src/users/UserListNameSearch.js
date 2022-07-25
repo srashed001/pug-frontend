@@ -4,7 +4,7 @@ import { Controller } from "react-hook-form";
 
 function UserListNameSearch({ control }) {
   return (
-    <Box sx={{ padding: 1, boxShadow: "1px 1px 5px #161A1D" }}>
+    <Box sx={{ padding: 1, boxShadow: "0px 0px 5px #161A1D" }}>
       <Controller
         name="nameQuery"
         control={control}
@@ -21,7 +21,7 @@ function UserListNameSearch({ control }) {
               }}
               {...field}
             />
-            <FormHelperText sx={{ color: "#ffffff" }}>
+            <FormHelperText sx={{ color: "#FFFFFF" }}>
               search by name
             </FormHelperText>
           </>

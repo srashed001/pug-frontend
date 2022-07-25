@@ -13,10 +13,10 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 function MessagesListNav({ thread, openDelete, handleOpenDelete }) {
-  const my = useSelector((state) => state.my);
+  const myUsername = useSelector((state) => state.my.username);
   const navigate = useNavigate();
 
-  const party = thread.party.filter((user) => user.username !== my.username);
+  const party = thread.party.filter((user) => user.username !== myUsername);
 
   return (
     <Stack
@@ -44,18 +44,19 @@ function MessagesListNav({ thread, openDelete, handleOpenDelete }) {
             <AvatarGroup max={3} spacing={20}>
               {party.map((user) => (
                 <Avatar
+                key={user.username}
                   sx={{ backgroundColor: "#ffffff", boxShadow: 3 }}
                   src={user.profileImg}
                 />
               ))}
             </AvatarGroup>
           ) : (
-            party.map((user) => <Avatar src={user.profileImg} />)
+            party.map((user) => <Avatar key={user.username} src={user.profileImg} />)
           )}
         </Box>
         <Box>
           {party.map((user, i, arr) => (
-            <Typography sx={{ fontSize: { xs: 14 } }} component="span">
+            <Typography key={user.username} sx={{ fontSize: { xs: 14 } }} component="span">
               <strong>{`${user.firstName} ${user.lastName}${
                 i < arr.length - 1 ? ", " : ""
               }`}</strong>

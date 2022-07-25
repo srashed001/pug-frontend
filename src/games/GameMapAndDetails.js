@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -14,14 +14,14 @@ import mapStyles from "../courts/mapStyles";
 import "../courts/mapStyles.css";
 import { selectAllCourts, updateCourts } from "../store/courts/courtsSlice";
 import CourtInfoWindow from "../courts/CourtInfoWindow";
-import { Stack, Box, Button } from "@mui/material";
+import { Stack, Box, Button, Alert, AlertTitle } from "@mui/material";
 import GameDetails from "./GameDetails";
 
 const api_key = GeoLocationApi.api_key;
 const libraries = ["places"];
 const mapContainerStyle = {
   width: "100%",
-  height: "400px",
+  height: "100%",
 };
 
 const center = {
@@ -49,23 +49,48 @@ function GameMapAndDetails() {
   });
   const [game, setGame] = useState();
   const markers = useSelector(selectAllCourts);
+  const [mapError, setMapError] = useState(null);
 
   const mapRef = useRef();
 
-  const getCourts = useCallback(() => {
-    let request = {
-      location: mapRef.current.center,
-      rankBy: window.google.maps.places.RankBy.DISTANCE,
-      keyword: "basketball courts",
-    };
+  const handleGetCourts = async () => {
+    const getCourts = new Promise(function (resolve, reject) {
+      const timeId = setTimeout(() => {
+        reject("Error occurred trying to find courts");
+      }, 4000);
 
-    const service = new window.google.maps.places.PlacesService(mapRef.current);
-    service.nearbySearch(request, (results, status, next_page_token) => {
-      if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-        dispatch(updateCourts({ results, next_page_token }));
-      }
+      let request = {
+        location: mapRef.current.center,
+        rankBy: window.google.maps.places.RankBy.DISTANCE,
+        keyword: "basketball court",
+      };
+
+      const service = new window.google.maps.places.PlacesService(
+        mapRef.current
+      );
+
+      service.nearbySearch(request, (results, status, next_page_token) => {
+        clearTimeout(timeId);
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          resolve({ results, next_page_token });
+        } else if (
+          status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS
+        ) {
+          setMapError("No courts could be found in your area");
+          resolve({ results: [], next_page_token: null });
+        } else {
+          reject("Error occurred trying to find courts");
+        }
+      });
     });
-  }, [dispatch]);
+
+    try {
+      const results = await getCourts;
+      dispatch(updateCourts(results));
+    } catch (err) {
+      setMapError(err);
+    }
+  };
 
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
@@ -77,8 +102,12 @@ function GameMapAndDetails() {
   }, []);
 
   const loadInfoWindow = useCallback((request, disabled = false) => {
+    const timerId = setTimeout(() => {
+      setMapError(`Error occurred while retrieving court details`);
+    }, 4000);
     const service = new window.google.maps.places.PlacesService(mapRef.current);
     service.getDetails(request, (place, status) => {
+      clearTimeout(timerId);
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         if (!disabled) setSelected(place);
         const location = place.address_components.reduce((accum, curr) => {
@@ -100,16 +129,48 @@ function GameMapAndDetails() {
 
         if (!location.address) location.address = place.name;
         setLocation(location);
+      } else if (
+        status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS
+      ) {
+        setMapError("No court information could be found");
+      } else {
+        setMapError(`Error occurred while retrieving court details`);
       }
     });
   }, []);
 
-  if (loadError) return <div>Error</div>;
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      if (mapError) setMapError(null);
+    }, 7000);
+
+    return () => clearTimeout(timerId);
+  }, [mapError]);
+
+  if (loadError) setMapError("Google maps failed to load");
 
   if (isLoaded)
     return (
       <Stack sx={{ width: "100%", marginBottom: 10 }}>
-        <Box className="google">
+        {mapError && (
+          <Box
+            sx={{
+              position: "fixed",
+              width: "100%",
+              top: "5rem",
+              zIndex: "tooltip",
+            }}
+          >
+            <Alert severity="error">
+              <AlertTitle>{mapError}</AlertTitle>
+              Recommendation — <strong>go home and refresh</strong>
+            </Alert>
+          </Box>
+        )}
+        <Box
+          className="google"
+          sx={{ width: "100%", height: { xs: 250, sm: 400 }, marginBottom: 5 }}
+        >
           {isLoaded && (
             <GoogleMap
               id="map"
@@ -164,7 +225,10 @@ function GameMapAndDetails() {
                 ))}
             </GoogleMap>
           )}
-          <Button sx={{ color: "rgba(177, 167, 166)" }} onClick={getCourts}>
+          <Button
+            sx={{ color: "rgba(177, 167, 166)" }}
+            onClick={handleGetCourts}
+          >
             Find courts in area
           </Button>
         </Box>

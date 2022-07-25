@@ -18,7 +18,7 @@ function MessageFrom({ message, deleteMessage, openDelete }) {
           sx={{
             display: "flex",
             justifyContent: "center",
-            maxWidth: "50%",
+            maxWidth: "60%",
             padding: 1,
             paddingX: 3,
             borderRadius: 5,
@@ -27,7 +27,7 @@ function MessageFrom({ message, deleteMessage, openDelete }) {
             color: "#ffffff",
           }}
         >
-          <Typography sx={{ fontSize: { xs: 14 }, textAlign: "center" }}>
+          <Typography sx={{ fontSize: { xs: 14 }, textAlign: "right" }}>
             {message.message}
           </Typography>
         </Box>

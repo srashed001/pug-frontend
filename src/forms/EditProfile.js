@@ -12,20 +12,18 @@ import KeyIcon from '@mui/icons-material/Key';
 import PersonIcon from '@mui/icons-material/Person';
 
 function EditProfile() {
-  const my = useSelector((state) => state.my);
+  const myUser = useSelector((state) => state.my.user);
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-if (my.status === "failed") {
-    return <div>{my.error}</div>;
-  } else {
-    const resource = value === 0 ? <UpdateUserDetailsForm bio={my.user} /> : <UpdatePasswordForm />
+
+    const resource = value === 0 ? <UpdateUserDetailsForm bio={myUser} /> : <UpdatePasswordForm />
     return (
       <Stack>
-        <UploadImageCard bio={my.user} />
+        <UploadImageCard bio={myUser} />
         <Tabs
           value={value}
           onChange={handleChange}
@@ -39,7 +37,7 @@ if (my.status === "failed") {
         {resource}
       </Stack>
     );
-  }
+
 }
 
 export default EditProfile;

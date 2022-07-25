@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 function MessageInput() {
   const { threadId } = useParams();
   const dispatch = useDispatch();
-  const my = useSelector((state) => state.my);
+  const myUsername = useSelector((state) => state.my.username);
   const {
     reset,
     control,
@@ -32,7 +32,7 @@ function MessageInput() {
       }}
       onSubmit={handleSubmit(({ message }, e) => {
         dispatch(
-          addMessageInThread({ username: my.username, threadId, message })
+          addMessageInThread({ username: myUsername, threadId, message })
         );
         reset({ message: "" });
       })}

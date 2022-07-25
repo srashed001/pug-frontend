@@ -1,4 +1,5 @@
 import {
+  alpha,
   Avatar,
   Card,
   CardContent,
@@ -26,15 +27,19 @@ function Follow({ activity }) {
   return (
     <Card elevation={3}>
       <CardHeader
-        sx={{ backgroundColor: "#f48c06", color: "#FFFFFF" }}
+        sx={{ backgroundColor: alpha("#A5B1A6", 0.5), boxShadow: 2 }}
         avatar={
           <Avatar
             src={primaryUser.profileImg}
-            sx={{ backgroundColor: "#FFFFFF" }}
+            sx={{ backgroundColor: "#FFFFFF", boxShadow: 3 }}
           />
         }
         title={`${primaryUser.firstName} ${primaryUser.lastName}`}
-        subheader={`${formatDistanceToNowStrict(new Date(stamp))}`}
+        subheader={
+          <Typography sx={{ fontSize: 12 }}>
+            {formatDistanceToNowStrict(new Date(stamp))}
+          </Typography>
+        }
       />
       <CardContent>
         <Typography sx={{ fontSize: { xs: 12 } }}>

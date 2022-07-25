@@ -12,6 +12,7 @@ import CalendarIcon from "@mui/icons-material/EventNote";
 import GroupIcon from "@mui/icons-material/Group";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { format } from "date-fns";
 
 function GameCard({ game, disabled = false }) {
   const users = useSelector((state) => state.users.entities);
@@ -44,9 +45,10 @@ function GameCard({ game, disabled = false }) {
         <CardMedia
           component="img"
           sx={{
-            width: { xxs: 0, xs: 100, sm: 150 },
-            height: { xxs: 0, xs: 100, sm: 150 },
-            borderRadius: 2,
+            width: { xxs: 0, xs: 70, sm: 100 },
+            height: { xxs: 0, xs: 70, sm: 100 },
+            borderRadius: '50%',
+            boxShadow: 3
           }}
           image={user.profileImg}
           alt="game card img"
@@ -62,7 +64,7 @@ function GameCard({ game, disabled = false }) {
               component="div"
               variant="h6"
               sx={{
-                fontFamily: "Roboto",
+                
                 fontWeight: 700,
                 fontSize: 16,
                 marginBottom: 0.5,
@@ -71,7 +73,7 @@ function GameCard({ game, disabled = false }) {
               {title}
             </Typography>
           </Grid>
-          <Grid sx={{ marginBottom: 4 }}>
+          <Grid sx={{ marginBottom: 2 }}>
             <Chip
               icon={<LocationIcon />}
               label={`${city}, ${state}`}
@@ -110,7 +112,7 @@ function GameCard({ game, disabled = false }) {
               component="div"
               variant="body1"
               sx={{
-                fontFamily: "Roboto",
+                
                 fontSize: 12,
                 color: "#555555",
               }}
@@ -121,7 +123,7 @@ function GameCard({ game, disabled = false }) {
               component="div"
               variant="body1"
               sx={{
-                fontFamily: "Roboto",
+                
                 fontSize: 12,
                 color: "#555555",
               }}
@@ -132,19 +134,19 @@ function GameCard({ game, disabled = false }) {
               component="div"
               variant="body1"
               sx={{
-                fontFamily: "Roboto",
+                
                 fontSize: 12,
                 color: "#555555",
               }}
             >
-              <strong>Date:</strong> {date}
+              <strong>Date:</strong> {format(new Date(date), "PP")}
             </Typography>
             <Typography
               component="div"
               variant="body1"
-              sx={{ fontFamily: "Roboto", fontSize: 12, color: "#555555" }}
+              sx={{  fontSize: 12, color: "#555555" }}
             >
-              <strong>Time:</strong> {time}
+              <strong>Time:</strong> {format(new Date(`1995-12-17T${time}`), "p")}
             </Typography>
           </Grid>
         </Grid>

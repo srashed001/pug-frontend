@@ -19,6 +19,7 @@ import GeoLocationApi from "../api/GeoLocationApi";
 import AddressAutoComplete from "./AddressAutoComplete";
 import { useEffect } from "react";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { useErrorHandler } from "react-error-boundary";
 
 // import { yupResolver } from "@hookform/resolvers/yup";
 // import * as yup from "yup";
@@ -49,8 +50,9 @@ function UpdateGameForm() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const my = useSelector((state) => state.my);
+  const myStatus = useSelector((state) => state.my.status);
   const { gameId } = useParams();
+  const handleError = useErrorHandler()
 
   const {
     reset,
@@ -79,7 +81,7 @@ function UpdateGameForm() {
   }
 
   useEffect(() => {
-    if (my.status === "succeeded") {
+    if (myStatus === "succeeded") {
       dispatch(fetchGame(gameId))
         .unwrap()
         .then(({ details }) => {
@@ -98,8 +100,8 @@ function UpdateGameForm() {
       });
   }
 
-  if (loadError) return "Error Loading Maps";
-  if (!isLoaded) return "Loading maps";
+  if (loadError) handleError(loadError);
+  if (!isLoaded) return "Loading";
 
   return (
     <Stack>

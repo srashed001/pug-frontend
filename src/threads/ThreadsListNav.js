@@ -5,9 +5,13 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import SendIcon from "@mui/icons-material/Send";
 import { useNavigate } from "react-router-dom";
 import { useCallback } from "react";
+import { useDispatch } from "react-redux";
+import { setTab } from "../store/my/mySlice";
 function ThreadsListNav({ handleOpenDelete, openDelete }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   function goHome() {
+    dispatch(setTab(0))
     navigate(`/`);
   }
 

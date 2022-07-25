@@ -12,11 +12,13 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectAllCourts } from "../store/courts/courtsSlice";
 import ViewListIcon from "@mui/icons-material/ViewList";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function CourtsListDrawer({ loadInfoWindow, handleClickOpen }) {
+  const navigate = useNavigate()
   const courts = useSelector(selectAllCourts);
   const [state, setState] = useState(false);
-
+  const my = useSelector((state) => state.my);
   const toggleDrawer = (open) => (event) => {
     if (
       event &&
@@ -55,7 +57,6 @@ export default function CourtsListDrawer({ loadInfoWindow, handleClickOpen }) {
                   <Box>
                     <Typography
                       sx={{ display: "block", fontSize: 14 }}
-                      component="p"
                       color="text.primary"
                     >
                       {court.vicinity}
@@ -64,35 +65,43 @@ export default function CourtsListDrawer({ loadInfoWindow, handleClickOpen }) {
                     {court.rating && (
                       <Typography
                         sx={{ display: "block", fontSize: 14 }}
-                        component="p"
                         color="text.primary"
                       >
                         rating: {court.rating}
                       </Typography>
                     )}
-
-                    <Box>
-                      <Button
-                        sx={{ color: "#161A1D" }}
-                        onClick={() => {
-                          loadInfoWindow({ placeId: court.place_id });
-                        }}
-                      >
-                        Details
-                      </Button>
-                      <Button
-                        sx={{ color: "#161A1D" }}
-                        onClick={() => {
-                          loadInfoWindow({ placeId: court.place_id }, true);
-                          handleClickOpen();
-                        }}
-                      >
-                        Create Game
-                      </Button>
-                    </Box>
+                      <Box>
+                        <Button
+                  
+                          onClick={() => {
+                            loadInfoWindow({ placeId: court.place_id });
+                          }}
+                          >
+                          Details
+                        </Button>
+                          {my.username && (
+                        <Button
+                          onClick={() => {
+                            loadInfoWindow({ placeId: court.place_id }, true);
+                            handleClickOpen();
+                          }}
+                        >
+                          Create Game
+                        </Button>
+                    )}
+                          {!my.username && (
+                        <Button
+                          onClick={() => {
+                            navigate('/login')
+                          }}
+                        >
+                          login to create game
+                        </Button>
+                    )}
+                      </Box>
                   </Box>
                 }
-              />
+                />
             </ListItem>
 
             <Divider />

@@ -4,8 +4,10 @@ import {
   CardContent,
   CardHeader,
   Typography,
+  Box,
+  alpha
 } from "@mui/material";
-import { Box } from "@mui/system";
+
 import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -21,12 +23,16 @@ function ActivateGame({ activity }) {
   return (
     <Card elevation={3}>
       <CardHeader
-        sx={{ backgroundColor: "#f48c06", color: "#FFFFFF" }}
+        sx={{ backgroundColor: alpha("#A5B1A6", 0.5), boxShadow: 2 }}
         avatar={
-          <Avatar src={user.profileImg} sx={{ backgroundColor: "#FFFFFF" }} />
+          <Avatar src={user.profileImg} sx={{ backgroundColor: "#FFFFFF", boxShadow: 3 }} />
         }
         title={`${user.firstName} ${user.lastName}`}
-        subheader={`${formatDistanceToNowStrict(new Date(stamp))}`}
+        subheader={
+          <Typography sx={{ fontSize: 12 }}>
+            {formatDistanceToNowStrict(new Date(stamp))}
+          </Typography>
+        }
       />
       <CardContent>
         <Typography sx={{ fontSize: { xs: 12 } }}>

@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-function DeleteThreadButton({ thread, deleteThread }) {
+function DeleteThreadButton({  deleteThread }) {
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => {
     setOpen(true);

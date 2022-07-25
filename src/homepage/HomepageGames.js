@@ -20,7 +20,6 @@ function HomepageGames() {
     setTransition(() => setResource((state) => ({ ...state, ...my })));
   }, [my]);
 
-  if (my.status === "failed") return <div>failed</div>;
 
   const {
     gamesHostedPending,
@@ -35,7 +34,7 @@ function HomepageGames() {
       <Stack
         sx={{
           width: "100%",
-          backgroundColor: "#F24346",
+          backgroundColor: "#E5383B",
           position: "fixed",
           top: "6.5rem",
           zIndex: "10",
@@ -45,7 +44,7 @@ function HomepageGames() {
         <Box marginX={1}>
           <Button
             startIcon={<SportsBasketballIcon />}
-            sx={{ color: "#ffffff", fontSize: "10px", fontFamily: "Roboto" }}
+            sx={{ color: "#ffffff", fontSize: "10px" }}
             onClick={createGame}
           >
             new game

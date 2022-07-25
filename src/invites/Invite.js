@@ -55,7 +55,6 @@ function Invite({ invite, value }) {
     dispatch(cancelInvite(data));
   }
 
-  console.log(user);
   return (
     <Card elevation={10}>
       <CardHeader
@@ -91,13 +90,13 @@ function Invite({ invite, value }) {
       </CardContent>
       <CardActions>
         {value === "received" ? (
-          status === "pending" ? (
+        game.players.find(player => player === my.username) ? <Button disabled >you have joined game</Button> :  status === "pending" ? (
             <>
               <Button onClick={dispatchAcceptInvite}>accept</Button>
               <Button onClick={dispatchDenyInvite}>deny</Button>
             </>
           ) : null
-        ) : status === "pending" ? (
+        ) : game.players.find(player => player === user.username) ? <Button disabled >user has joined game</Button>  : status === "pending" ? (
           <Button onClick={dispatchCancelInvite}>cancel</Button>
         ) : null}
       </CardActions>

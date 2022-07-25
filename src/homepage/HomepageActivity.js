@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,7 +12,7 @@ function HomepageActivity() {
   const activities = useSelector((state) => state.my.activity);
   const myActivities = useSelector((state) => state.my.myActivity);
   const dispatch = useDispatch();
-  const my = useSelector((state) => state.my);
+  const myUsername = useSelector((state) => state.my.username);
   const { control, watch } = useForm({
     defaultValues: {
       activityMode: "following",
@@ -21,24 +21,42 @@ function HomepageActivity() {
   const { activityMode } = watch();
 
   useEffect(() => {
-    if (my.status === "succeeded") {
-      dispatch(fetchMyActivity(my.username));
+    if (myUsername) {
+      dispatch(fetchMyActivity(myUsername));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [my.status]);
+  }, [myUsername]);
 
+  console.log(activities)
+  console.log(myActivities)
 
   return (
     <Stack>
       <HomepageActivitySelect control={control} />
-      <Stack mt={4} spacing={2} sx={{ padding: 1 }}>
-        {activityMode === "following"
-          ? activities.map((activity) => (
+      <Stack
+        mt={4}
+        spacing={2}
+        sx={{
+          padding: 1,
+        }}
+      >
+        {activityMode === "following" ? (
+          activities.length ? (
+            activities.map((activity) => (
               <ActivityWrapper key={v4()} activity={activity} />
             ))
-          : myActivities.map((activity) => (
-              <ActivityWrapper key={v4()} activity={activity} />
-            ))}
+          ) : (
+            <Typography sx={{ fontSize: 20, textAlign: 'center' }}>
+              Currently following no users
+            </Typography>
+          )
+        ) : myActivities.length ? (
+          myActivities.map((activity) => (
+            <ActivityWrapper key={v4()} activity={activity} />
+          ))
+        ) : (
+          <Typography sx={{ fontSize: 20, textAlign: 'center' }}>You have no activity</Typography>
+        )}
       </Stack>
     </Stack>
   );

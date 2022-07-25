@@ -52,6 +52,7 @@ function GameCommentInput({ gameId }) {
         }}
         render={({ field }) => (
           <TextField
+            disabled={!my.username}
             sx={{ width: "100%" }}
             size="small"
             {...field}

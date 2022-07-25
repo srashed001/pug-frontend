@@ -10,18 +10,19 @@ import usePlacesAutocomplete, {
 } from "use-places-autocomplete";
 
 import Autocomplete from "@mui/material/Autocomplete";
+import { useErrorHandler } from "react-error-boundary";
 
 import TextField from "@mui/material/TextField";
 import GeoLocationApi from "../api/GeoLocationApi";
 import mapStyles from "./mapStyles";
 import "./mapStyles.css";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllCourts, updateCourts } from "../store/courts/courtsSlice";
 import CourtInfoWindow from "./CourtInfoWindow";
 import CourtsListDrawer from "./CourtListDrawer";
 import { Box } from "@mui/system";
-import { Button, Stack } from "@mui/material";
+import { Alert, AlertTitle, Button, Stack } from "@mui/material";
 
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import CourtListCreateGame from "./CourtListCreateGame";
@@ -49,6 +50,8 @@ function CourtsList() {
     libraries,
   });
   const [open, setOpen] = useState(false);
+  const [mapError, setMapError] = useState(null);
+  const handleError = useErrorHandler();
   const [selected, setSelected] = useState(null);
   const [location, setLocation] = useState({
     address: "",
@@ -74,10 +77,22 @@ function CourtsList() {
       keyword: "basketball courts",
     };
 
+    const timerId = setTimeout(() => {
+      setMapError("Error occurred trying to find courts");
+    }, 4000);
+
     const service = new window.google.maps.places.PlacesService(mapRef.current);
     service.nearbySearch(request, (results, status, next_page_token) => {
+      clearTimeout(timerId);
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         dispatch(updateCourts({ results, next_page_token }));
+      } else if (
+        status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS
+      ) {
+        setMapError("No courts could be found in your area");
+        dispatch(updateCourts({ results: [], next_page_token: null }));
+      } else {
+        setMapError("Error occurred trying to find courts");
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,25 +100,37 @@ function CourtsList() {
 
   const onMapLoad = useCallback(
     (map) => {
-      mapRef.current = map;
-      getCourts(map.center);
+      try {
+        mapRef.current = map;
+        getCourts(map.center);
+      } catch (err) {
+        handleError({ message: "Error loading Google Map" });
+      }
     },
-    [getCourts]
+    [getCourts, handleError]
   );
 
   const panTo = useCallback(
     ({ lat, lng }) => {
-      mapRef.current.panTo({ lat, lng });
-      mapRef.current.setZoom(13);
-      console.log({ lat, lng });
-      getCourts({ lat, lng });
+      try {
+        mapRef.current.panTo({ lat, lng });
+        mapRef.current.setZoom(13);
+        getCourts({ lat, lng });
+      } catch (err) {
+        setMapError("Error occurred trying to pan map");
+      }
     },
     [getCourts]
   );
 
   const loadInfoWindow = useCallback((request, disabled = false) => {
+    const timerId = setTimeout(() => {
+      setMapError("Error occurred getting court detauls");
+    }, 4000);
+
     const service = new window.google.maps.places.PlacesService(mapRef.current);
     service.getDetails(request, (place, status) => {
+      clearTimeout(timerId);
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         if (!disabled) setSelected(place);
         const location = place.address_components.reduce((accum, curr) => {
@@ -125,13 +152,27 @@ function CourtsList() {
 
         if (!location.address) location.address = place.name;
         setLocation(location);
+      } else if (
+        status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS
+      ) {
+        setMapError("No court information could be found");
+      } else {
+        setMapError(`Error occurred while retrieving court details`);
       }
     });
   }, []);
 
-  if (loadError) return "Error Loading Maps";
-  if (!isLoaded) return "Loading maps";
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      if (mapError) setMapError(null);
+    }, 7000);
 
+    return () => clearTimeout(timerId);
+  }, [mapError]);
+
+
+  if (loadError) return handleError({ message: `Error loading google maps` });
+  if (!isLoaded) return "Loading maps";
 
   return (
     <Stack className="google">
@@ -140,6 +181,21 @@ function CourtsList() {
         handleClose={handleClose}
         location={location}
       />
+       {mapError && (
+          <Box
+            sx={{
+              position: "fixed",
+              width: "100%",
+              top: "5rem",
+              zIndex: "tooltip",
+            }}
+          >
+            <Alert severity="error">
+              <AlertTitle>{mapError}</AlertTitle>
+              Recommendation — <strong>go home and refresh</strong>
+            </Alert>
+          </Box>
+        )}
       <h1>pug</h1>
       <Search
         panTo={panTo}
@@ -229,7 +285,7 @@ function Search({ panTo, loadInfoWindow, location, handleClickOpen }) {
       sx={{
         padding: 1,
         width: "100%",
-        backgroundColor: "#F24346",
+        backgroundColor: "#E5383B",
         zIndex: "modal",
       }}
     >

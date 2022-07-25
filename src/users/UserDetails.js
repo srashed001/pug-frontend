@@ -1,4 +1,4 @@
-import {  useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toggleRelationship } from "../store/my/mySlice";
@@ -15,8 +15,6 @@ import UserDetailsHeader from "./UserDetailsHeader";
 function UserDetails() {
   const { username } = useParams();
   const dispatch = useDispatch();
-  const userStatus = useSelector((state) => state.users.status.user);
-  const error = useSelector((state) => state.users.error);
   const user = useSelector((state) => selectUserById(state, username));
   const my = useSelector((state) => state.my);
   const navigate = useNavigate();
@@ -54,18 +52,12 @@ function UserDetails() {
   };
 
   useEffect(() => {
-    if (my.status === "succeeded") {
-      dispatch(fetchUser(username));
-    }
-  }, [dispatch, my.status, username]);
+    dispatch(fetchUser(username));
+  }, [dispatch, username]);
 
   useEffect(() => {
     setTransition(() => setResource((state) => ({ ...state, ...user })));
   }, [user]);
-
-  if (userStatus === "failed") {
-    return <div>{error}</div>;
-  }
 
   const gamesHostedPending = resource.games.hosted.pending;
   const gamesHostedResolved = resource.games.hosted.resolved;

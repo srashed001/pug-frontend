@@ -16,41 +16,62 @@ const initialState = invitesAdapter.getInitialState({
 
 export const fetchMyInvites = createAsyncThunk(
   `invites/fetchMyInvites`,
-  async (username, { dispatch }) => {
-    const invites = PugApi.getInvites(username);
-    invites.then((data) => {
-      dispatch(updateMyInvites(data));
-    });
-
-    return invites;
+  async (username, { dispatch, rejectWithValue }) => {
+    try {
+      const invites = await PugApi.getInvites(username);
+      dispatch(updateMyInvites(invites));
+      return invites;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const createInvites = createAsyncThunk(
   `invites/createInvites`,
-  async ({ username, gameId, toUsers }) => {
-    return PugApi.createInvites(username, gameId, { toUsers });
+  async ({ username, gameId, toUsers }, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.createInvites(username, gameId, { toUsers });
+      return result;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const acceptInvite = createAsyncThunk(
   `invites/acceptInvite`,
-  async ({ username, id }) => {
-    return PugApi.updateInvite(username, "accept", id);
+  async ({ username, id }, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.updateInvite(username, "accept", id);
+      return result;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const denyInvite = createAsyncThunk(
   `invites/denyInvite`,
-  async ({ username, id }) => {
-    return PugApi.updateInvite(username, "deny", id);
+  async ({ username, id }, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.updateInvite(username, "deny", id);
+      return result;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const cancelInvite = createAsyncThunk(
   `invites/cancelInvite`,
-  async ({ username, id }) => {
-    return PugApi.updateInvite(username, "cancel", id);
+  async ({ username, id }, { rejectWithValue }) => {
+    try {
+      const result = await PugApi.updateInvite(username, "cancel", id);
+      return result;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
@@ -62,7 +83,12 @@ export const invitesSlice = createSlice({
       state.status = "idle";
     },
     updateInvites(state, action) {
-      invitesAdapter.upsertMany(state, action.payload);
+      try {
+        invitesAdapter.upsertMany(state, action.payload);
+      } catch (err) {
+        state.status = "failed";
+        state.error = { message: err.message };
+      }
     },
   },
   extraReducers(builder) {
@@ -80,43 +106,43 @@ export const invitesSlice = createSlice({
       })
       .addCase(fetchMyInvites.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(acceptInvite.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(acceptInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const invite = action.payload
+        const invite = action.payload.invite;
         invitesAdapter.upsertOne(state, invite);
       })
       .addCase(acceptInvite.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(denyInvite.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(denyInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const invite = action.payload
+        const invite = action.payload.invite;
         invitesAdapter.upsertOne(state, invite);
       })
       .addCase(denyInvite.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(cancelInvite.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(cancelInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const invite = action.payload
+        const invite = action.payload.invite;
         invitesAdapter.upsertOne(state, invite);
       })
       .addCase(cancelInvite.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(createInvites.pending, (state, action) => {
         state.status = "loading";
@@ -127,7 +153,7 @@ export const invitesSlice = createSlice({
       })
       .addCase(createInvites.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       });
   },
 });

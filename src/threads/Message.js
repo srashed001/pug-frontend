@@ -7,21 +7,32 @@ import MessageTo from "./MessageTo";
 function Message({ message, openDelete }) {
   const { threadId } = useParams();
   const { messageFrom } = message;
-  const my = useSelector((state) => state.my);
+  const myUsername = useSelector((state) => state.my.username);
 
   const dispatch = useDispatch();
 
   function handleDeleteMessage() {
     const data = {
-      username: my.username,
+      username: myUsername,
       id: message.id,
       threadId: threadId,
     };
     dispatch(deleteMessageInThread(data));
   }
 
-  return messageFrom === my.username ? <MessageFrom openDelete={openDelete} deleteMessage={handleDeleteMessage} message={message} /> : <MessageTo openDelete={openDelete}  deleteMessage={handleDeleteMessage} message={message} />
-
+  return messageFrom === myUsername ? (
+    <MessageFrom
+      openDelete={openDelete}
+      deleteMessage={handleDeleteMessage}
+      message={message}
+    />
+  ) : (
+    <MessageTo
+      openDelete={openDelete}
+      deleteMessage={handleDeleteMessage}
+      message={message}
+    />
+  );
 }
 
 export default Message;

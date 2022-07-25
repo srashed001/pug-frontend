@@ -14,7 +14,7 @@ function HomepageActivitySelect({ control }) {
       component={"form"}
       sx={{
         width: "100%",
-        backgroundColor: "#F24346",
+        backgroundColor: "#E5383B",
         position: "fixed",
         top: "6.5rem",
         zIndex: "10",
@@ -40,7 +40,7 @@ function HomepageActivitySelect({ control }) {
                   />
                 }
                 label={
-                  <Typography sx={{ fontSize: 14, color: "#ffffff" }}>
+                  <Typography sx={{ fontSize: 14, color: "#FFFFFF" }}>
                     following
                   </Typography>
                 }
@@ -58,7 +58,7 @@ function HomepageActivitySelect({ control }) {
                   />
                 }
                 label={
-                  <Typography sx={{ fontSize: 14, color: "#ffffff" }}>
+                  <Typography sx={{ fontSize: 14, color: "#FFFFFF" }}>
                     personal
                   </Typography>
                 }

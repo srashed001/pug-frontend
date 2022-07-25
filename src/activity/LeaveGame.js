@@ -4,8 +4,10 @@ import {
   CardContent,
   CardHeader,
   Typography,
+  Box,
+  alpha,
 } from "@mui/material";
-import { Box } from "@mui/system";
+
 import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -23,9 +25,12 @@ function LeaveGame({ activity }) {
   return (
     <Card elevation={3}>
       <CardHeader
-        sx={{ backgroundColor: "#F45E60", color: "#FFFFFF" }}
+        sx={{ backgroundColor: alpha("#A5ACB1", 0.5), boxShadow: 2 }}
         avatar={
-          <Avatar src={user.profileImg} sx={{ backgroundColor: "#FFFFFF" }} />
+          <Avatar
+            src={user.profileImg}
+            sx={{ backgroundColor: "#FFFFFF", boxShadow: 3 }}
+          />
         }
         title={`${user.firstName} ${user.lastName}`}
         subheader={`${formatDistanceToNowStrict(new Date(stamp))}`}

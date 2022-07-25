@@ -10,8 +10,6 @@ import RelationshipListNav from "./RelationshipListNav";
 function RelationshipsList({ state }) {
   const { username } = useParams();
   const user = useSelector((state) => selectUserById(state, username));
-  const userStatus = useSelector((state) => state.users.status.user);
-  const error = useSelector((state) => state.users.error);
   const dispatch = useDispatch();
   const [isPending, setTransition] = useTransition();
   const [resource, setResource] = useState({
@@ -33,8 +31,6 @@ function RelationshipsList({ state }) {
   useEffect(() => {
     setTransition(() => setResource((state) => ({ ...state, ...user })));
   }, [user]);
-
-  if (userStatus === "failed") return <div>{error}</div>;
 
   const relationships =
     relationshipMode === "followers"

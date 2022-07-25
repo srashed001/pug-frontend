@@ -37,7 +37,7 @@ function MessageTo({ message, deleteMessage, openDelete }) {
         >
           <Typography
             component={"pre"}
-            sx={{ fontSize: { xs: 14 }, textAlign: "center" }}
+            sx={{ fontSize: { xs: 14 }, textAlign: "left" }}
           >
             {message.message}
           </Typography>

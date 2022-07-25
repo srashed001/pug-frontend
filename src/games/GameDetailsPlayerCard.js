@@ -6,7 +6,7 @@ function GameDetailsPlayerCard({ user }) {
     <Paper
       component={Link}
       to={`/users/u/${user.username}`}
-      sx={{ textDecoration: "none", borderRadius: 0 }}
+      sx={{ textDecoration: "none", borderRadius: 2 }}
     >
       <Stack
         padding={1}
@@ -15,7 +15,7 @@ function GameDetailsPlayerCard({ user }) {
         alignItems={"center"}
         justifyContent={"center"}
       >
-        <Avatar src={user.profileImg} />
+        <Avatar src={user.profileImg} sx={{boxShadow: 3}} />
         <Stack sx={{ minWidth: 100 }}>
           <Typography sx={{ lineHeight: 1 }}>
             {user.firstName} {user.lastName}

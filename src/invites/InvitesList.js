@@ -5,18 +5,18 @@ import {
   selectInvitesReceived,
   selectInvitesSent,
 } from "../store/invites/invitesSlice";
-import { Stack, Box } from "@mui/material";
+import { Stack, Box, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 import HomepageInviteSelect from "../homepage/HomepageInviteSelect";
 
 function InvitesList() {
   const error = useSelector((state) => state.my.error);
-  const my = useSelector((state) => state.my);
+  const myUsername = useSelector((state) => state.my.username);
   const invitesReceived = useSelector((state) =>
-    selectInvitesReceived(state, my.username)
+    selectInvitesReceived(state, myUsername)
   );
   const invitesSent = useSelector((state) =>
-    selectInvitesSent(state, my.username)
+    selectInvitesSent(state, myUsername)
   );
 
   const [resource, setResource] = useState([]);
@@ -38,34 +38,41 @@ function InvitesList() {
     });
   }, [inviteMode, invitesReceived, invitesSent]);
 
-  if (my.status === "failed") {
-    return <div>{error}</div>;
-  } else {
-    return (
-      <Stack mt={4}>
+  return (
+    <Stack mt={4}>
+      <Stack
+        component={"form"}
+        sx={{
+          width: "100%",
+          backgroundColor: "#E5383B",
+          position: "fixed",
+          top: "6.5rem",
+          zIndex: "10",
+          boxShadow: 3,
+        }}
+      >
+        <HomepageInviteSelect control={control} />
+      </Stack>
+      <Box>
         <Stack
-          component={"form"}
+          spacing={1}
           sx={{
-            width: "100%",
-            backgroundColor: "#F24346",
-            position: "fixed",
-            top: "6.5rem",
-            zIndex: "10",
-            boxShadow: 3,
+            margin: 2,
           }}
         >
-          <HomepageInviteSelect control={control} />
-        </Stack>
-        <Box>
-          <Stack spacing={1} sx={{ margin: 2 }}>
-            {resource.map((invite) => (
+          {isPending ? null : resource.length ? (
+            resource.map((invite) => (
               <Invite key={invite.id} invite={invite} value={inviteMode} />
-            ))}
-          </Stack>
-        </Box>
-      </Stack>
-    );
-  }
+            ))
+          ) : (
+            <Typography sx={{ fontSize: 20, textAlign: "center" }}>
+              No invites {inviteMode === "received" ? "received" : "sent"}
+            </Typography>
+          )}
+        </Stack>
+      </Box>
+    </Stack>
+  );
 }
 
 export default InvitesList;

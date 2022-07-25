@@ -1,25 +1,31 @@
 // import "./App.css";
-import {  useEffect } from "react";
+import { useEffect } from "react";
 import useLocalStorage from "./hooks/useLocalStorage";
-import PugRoutes from "./routes/PugRoutes";
 import PugApi from "./api/api";
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "./api/secretKey";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchInitialMy } from "./store/my/mySlice";
+import { fetchInitialMy} from "./store/my/mySlice";
 import { fetchGames } from "./store/games/gamesSlice";
-import { fetchUsers } from "./store/users/usersSlice";
+import {
+  fetchUsers,
+} from "./store/users/usersSlice";
 import BottomNavigationBar from "./navigation/BottomNavigationBar";
 import { Stack, Box } from "@mui/material";
 import TopAppBar from "./navigation/TopAppBar";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
+import "./homepage/publicHomepage.css";
+import ErrorFallback from "./errors/ErrorFallback";
+import RouteWrapper from "./routes/RouteWrapper";
 
 // Key name for storing token in localStorage for "remember me" re-login
 export const TOKEN_STORAGE_ID = "pug-token";
 
 const theme = createTheme({
   typography: {
-    fontFamily: "Montserrat",
+    fontFamily: "Special Elite",
   },
 });
 
@@ -27,26 +33,13 @@ function App() {
   const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
   const myStatus = useSelector((state) => state.my.status);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (token) {
-      try {
-        let { username } = jwt.verify(token, SECRET_KEY);
-        PugApi.token = token;
-        if (myStatus === "idle") {
-          dispatch(fetchGames());
-          dispatch(fetchUsers());
-          dispatch(fetchInitialMy(username));
-        }
-      } catch (err) {
-        console.error("App useEffect dispatch error");
-      }
-    }
-  }, [dispatch, myStatus, token]);
-
+  const navigate = useNavigate();
+  
   /** Handles site-wide logout. */
   function logout() {
+    PugApi.token = null;
     setToken(null);
+    navigate("/");
   }
 
   /** Handles site-wide signup.
@@ -72,7 +65,6 @@ function App() {
    */
   async function login(loginData) {
     try {
-      console.log(loginData);
       let token = await PugApi.login(loginData);
       setToken(token);
       return { success: true };
@@ -82,20 +74,44 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    if (myStatus === "idle") {
+      dispatch(fetchGames());
+      dispatch(fetchUsers());
+      if (token) {
+        let { username } = jwt.verify(token, SECRET_KEY);
+        PugApi.token = token;
+        dispatch(fetchInitialMy(username));
+      }
+    }
+  }, [dispatch, myStatus, token]);
+
 
   return (
     <ThemeProvider theme={theme}>
-      <Stack className="App">
-        <TopAppBar />
-        <Box sx={{ marginTop: 5, marginBottom: 9, width: "100%" }}>
-          <PugRoutes login={login} signup={signup} />
-        </Box>
-        <Box>
-          <BottomNavigationBar />
-        </Box>
-      </Stack>
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onReset={() => {
+          window.location.reload(true);
+        }}
+        onError={myErrorHandler}
+      >
+        <Stack className="App">
+          <TopAppBar logout={logout} />
+          <Box sx={{ marginTop: 5, marginBottom: 9, width: "100%" }}>
+            <RouteWrapper token={token} login={login} signup={signup} />
+          </Box>
+          <Box>
+            <BottomNavigationBar />
+          </Box>
+        </Stack>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }
+
+const myErrorHandler = (error, info) => {
+  console.log(error, info);
+};
 
 export default App;

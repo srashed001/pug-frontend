@@ -2,11 +2,12 @@ import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchThreads, selectAllThreads } from "../store/threads/threadsSlice";
 import Thread from "./Thread";
-import { Divider, Stack } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import ThreadsListNav from "./ThreadsListNav";
+import { setTab } from "../store/my/mySlice";
 
 function ThreadsList() {
-  const my = useSelector((state) => state.my);
+  const myUsername = useSelector((state) => state.my.username);
   const threads = useSelector(selectAllThreads);
   const threadStatus = useSelector((state) => state.threads.status);
   const error = useSelector((state) => state.threads.error);
@@ -22,37 +23,42 @@ function ThreadsList() {
   };
 
   useEffect(() => {
-    if (threadStatus === "idle" && my.status === "succeeded") {
-      dispatch(fetchThreads(my.username));
+    dispatch(setTab(0));
+  });
+
+  useEffect(() => {
+    if (myUsername && threadStatus === "idle") {
+      dispatch(fetchThreads(myUsername));
     }
-  }, [dispatch, my.status, my.username, threadStatus]);
+  }, [dispatch, myUsername, threadStatus]);
 
   useEffect(() => {
     setTransition(() => setResource(threads));
   }, [threads]);
 
-  if (threadStatus === "failed") {
-    return <div>{error}</div>;
-  } else {
+  return (
+    <Stack mt={12}>
+      <ThreadsListNav
+        handleOpenDelete={toggleOpenDelete}
+        openDelete={openDelete}
+      />
 
-    return (
-      <Stack mt={12}>
-        <ThreadsListNav
-          handleOpenDelete={toggleOpenDelete}
-          openDelete={openDelete}
-        />
-
-        <Stack
-          sx={{ padding: 1 }}
-          divider={<Divider orientation="horizontal" flexItem />}
-        >
-          {resource.map((thread) => (
+      <Stack
+        sx={{ padding: 1 }}
+        divider={<Divider orientation="horizontal" flexItem />}
+      >
+        {resource.length ? (
+          resource.map((thread) => (
             <Thread key={thread.id} thread={thread} openDelete={openDelete} />
-          ))}
-        </Stack>
+          ))
+        ) : (
+          <Typography sx={{ fontSize: 20, textAlign: "center" }}>
+            No messages
+          </Typography>
+        )}
       </Stack>
-    );
-  }
+    </Stack>
+  );
 }
 
 export default ThreadsList;

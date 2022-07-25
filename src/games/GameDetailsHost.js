@@ -35,7 +35,7 @@ function GameDetailsHost({ game }) {
             <Grid item xs sx={{ display: "inline-flex", alignItems: "center" }}>
               <Avatar
                 src={user.profileImg}
-                sx={{ width: 100, height: 100, margin: 1 }}
+                sx={{ width: 100, height: 100, margin: 1, boxShadow: 3 }}
               />
               <Stack sx={{ paddingLeft: 1 }}>
                 <Typography variant="h5">

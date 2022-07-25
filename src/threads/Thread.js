@@ -50,6 +50,7 @@ function Thread({ thread, openDelete }) {
           thread.party.map((user) =>
             user.username === my.username ? null : (
               <Avatar
+                key={user.username}
                 sx={{ height: 56, width: 56, boxShadow: 2 }}
                 src={user.profileImg}
               />
@@ -67,6 +68,7 @@ function Thread({ thread, openDelete }) {
             {thread.party.map((user, i, arr) =>
               user.username === my.username ? null : (
                 <Typography
+                  key={user.username}
                   sx={{ fontSize: { xs: 14, sm: 16 } }}
                   component="span"
                 >

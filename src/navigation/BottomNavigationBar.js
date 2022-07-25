@@ -19,20 +19,9 @@ const BottomNavigationAction = styled(MuiBottomNavigationAction)(`
 `);
 
 export default function BottomNavigationBar() {
-  const [value, setValue] = useState(0);
-  const [active, setActive] = useState(true);
   const location = useLocation();
-
-  useEffect(() => {
-    if (location.pathname.slice(0, 11) === "/threads/t/") {
-      setActive(false);
-    } else {
-      setActive(true);
-    }
-  }, [location]);
-
-  if (!active) return null;
-
+  const [value, setValue] = useState(0);
+  if (location.pathname.slice(0, 11) === "/threads/t/") return null;
   return (
     <Box sx={{ width: "80%" }}>
       <BottomNavigation

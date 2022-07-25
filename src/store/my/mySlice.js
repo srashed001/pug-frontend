@@ -21,6 +21,7 @@ const initialState = {
   user: null,
   activity: [],
   myActivity: [],
+  tab: 0,
   gamesHostedPending: myAdapter.getInitialState(),
   gamesHostedResolved: myAdapter.getInitialState(),
   gamesJoinedPending: myAdapter.getInitialState(),
@@ -34,79 +35,101 @@ const initialState = {
 
 export const toggleRelationship = createAsyncThunk(
   `my/toggleRelationship`,
-  async ({ username, followed }, { dispatch }) => {
-    const resp = PugApi.toggleRelationship(username, followed);
-    resp.then((data) => {
-      dispatch(updateFollowers(data));
-    });
-
-    return resp;
+  async ({ username, followed }, { dispatch, rejectWithValue }) => {
+    try {
+      const resp = await PugApi.toggleRelationship(username, followed);
+      dispatch(updateFollowers(resp));
+      return resp;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const fetchMyActivity = createAsyncThunk(
   `my/fetchMyActivity`,
-  async (username) => {
-    return PugApi.getUserActivity(username);
+  async (username, { rejectWithValue }) => {
+    try {
+      const activity = await PugApi.getUserActivity(username);
+      return activity;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const fetchInitialMy = createAsyncThunk(
   "my/fetchInitialMy",
-  async (username, { dispatch }) => {
-    const user = PugApi.getCurrentUser(username);
-    const invites = PugApi.getInvites(username);
-    const threads = PugApi.getThreads(username);
-    const inactiveGames = PugApi.getInactiveGames(username);
-
-    threads.then((data) => dispatch(updateThreads(data)));
-
-    user.then((data) => {
+  async (username, { dispatch, rejectWithValue }) => {
+    try {
+      const user = await PugApi.getCurrentUser(username);
+      const invites = await PugApi.getInvites(username);
+      const threads = await PugApi.getThreads(username);
+      const inactiveGames = await PugApi.getInactiveGames(username);
+      dispatch(updateThreads(threads));
       const allGames = _.union(
-        data.games.hosted.resolved,
-        data.games.hosted.pending,
-        data.games.joined.resolved,
-        data.games.joined.pending
+        user.games.hosted.resolved,
+        user.games.hosted.pending,
+        user.games.joined.resolved,
+        user.games.joined.pending
       );
-      const allUsers = _.union(data.followers, data.follows, data);
+      const allUsers = _.union(user.followers, user.follows);
       dispatch(updateGames(allGames));
       dispatch(updateUsers(allUsers));
-    });
-
-    invites.then((data) => {
-      const allInvites = _.union(data.received, data.sent);
+      const allInvites = _.union(invites.received, invites.sent);
       dispatch(updateInvites(allInvites));
-    });
-
-    return Promise.all([user, invites, inactiveGames]);
+      return [user, invites, inactiveGames];
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const updateProfile = createAsyncThunk(
   `my/updateProfile`,
-  async ({ username, data }) => {
-    return PugApi.editUserProfile(username, data);
+  async ({ username, data }, { rejectWithValue }) => {
+    try {
+      const update = await PugApi.editUserProfile(username, data);
+      return update;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const acceptInvite = createAsyncThunk(
   `my/acceptInvite`,
-  async ({ username, id }) => {
-    return PugApi.updateInvite(username, "accept", id);
+  async ({ username, id }, { rejectWithValue }) => {
+    try {
+      const update = await PugApi.updateInvite(username, "accept", id);
+      return update;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const denyInvite = createAsyncThunk(
   `my/denyInvite`,
-  async ({ username, id }) => {
-    return PugApi.updateInvite(username, "deny", id);
+  async ({ username, id }, { rejectWithValue }) => {
+    try {
+      const update = await PugApi.updateInvite(username, "deny", id);
+      return update;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
 export const cancelInvite = createAsyncThunk(
   `my/cancelInvite`,
-  async ({ username, id }) => {
-    return PugApi.updateInvite(username, "cancel", id);
+  async ({ username, id }, { rejectWithValue }) => {
+    try {
+      const update = await PugApi.updateInvite(username, "cancel", id);
+      return update;
+    } catch (err) {
+      return rejectWithValue(err[0]);
+    }
   }
 );
 
@@ -114,31 +137,49 @@ export const mySlice = createSlice({
   name: "my",
   initialState,
   reducers: {
-    resetMyStatus(state, action) {
-      state.status = "idle";
+    setTab(state, action) {
+      try {
+        return {...state, tab: action.payload}
+      } catch (err) {
+        state.status = "failed";
+        state.error = { message: err.message };
+      }
     },
-    updateMyUsername(state, action) {
-      state.username = action.payload.username;
+    resetMyStatus(state, action) {
+      return { ...state, status: "idle" };
+    },
+    resetMy(state, action) {
+      return initialState;
     },
     updateMyInvites(state, action) {
-      const invites = action.payload;
-      if (!_.isEqual(state.invitesReceived, invites.received))
-        state.invitesReceived = invites.received.map((invite) => invite.id);
-      if (!_.isEqual(state.invitesSent, invites.sent))
-        state.invitesSent = invites.sent.map((invite) => invite.id);
+      try {
+        const invites = action.payload;
+        if (!_.isEqual(state.invitesReceived, invites.received))
+          state.invitesReceived = invites.received.map((invite) => invite.id);
+        if (!_.isEqual(state.invitesSent, invites.sent))
+          state.invitesSent = invites.sent.map((invite) => invite.id);
+      } catch (err) {
+        state.status = "failed";
+        state.error = { message: err.message };
+      }
     },
     updateInactiveGames(state, action) {
-      const { action: status, game } = action.payload;
-      if (status === "deactivated") {
-        myAdapter.upsertOne(state.inactiveGames, game);
-        game.daysDiff < 0
-          ? myAdapter.removeOne(state.gamesHostedResolved, game.id)
-          : myAdapter.removeOne(state.gamesHostedPending, game.id);
-      } else if (status === "reactivated") {
-        myAdapter.removeOne(state.inactiveGames, game.id);
-        game.daysDiff < 0
-          ? myAdapter.upsertOne(state.gamesHostedResolved, game)
-          : myAdapter.upsertOne(state.gamesHostedPending, game);
+      try {
+        const { action: status, game } = action.payload;
+        if (status === "deactivated") {
+          myAdapter.upsertOne(state.inactiveGames, game);
+          game.daysDiff < 0
+            ? myAdapter.removeOne(state.gamesHostedResolved, game.id)
+            : myAdapter.removeOne(state.gamesHostedPending, game.id);
+        } else if (status === "reactivated") {
+          myAdapter.removeOne(state.inactiveGames, game.id);
+          game.daysDiff < 0
+            ? myAdapter.upsertOne(state.gamesHostedResolved, game)
+            : myAdapter.upsertOne(state.gamesHostedPending, game);
+        }
+      } catch (err) {
+        state.status = "failed";
+        state.error = { message: err.message };
       }
     },
   },
@@ -152,7 +193,7 @@ export const mySlice = createSlice({
       })
       .addCase(fetchMyActivity.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(fetchInitialMy.pending, (state, action) => {
         state.status = "loading";
@@ -183,7 +224,7 @@ export const mySlice = createSlice({
       })
       .addCase(fetchInitialMy.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(toggleRelationship.pending, (state, action) => {})
       .addCase(toggleRelationship.fulfilled, (state, action) => {
@@ -195,7 +236,7 @@ export const mySlice = createSlice({
       })
       .addCase(toggleRelationship.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(updateProfile.pending, (state, action) => {})
       .addCase(updateProfile.fulfilled, (state, action) => {
@@ -204,10 +245,9 @@ export const mySlice = createSlice({
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(acceptInvite.pending, (state, action) => {
-        state.status = "loading";
       })
       .addCase(acceptInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -216,10 +256,9 @@ export const mySlice = createSlice({
       })
       .addCase(acceptInvite.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(denyInvite.pending, (state, action) => {
-        state.status = "loading";
       })
       .addCase(denyInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -228,10 +267,9 @@ export const mySlice = createSlice({
       })
       .addCase(denyInvite.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(cancelInvite.pending, (state, action) => {
-        state.status = "loading";
       })
       .addCase(cancelInvite.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -240,7 +278,7 @@ export const mySlice = createSlice({
       })
       .addCase(cancelInvite.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       });
   },
 });
@@ -250,6 +288,8 @@ export const {
   updateMyUsername,
   updateMyInvites,
   updateInactiveGames,
+  resetMy,
+  setTab,
 } = mySlice.actions;
 
 export default mySlice.reducer;

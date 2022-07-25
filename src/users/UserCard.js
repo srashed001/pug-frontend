@@ -25,7 +25,7 @@ function UserCard({ user }) {
       >
         <CardMedia
           component="img"
-          sx={{ marginleft: 4, width: 80, height: 80, borderRadius: 1 }}
+          sx={{ marginleft: 4, width: 70, height: 70, borderRadius: '50%', boxShadow: 3 }}
           image={profileImg}
           alt="profile img"
         />

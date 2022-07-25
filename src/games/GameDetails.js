@@ -15,19 +15,17 @@ import GameDetailsHost from "./GameDetailsHost";
 
 function GameDetails({ panTo, gameId, setLocation }) {
   const dispatch = useDispatch();
-  const gameStatus = useSelector((state) => state.games.status.game);
   const game = useSelector((state) => selectGameById(state, gameId));
-  const error = useSelector((state) => state.games.errors);
   const gameComments = useSelector((state) =>
     selectCommentsByGame(state, gameId)
   );
   const users = useSelector((state) => state.users.entities);
-  const my = useSelector((state) => state.my);
+  const myUsername = useSelector((state) => state.my.username);
   const [resource, setResource] = useState(initialGame);
   const [isPending, setTransition] = useTransition();
 
   useEffect(() => {
-    if (my.status === "succeeded") {
+
       dispatch(fetchGame(gameId))
         .unwrap()
         .then(({ details }) => {
@@ -46,16 +44,16 @@ function GameDetails({ panTo, gameId, setLocation }) {
           }
           panToGame(details);
         });
-    }
-  }, [dispatch, gameId, my.status, panTo, setLocation]);
+
+  }, [dispatch, gameId,  panTo, setLocation]);
 
   useEffect(() => {
     setTransition(() => setResource((state) => ({ ...state, ...game })));
   }, [game]);
 
-  if (gameStatus === "failed") return <div>{error}</div>;
 
-  const joined = resource.players.find((player) => player === my.username);
+  const joined = resource.players.find((player) => player === myUsername);
+
 
   return (
     <>

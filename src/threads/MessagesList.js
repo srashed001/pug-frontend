@@ -8,16 +8,15 @@ import {
 } from "../store/threads/threadsSlice";
 import Message from "./Message";
 import MessagesListNav from "./MessageListNav";
-import { Stack, Box } from "@mui/material";
+import { Stack, Box, Typography } from "@mui/material";
 import MessageBottomNav from "./MessageBottomNav";
 
 function MessagesList() {
   const { threadId } = useParams();
   const dispatch = useDispatch();
-  const threadStatus = useSelector((state) => state.threads.status);
   const thread = useSelector((state) => selectThreadById(state, threadId));
-  const my = useSelector((state) => state.my);
-  const error = useSelector((state) => state.threads.error);
+  const myStatus = useSelector((state) => state.my.status);
+  const myUsername = useSelector((state) => state.my.username);
   const [resource, setResource] = useState({
     id: threadId,
     lastMessage: { message: "", timestamp: "2022-01-01T00:00:00" },
@@ -40,42 +39,47 @@ function MessagesList() {
   });
 
   useEffect(() => {
-    if (my.status === "succeeded") {
-      dispatch(fetchMessages({ username: my.username, threadId }));
+    if (myStatus === "succeeded") {
+      dispatch(fetchMessages({ username: myUsername, threadId }));
     }
 
     return () => dispatch(resetThreadStatus());
-  }, [dispatch, my.status, my.username, threadId]);
+  }, [dispatch, myStatus, myUsername, threadId]);
 
   useEffect(() => {
     setTransition(() => setResource((state) => ({ ...state, ...thread })));
   }, [thread]);
 
-  if (threadStatus === "failed") {
-    return <div>{error}</div>;
-  } else {
-    return (
-      <Stack>
-        <MessagesListNav
-          thread={thread}
-          handleOpenDelete={toggleOpenDelete}
-          openDelete={openDelete}
-        />
-        <Stack sx={{ marginTop: 16, marginBottom: 6 }} spacing={1}>
-          {Object.values(resource.messages.entities).map((message) => (
+  return (
+    <Stack>
+      <MessagesListNav
+        thread={thread}
+        handleOpenDelete={toggleOpenDelete}
+        openDelete={openDelete}
+      />
+      <Stack
+        sx={{ marginTop: 16, marginBottom: 6, display: "flex" }}
+        spacing={1}
+      >
+        {Object.values(resource.messages.entities).length ? (
+          Object.values(resource.messages.entities).map((message) => (
             <Message
               key={message.id}
               message={message}
               threadId={threadId}
               openDelete={openDelete}
             />
-          ))}
-          <Box ref={scrollRef}></Box>
-        </Stack>
-        <MessageBottomNav />
+          ))
+        ) : (
+          <Typography sx={{ fontSize: 20, textAlign: "center" }}>
+            No messages
+          </Typography>
+        )}
+        <Box ref={scrollRef}></Box>
       </Stack>
-    );
-  }
+      <MessageBottomNav />
+    </Stack>
+  );
 }
 
 export default MessagesList;

@@ -5,8 +5,10 @@ import MessageIcon from "@mui/icons-material/Message";
 import PeopleIcon from "@mui/icons-material/People";
 import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
+import { useSelector } from "react-redux";
 
 function UserDetailsNav({ user, state, toggle, initiateNewMessage }) {
+  const myUsername = useSelector((state) => state.my.username);
   const navigate = useNavigate();
   const getFollowers = useCallback(() => {
     navigate(`/relationships/f/${user.username}`);
@@ -60,38 +62,55 @@ function UserDetailsNav({ user, state, toggle, initiateNewMessage }) {
                 user.games.joined.resolved.length}
             </Typography>
           </Stack>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: 3,
-            }}
-          >
-            {state === "follow" ? (
-              <IconButton onClick={toggle} component="span">
-                <PersonAddAlt1Icon />
-              </IconButton>
-            ) : (
-              <IconButton onClick={toggle} component="span">
-                <PersonRemoveAlt1Icon />
-              </IconButton>
-            )}
-            <IconButton
-              onClick={getFollowers}
-              sx={{ marginLeft: 3 }}
-              component="span"
+          {myUsername && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: 3,
+              }}
             >
-              <PeopleIcon />
-            </IconButton>
-            <IconButton
-              onClick={initiateNewMessage}
-              sx={{ marginLeft: 3 }}
-              component="span"
+              {myUsername === user.username ? null : state === "follow" ? (
+                <IconButton onClick={toggle} component="span">
+                  <PersonAddAlt1Icon />
+                </IconButton>
+              ) : (
+                <IconButton onClick={toggle} component="span">
+                  <PersonRemoveAlt1Icon />
+                </IconButton>
+              )}
+              <IconButton
+                onClick={getFollowers}
+                sx={{ marginLeft: 3 }}
+                component="span"
+              >
+                <PeopleIcon />
+              </IconButton>
+              {myUsername === user.username ? null : (
+                <IconButton
+                  onClick={initiateNewMessage}
+                  sx={{ marginLeft: 3 }}
+                  component="span"
+                >
+                  <MessageIcon />
+                </IconButton>
+              )}
+            </Box>
+          )}
+          {!myUsername && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: 3,
+              }}
             >
-              <MessageIcon />
-            </IconButton>
-          </Box>
+              <Typography><Link to={'/login'}>Login</Link> or <Link to={`/signup`}>Signup</Link>
+              </Typography>
+            </Box>
+          )}
         </Box>
       </Grid>
     </Grid>

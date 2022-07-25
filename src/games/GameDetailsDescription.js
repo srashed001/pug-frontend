@@ -21,7 +21,7 @@ function GameDetailsDescription({ body }) {
         sx={{
           marginY: 1,
           paddingLeft: 2,
-          minHeight: 200,
+          minHeight: 100,
           boxShadow: 0,
         }}
       >

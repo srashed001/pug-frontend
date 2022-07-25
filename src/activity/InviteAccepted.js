@@ -4,8 +4,9 @@ import {
   CardContent,
   CardHeader,
   Typography,
+  Box, 
+  alpha
 } from "@mui/material";
-import { Box } from "@mui/system";
 import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -31,15 +32,14 @@ function InviteAccepted({ activity }) {
   return (
     <Card elevation={3}>
       <CardHeader
-        sx={{ backgroundColor: "#f48c06", color: "#FFFFFF" }}
-        avatar={
+        sx={{ backgroundColor: alpha("#A5B1A6", .50),  boxShadow: 2 }}        avatar={
           <Avatar
             src={primaryUser.profileImg}
-            sx={{ backgroundColor: "#FFFFFF" }}
+            sx={{ backgroundColor: "#FFFFFF", boxShadow: 3 }}
           />
         }
         title={`${primaryUser.firstName} ${primaryUser.lastName}`}
-        subheader={`${formatDistanceToNowStrict(new Date(stamp))}`}
+        subheader={<Typography sx={{fontSize: 12}}>{formatDistanceToNowStrict(new Date(stamp))}</Typography>}
       />
       <CardContent>
         <Typography sx={{ fontSize: { xs: 12 } }}>

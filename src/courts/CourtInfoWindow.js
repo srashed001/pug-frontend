@@ -15,6 +15,8 @@ import { styled } from "@mui/material/styles";
 import { useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import StarRateIcon from "@mui/icons-material/StarRate";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -28,6 +30,8 @@ const ExpandMore = styled((props) => {
 }));
 
 function CourtInfoWindow({ selected, handleClickOpen, location }) {
+  const navigate = useNavigate();
+  const myUsername = useSelector(state => state.my.username)
   const [expanded, setExpanded] = useState(false);
   const handleExpandClick = () => {
     setExpanded((expanded) => !expanded);
@@ -77,13 +81,22 @@ function CourtInfoWindow({ selected, handleClickOpen, location }) {
               )
             ) : null}
           </Box>
-          {handleClickOpen && (
-            <Box>
-              <Button onClick={handleClickOpen} sx={{ color: "#161A1D" }}>
-                create game
+          {handleClickOpen &&
+            (myUsername ? (
+              <Box>
+                <Button onClick={handleClickOpen} sx={{ color: "#161A1D" }}>
+                  create game
+                </Button>
+              </Box>
+            ) : (
+              <Button
+                onClick={() => {
+                  navigate("/login");
+                }}
+              >
+                login to create game
               </Button>
-            </Box>
-          )}
+            ))}
         </Stack>
       </Box>
       <Box sx={{ position: "absolute" }}>
@@ -117,7 +130,9 @@ function CourtInfoWindow({ selected, handleClickOpen, location }) {
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             <Stack>
               {selected.opening_hours.weekday_text.map((day) => (
-                <Typography key={day} variant="caption">{day}</Typography>
+                <Typography key={day} variant="caption">
+                  {day}
+                </Typography>
               ))}
             </Stack>
           </Collapse>
