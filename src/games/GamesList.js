@@ -1,73 +1,83 @@
-import { useEffect } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import LoadingSpinner from "../common/LoadingSpinner";
-import { fetchGames,  resetGamesStatus,  resetGameStatus } from "../store/games/gamesSlice";
+import { fetchGames, selectAllActiveGames } from "../store/games/gamesSlice";
 import GameCard from "./GameCard";
+import { Stack, Typography, Paper } from "@mui/material";
+import { useForm } from "react-hook-form";
+import GamesHostListInput from "./GamesListHostInput";
+import GamesHostLocationInput from "./GamesListLocationInput";
+import { matchSorter } from "match-sorter";
+import GamesListSearchMode from "./GamesListSearchMode";
 
 function GamesList() {
-  console.debug(`GameList`);
-
   const dispatch = useDispatch();
-  const allIds = useSelector((state) => state.games.ids);
-  const byId = useSelector((state) => state.games.entities);
-
   const gameStatus = useSelector((state) => state.games.status.games);
-  const error = useSelector((state) => state.games.error);
-  const my = useSelector(state => state.my)
+  const [resource, setResource] = useState([]);
+  const [isPending, setTransition] = useTransition();
+  const activeGames = useSelector((state) => selectAllActiveGames(state));
+  const { control, watch } = useForm({
+    defaultValues: {
+      searchMode: "host",
+      hostQuery: "",
+      cityQuery: "",
+      stateQuery: "",
+    },
+  });
 
-  // useEffect(() => {
-  //   return () => {
-  //     console.log('GamesList cleanup prior', gameStatus)
-  //     if(gameStatus === 'succeeded'){
-  //       console.log('running cleanup')
-  //       dispatch(resetGamesStatus())
-  //     }
-      
-  //     console.log('GamesList cleanup after', gameStatus)
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log(`GamesList useEffect`, gameStatus);
-  //   if (gameStatus === "idle" && my.status === 'succeeded') {
-  //     console.log('running useEffect')
-  //     dispatch(fetchGames());
-  //   }
-
-    
-  // }, [dispatch, gameStatus, my.status]);
-
-  // useEffect(()=>{
-  //   return () => dispatch(resetGamesStatus())
-
-  // }, [dispatch])
-
-  useEffect(()=> {
-    console.log(`App gamesList useEffect`, gameStatus);
-    if (gameStatus === "idle" && my.status === 'succeeded') {
-      console.log('running useEffect')
+  useEffect(() => {
+    if (gameStatus === "idle") {
       dispatch(fetchGames());
     }
+  }, [dispatch, gameStatus]);
 
-  }, [dispatch, gameStatus, my.status])
+  useEffect(() => {
+    setTransition(() => setResource(activeGames));
+  }, [activeGames]);
 
-
-  let content;
-
-  if (gameStatus === "loading") {
-    content = <LoadingSpinner />;
-  } else if (gameStatus === "succeeded") {
-    content = allIds.map((id) => <GameCard key={id} game={byId[id]} />);
-  } else if (gameStatus === "failed") {
-    content = <div>{error}</div>;
-  }
+  const { searchMode, cityQuery, hostQuery, stateQuery } = watch();
 
   return (
-    <div>
-      <h1>GamesList</h1>
-      {content}
-    </div>
+    <Stack sx={{ marginTop: { xs: 23, sm: 25 } }}>
+      <Stack sx={{ position: "fixed", top: 60, zIndex: 5, width: "100%" }}>
+        <Stack
+          component="form"
+          sx={{ width: "100%", backgroundColor: "#E5383B" }}
+        >
+          {searchMode === "host" ? (
+            <GamesHostListInput control={control} />
+          ) : (
+            <GamesHostLocationInput control={control} />
+          )}
+          <GamesListSearchMode control={control} />
+        </Stack>
+        <Typography
+          component={Paper}
+          sx={{
+            boxShadow: "1px 1px 3px #D3D3D3",
+            padding: 1,
+            fontSize: { xs: "24px", sm: "36px" },
+          }}
+        >
+          Games
+        </Typography>
+      </Stack>
+      <Stack sx={{ position: "relative", zIndex: 0 }}>
+        {searchMode === "host" &&
+          matchSorter(resource, hostQuery, {
+            sorter: (rankedItems) => rankedItems,
+            keys: [
+              (item) =>
+                `${item.createdBy.firstName} ${item.createdBy.lastName}`,
+              (item) => `${item.createdBy.username}`,
+            ],
+          }).map((game) => <GameCard key={game.id} game={game} />)}
+        {searchMode === "location" &&
+          matchSorter(resource, `${cityQuery}, ${stateQuery}`, {
+            sorter: (rankedItems) => rankedItems,
+            keys: [(item) => `${item.city}, ${item.state}`],
+          }).map((game) => <GameCard key={game.id} game={game} />)}
+      </Stack>
+    </Stack>
   );
 }
 

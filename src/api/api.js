@@ -32,23 +32,39 @@ class PugApi {
 
   /** Logs in user */
 
-  static async login(data){
-      let res = await this.request(`auth/token`, data, "post");
-      return res.token
+  static async login(data) {
+    let res = await this.request(`auth/token`, data, "post");
+    return res.token;
   }
 
-  static async signup(data){
-      let res = await this.request(`auth/register`, data, "post")
-      return res.token
+  static async signup(data) {
+    let res = await this.request(`auth/register`, data, "post");
+    return res.token;
   }
-  
+
   /****************************************************************************** User API Routes */
+
+  /**Check username availability */
+
+  static async checkUsername(username) {
+    let res = await this.request(`users/${username}/check`);
+    return res;
+  }
+
+  /** Get user activity */
+
+  static async getUserActivity(username) {
+    let res = await this.request(`activity/${username}`);
+    return res;
+  }
 
   /** Get the current user. */
 
   static async getCurrentUser(username) {
-    let res = await this.request(`users/${username}`);
-    return res;
+
+      let res = await this.request(`users/${username}`);
+      return res;
+
   }
 
   /** Edit current user profile.
@@ -83,9 +99,9 @@ class PugApi {
    *       - newPassword
    */
 
-  static async changePassword(username) {
-    let res = await this.request(`users/${username}/password`, {}, "patch");
-    return res.user;
+  static async changePassword(username, data) {
+    let res = await this.request(`users/${username}/password`, data, "patch");
+    return res;
   }
 
   /** Deactivate user. */
@@ -131,7 +147,7 @@ class PugApi {
 
   static async getMessages(username, threadId) {
     let res = await this.request(`users/${username}/threads/${threadId}`);
-    return res.messages;
+    return res.thread;
   }
 
   /** create a message outside responding in thread.
@@ -143,6 +159,11 @@ class PugApi {
   static async createMessage(username, data) {
     let res = await this.request(`users/${username}/threads`, data, "post");
     return res.message;
+  }
+
+  static async getThreadId(username, data) {
+    let res = await this.request(`users/${username}/threadId`, data, "post");
+    return res;
   }
 
   /** respond with a message in thread.
@@ -232,9 +253,9 @@ class PugApi {
    *         - gameStatus 'pending' || 'resolved'
    */
 
-  static async getGames(data = {isActive: true}) {
+  static async getGames(data) {
     let res = await this.request(`games`, data);
-    return res.games
+    return res.games;
   }
 
   /** gets game.  */
@@ -244,91 +265,114 @@ class PugApi {
     return res;
   }
 
-  static async getInactiveGames(username){
+  /** Gets inactive games */
+
+  static async getInactiveGames(username) {
     const data = {
-      host: username, 
-      isActive: false
-    }
-    let res = await this.request(`games`, data)
-    return res.games
+      host: username,
+      isActive: false,
+    };
+    let res = await this.request(`games`, data);
+    return res.games;
   }
 
-  /** creates a game. 
-   *    Data required: 
+  /** creates a game.
+   *    Data required:
    *        - title
    *        = description
-   *        = date 
-   *        = time 
-   *        = address 
-   *        = city 
+   *        = date
+   *        = time
+   *        = address
+   *        = city
    *        - state
-  */
-  static async createGame(data){
-      let res = await this.request(`games`, data, 'post')
-      return res.details
-
+   */
+  static async createGame(data) {
+    let res = await this.request(`games`, data, "post");
+    return res.details;
   }
 
-  /** updates a game. 
-   *    Data can include: 
-   *        - titile 
+  /** updates a game.
+   *    Data can include:
+   *        - titile
    *        = description
-   *        = date 
-   *        = time 
-   *        = address 
-   *        = city 
+   *        = date
+   *        = time
+   *        = address
+   *        = city
    *        - state
-  */
-  static async updateGame(gameId, data){
-      let res = await this.request(`games/${gameId}`, data, 'patch')
-      return res.details
+   */
+  static async updateGame(gameId, data) {
+    let res = await this.request(`games/${gameId}`, data, "patch");
+    return res.details;
   }
 
-  /** creates a game comment. 
-   *    Data required: 
+  /** creates a game comment.
+   *    Data required:
    *        - comment
-  */
-  static async addComment(gameId, username, data){
-      let res = await this.request(`games/${gameId}/comment/${username}`, data, 'post')
-      return res.comment
+   */
+  static async addComment(gameId, username, data) {
+    let res = await this.request(
+      `games/${gameId}/comment/${username}`,
+      data,
+      "post"
+    );
+    return res.comment;
   }
 
-  /** deletes a game comment. 
-   *   
-  */
-  static async deleteComment(gameId, commentId){
-      let res = await this.request(`games/${gameId}/comment/${commentId}`, {}, 'delete')
-      return res
+  /** deletes a game comment.
+   *
+   */
+  static async deleteComment(gameId, commentId) {
+    let res = await this.request(
+      `games/${gameId}/comment/${commentId}`,
+      {},
+      "delete"
+    );
+    return res;
   }
 
   /** joins a game.  */
 
-  static async joinGame(gameId, username){
-      let res = await this.request(`games/${gameId}/join/${username}`, {}, 'post')
-      return res.players
+  static async joinGame(gameId, username) {
+    let res = await this.request(
+      `games/${gameId}/join/${username}`,
+      {},
+      "post"
+    );
+    return res.players;
   }
 
   /** leave game.  */
 
-  static async leaveGame(gameId, username){
-      let res = await this.request(`games/${gameId}/join/${username}`, {}, 'delete')
-      return res.players
+  static async leaveGame(gameId, username) {
+    let res = await this.request(
+      `games/${gameId}/join/${username}`,
+      {},
+      "delete"
+    );
+    return res.players;
   }
 
   /** deactivate game.  */
 
-  static async deactivateGame(gameId){
-      let res = await this.request(`games/${gameId}/deactivate`, {}, 'patch')
-      return res
+  static async deactivateGame(gameId) {
+    let res = await this.request(`games/${gameId}/deactivate`, {}, "patch");
+    return res;
   }
 
   /** reactivate game.  */
 
-  static async reactivateGame(gameId){
-      let res = await this.request(`games/${gameId}/reactivate`, {}, 'patch')
-      return res
+  static async reactivateGame(gameId) {
+    let res = await this.request(`games/${gameId}/reactivate`, {}, "patch");
+    return res;
   }
 
+  /********************************************************************************* Court API routes */
+
+  static async getCourts(location) {
+    let res = await this.request(`courts`, location);
+    return res.courts;
+  }
 }
 
 export default PugApi;

@@ -1,77 +1,218 @@
-import { useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import LoadingSpinner from "../common/LoadingSpinner";
-import { fetchGame, resetGameStatus, selectGameById, updateGame } from "../store/games/gamesSlice";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  fetchGame,
+  updateGame,
+} from "../store/games/gamesSlice";
+import {
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Stack,
+  Box,
+} from "@mui/material";
+import { useJsApiLoader } from "@react-google-maps/api";
 
-function UpdateGameForm(){
-    const {gameId} = useParams()
-    const game = useSelector(state => selectGameById(state, gameId))
-    const status = useSelector(state => state.games.status.game)
-    const dispatch = useDispatch()
+import GeoLocationApi from "../api/GeoLocationApi";
+import AddressAutoComplete from "./AddressAutoComplete";
+import { useEffect } from "react";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { useErrorHandler } from "react-error-boundary";
 
+// import { yupResolver } from "@hookform/resolvers/yup";
+// import * as yup from "yup";
+// const createGameSchema = yup.object().shape({
+//   title: yup.string().required().max(25),
+//   description: yup.string().required,
+//   date: yup.date().required(),
+//   time: yup.string().required(),
+//   address: yup.string().required(),
+//   city: yup.string().required().max(25),
+//   state: yup.string().required().max(2),
+// });
 
+const api_key = GeoLocationApi.api_key;
+const libraries = ["places"];
+const inputOptions = {
+  width: {
+    xs: "100%",
+    sm: "80%",
+  },
+};
 
-    useEffect(()=> {
-        if(status === 'idle') 
-        dispatch(fetchGame(gameId))
-    }, [dispatch, gameId, status])
+function UpdateGameForm() {
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: api_key,
+    libraries,
+  });
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const myStatus = useSelector((state) => state.my.status);
+  const { gameId } = useParams();
+  const handleError = useErrorHandler()
 
-    useEffect(()=> {
-        if(status === 'succeeded')
-        dispatch(resetGameStatus())
-    }, [])
-   
-        // eslint-disable-next-line no-extend-native
-        Date.prototype.addDays = function (days) {
-            const date = new Date(this.valueOf());
-            date.setDate(date.getDate() + days);
-            date.setHours(date.getHours() - 7);
-            return date;
-          };
-      
-          let date = new Date();
-          date = date.addDays(4).toJSON().slice(0, 10);
+  const {
+    reset,
+    control,
+    getValues,
+    setValue,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      title: "",
+      description: "",
+      date: "",
+      time: "",
+      address: "",
+      city: "",
+      state: "",
+    },
+    // resolver: yupResolver(createGameSchema),
+    mode: "onChange",
+  });
+  
+  const returnToGame = () => {
+    navigate(`/games/g/${gameId}`)
+  }
 
-    const data = {
-        title: 'new game title',
-        description: 'updated description',
-        date,
-        time: '12:00:00',
-        city: 'Fresno',
-        state: 'CA',
+  useEffect(() => {
+    if (myStatus === "succeeded") {
+      dispatch(fetchGame(gameId))
+        .unwrap()
+        .then(({ details }) => {
+          const { title, description, date, time, address, city, state } =
+            details;
+          reset({ title, description, date, time, address, city, state });
+        });
     }
+  }, []);
 
-    function testUpdateGame(){
-        dispatch(updateGame({id:gameId, data}))
+  function dispatchUpdateGame(data) {
+    dispatch(updateGame({ id: gameId, data }))
+      .unwrap()
+      .then((data) => {
+        navigate(`/games/g/${data.id}`);
+      });
+  }
 
-    }
+  if (loadError) handleError(loadError);
+  if (!isLoaded) return "Loading";
 
-    if (status === 'loading') return <LoadingSpinner />
-    if(status === 'failed') return <div>failed</div>
-    if (status === 'succeeded') return (
-        <div>
-        <h1>Edit Game: {gameId}</h1>
-        <div>
-          <button onClick={testUpdateGame}>update game</button>
-        </div>
-        <ul>
-          <li>id: {game.id}</li>
-          <li>title: {game.title}</li>
-          <li>description: {game.description}</li>
-          <li>date: {game.date}</li>
-          <li>time: {game.time}</li>
-          <li>address: {game.address}</li>
-          <li>city: {game.city}</li>
-          <li>state: {game.state}</li>
-          <li>created on: {game.createdOn}</li>
-          <li>game host: {game.createdBy}</li>
-          <li>daysDiff: {game.daysDiff}</li>
-        </ul>
-      </div>
+  return (
+    <Stack>
+      <Box
+        sx={{
+          display: "inline-flex",
+          backgroundColor: "#F24346",
+          position: "fixed",
+          top: "3.5rem",
+          zIndex: "10",
+          width: "100%",
+          boxShadow: 3,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Button
+            sx={{ color: "#FFFFFF", marginX: 1 }}
+            startIcon={<ArrowBackIosIcon />}
+            onClick={returnToGame}
+          >
+            Game
+          </Button>
+        </Box>
+        <Box>
+          <Typography sx={{ fontSize: 20, padding: 1, color: "#FFFFFF" }}>
+            Update PUG
+          </Typography>
+        </Box>
+      </Box>
+      <Stack
+      my={10}
+        component="form"
+        sx={{ padding: 2 }}
+        onSubmit={handleSubmit(dispatchUpdateGame)}
+        alignItems="center"
+      >
+        <Controller
+          name="title"
+          control={control}
+          rules={{ required: "title required" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              variant="standard"
+              sx={inputOptions}
+              error={!!errors.title}
+              helperText={errors.title ? errors.title.message : "title"}
+            />
+          )}
+        />
 
-    )
+        <Controller
+          name="description"
+          control={control}
+          rules={{ required: "description required" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              multiline
+              variant="standard"
+              sx={inputOptions}
+              error={!!errors.description}
+              helperText={
+                errors.description ? errors.description.message : "description"
+              }
+            />
+          )}
+        />
+        <Controller
+          name="date"
+          control={control}
+          rules={{ required: "date required" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              type="date"
+              variant="standard"
+              sx={inputOptions}
+              error={!!errors.date}
+              helperText={errors.date ? errors.date.message : "date"}
+            />
+          )}
+        />
+        <Controller
+          name="time"
+          control={control}
+          rules={{ required: "time required" }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              type="time"
+              inputProps={{ step: 300 }}
+              sx={inputOptions}
+              variant="standard"
+              error={!!errors.time}
+              helperText={errors.time ? errors.time.message : "time"}
+            />
+          )}
+        />
+        <AddressAutoComplete
+          control={control}
+          watch={watch}
+          setFormValue={setValue}
+          reset={reset}
+          errors={errors}
+          getValues={getValues}
+        />
+        <Button onClick={handleSubmit(dispatchUpdateGame)}>submit</Button>
+      </Stack>
+    </Stack>
+  );
 }
 
-export default UpdateGameForm
+export default UpdateGameForm;

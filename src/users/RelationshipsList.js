@@ -1,49 +1,58 @@
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { useParams } from "react-router-dom"
-import LoadingSpinner from "../common/LoadingSpinner"
-import { fetchRelationships, fetchUser, resetFollowStatus, resetUserStatus, selectUserById } from "../store/users/usersSlice"
-import RelationshipCard from "./RelationshipCard"
+import { useEffect, useState, useTransition } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { fetchUser, selectUserById } from "../store/users/usersSlice";
+import { Typography, Stack } from "@mui/material";
+import UserCard from "./UserCard";
+import { useForm } from "react-hook-form";
+import RelationshipListNav from "./RelationshipListNav";
 
-function RelationshipsList(){
-    const {username} = useParams()
-    const user = useSelector(state => selectUserById(state, username))
-    const userStatus = useSelector(state => state.users.status.user)
-    const followStatus = useSelector(state => state.users.followStatus)
-    const my = useSelector(state => state.my)
-    const error = useSelector(state => state.users.error)
-    const dispatch = useDispatch()
-    const [fetched, setFetched] = useState(false)
-    const [state, setState] = useState('followers')
+function RelationshipsList({ state }) {
+  const { username } = useParams();
+  const user = useSelector((state) => selectUserById(state, username));
+  const dispatch = useDispatch();
+  const [isPending, setTransition] = useTransition();
+  const [resource, setResource] = useState({
+    followers: { entities: {} },
+    follows: { entities: {} },
+  });
 
-    useEffect(()=>{
-        resetUserStatus()
-      dispatch(fetchUser(username))
-    }, [dispatch, username])
+  const { control, watch } = useForm({
+    defaultValues: {
+      relationshipMode: state,
+    },
+  });
+  const { relationshipMode } = watch();
 
+  useEffect(() => {
+    dispatch(fetchUser(username));
+  }, [dispatch, username]);
 
-    if(userStatus === 'loading') return <LoadingSpinner />
-    else if(userStatus === 'failed') return <div>{error}</div>
-    else if(userStatus === 'succeeded'  ){
-        console.log(user, followStatus)
-        const relationships = state === 'followers' ? user.followers.entities : user.follows.entities
+  useEffect(() => {
+    setTransition(() => setResource((state) => ({ ...state, ...user })));
+  }, [user]);
 
-        return (
-            <div>
-                <div>
-                    <button onClick={()=>setState('followers')}>followers</button>
-                    <button onClick={()=>setState('follows')}>follows</button>
-                </div>
-                <div>
-                       {Object.values(relationships).map(user => (
-                    <RelationshipCard user={user} />
-                ))}
-                </div>
-             
-            </div>
-        )
-    }
+  const relationships =
+    relationshipMode === "followers"
+      ? resource.followers.entities
+      : resource.follows.entities;
 
+  return (
+    <Stack>
+      <RelationshipListNav control={control} username={username} />
+      <Stack mt={14}>
+        {Object.values(relationships).length ? (
+          Object.values(relationships).map((user) => (
+            <UserCard key={user.username} user={user} />
+          ))
+        ) : (
+          <Typography align={"center"} component={"div"} variant="h5">
+            No Users
+          </Typography>
+        )}
+      </Stack>
+    </Stack>
+  );
 }
 
-export default RelationshipsList
+export default RelationshipsList;

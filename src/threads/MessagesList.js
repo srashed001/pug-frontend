@@ -1,79 +1,85 @@
-import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Link, useParams } from "react-router-dom"
-import { addMessageInThread, fetchMessages, fetchThreads, resetThreadStatus } from "../store/threads/threadsSlice"
-import LoadingSpinner from "../common/LoadingSpinner"
-import Message from "./Message"
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import {
+  fetchMessages,
+  resetThreadStatus,
+  selectThreadById,
+} from "../store/threads/threadsSlice";
+import Message from "./Message";
+import MessagesListNav from "./MessageListNav";
+import { Stack, Box, Typography } from "@mui/material";
+import MessageBottomNav from "./MessageBottomNav";
 
+function MessagesList() {
+  const { threadId } = useParams();
+  const dispatch = useDispatch();
+  const thread = useSelector((state) => selectThreadById(state, threadId));
+  const myStatus = useSelector((state) => state.my.status);
+  const myUsername = useSelector((state) => state.my.username);
+  const [resource, setResource] = useState({
+    id: threadId,
+    lastMessage: { message: "", timestamp: "2022-01-01T00:00:00" },
+    messages: { ids: [], entities: {} },
+    party: [],
+  });
+  const [isPending, setTransition] = useTransition();
+  const [openDelete, setOpenDelete] = useState(false);
 
-function MessagesList(){
+  const toggleOpenDelete = () => {
+    setOpenDelete((state) => !state);
+  };
 
-    const {threadId} = useParams()
-    const dispatch = useDispatch()
-    const threadStatus = useSelector(state => state.threads.status)
-    const messageIds = useSelector(state => state.threads.entities[threadId]?.messages.ids)
-    const messages = useSelector(state => state.threads.entities[threadId]?.messages.entities)
-const threads = useSelector(state => state.threads)
-    const thread = useSelector(state => state.threads.entities[threadId])
-    const my = useSelector(state => state.my)
-    const error = useSelector(state => state.threads.error)
-    const [fetched, setFetched] = useState(false)
+  const scrollRef = useRef(null);
 
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  });
 
-    function addMessage(){
-        const data = {
-            username: 'test1',
-            threadId, 
-            message: 'testing 123'
-        }
-
-        dispatch(addMessageInThread(data))
-
+  useEffect(() => {
+    if (myStatus === "succeeded") {
+      dispatch(fetchMessages({ username: myUsername, threadId }));
     }
 
-    useEffect(()=> {
-             return () => {
-            dispatch(resetThreadStatus())
+    return () => dispatch(resetThreadStatus());
+  }, [dispatch, myStatus, myUsername, threadId]);
 
-        }
-    }, [])
+  useEffect(() => {
+    setTransition(() => setResource((state) => ({ ...state, ...thread })));
+  }, [thread]);
 
-
-    useEffect(()=> {
-        console.log(threadStatus)
-        if(threadStatus === 'idle' && my.status === 'succeeded'){
-            console.log(`dispatch`)
-            dispatch(fetchThreads(my.username))
-            dispatch(fetchMessages({username: my.username, threadId}))
-            setFetched(true)
-
-        }
-    }, [dispatch, my.status, my.username, threadId, threadStatus])
-
-    if (threadStatus === "loading") {
-        return <LoadingSpinner />;
-      } else if (threadStatus === "failed") {
-        return <div>{error}</div>;
-      } else if (threadStatus === "succeeded" && fetched ) {
-        console.log(threads)
-
-
-    
-        return (
-          <div>
-            <h1>messages</h1>
-            <Link to='/threads/inbox'>Back to threads</Link>
-            <button onClick={addMessage}>add message</button>
-            {messageIds.map(id => (
-                <Message key={id} message={messages[id]} threadId={threadId} />
-            ))}
-
-          </div>
-        );
-      }
-
-
-
+  return (
+    <Stack>
+      <MessagesListNav
+        thread={thread}
+        handleOpenDelete={toggleOpenDelete}
+        openDelete={openDelete}
+      />
+      <Stack
+        sx={{ marginTop: 16, marginBottom: 6, display: "flex" }}
+        spacing={1}
+      >
+        {Object.values(resource.messages.entities).length ? (
+          Object.values(resource.messages.entities).map((message) => (
+            <Message
+              key={message.id}
+              message={message}
+              threadId={threadId}
+              openDelete={openDelete}
+            />
+          ))
+        ) : (
+          <Typography sx={{ fontSize: 20, textAlign: "center" }}>
+            No messages
+          </Typography>
+        )}
+        <Box ref={scrollRef}></Box>
+      </Stack>
+      <MessageBottomNav />
+    </Stack>
+  );
 }
 
-export default MessagesList
+export default MessagesList;

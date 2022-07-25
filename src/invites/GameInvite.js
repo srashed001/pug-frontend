@@ -18,7 +18,7 @@ function GameInvite() {
     }
   }
 
-  function testCreateInvite(){
+  function handleCreateInvite(){
       const data = {
         toUsers,
         gameId,
@@ -47,7 +47,7 @@ function GameInvite() {
           })}
         </div>
         <div> 
-            <button onClick={testCreateInvite} >send</button>
+            <button onClick={handleCreateInvite} >send</button>
         </div>
       </div>
     );

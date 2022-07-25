@@ -18,7 +18,6 @@ function useLocalStorage(key, defaultVal = null) {
 
   /** sets or unsets key in localStorage */
   useEffect(() => {
-    console.debug(`hooks useLocalStorage useEffect`, "state=", state);
 
     if (state === null) localStorage.removeItem(key);
     else localStorage.setItem(key, state);

@@ -1,66 +1,104 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { createMessage } from "../store/threads/threadsSlice";
+import { getThreadId } from "../store/threads/threadsSlice";
+import { fetchUsers, selectAllUsers } from "../store/users/usersSlice";
+import { Stack, Box, TextField, IconButton } from "@mui/material";
+import NewThreadPartyList from "./NewThreadPartyList";
+import NewThreadUserCard from "./NewThreadUserCard";
+import { matchSorter } from "match-sorter";
+import { useForm, Controller } from "react-hook-form";
+import SendIcon from "@mui/icons-material/Send";
 
 function NewThread() {
   const my = useSelector((state) => state.my);
-  const dispatch = useDispatch()
-  const [users, setUsers] = useState([my.username]);
-  const [message, setMessage] = useState('')
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const allUsers = useSelector(selectAllUsers);
+  const usersStatus = useSelector((state) => state.users.status.users);
+  const [users, setUsers] = useState({});
 
- function handleChangeMessage(evt){
-     setMessage(evt.target.value)
+  const navigate = useNavigate();
 
- }
+  const { control, watch } = useForm({
+    defaultValues: {
+      query: "",
+    },
+  });
 
-  function handleChangeUsers(evt) {
-    if (evt.target.checked) {
-      console.log(evt.target.checked, evt.target.id);
-      setUsers((state) => [...state, evt.target.id]);
-    } else {
-      setUsers((state) => state.filter((id) => id !== evt.target.id));
-    }
+  const searchQuery = watch("query");
+
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, []);
+
+  function testCreateMessage() {
+    const data = {
+      username: my.username,
+      party: [
+        {
+          username: my.username,
+          firstName: my.user.firstName,
+          lastName: my.user.lastName,
+          profileImg: my.user.profileImg,
+        },
+        ...Object.values(users),
+      ],
+    };
+    dispatch(getThreadId(data))
+      .unwrap()
+      .then((data) => navigate(`/threads/t/${data.id}`));
   }
 
-  function testCreateMessage(){
-      const data = {
-          message,
-          users,
-          username: my.username
-
-      }
-      dispatch(createMessage(data)).unwrap().then(data => {
-        navigate(`/threads/t/${data.threadId}`)
-
-      })
-      
-
-  }
- 
-  if (my.status === "succeeded") {
-
+  if (usersStatus === "succeeded") {
     return (
-      <div>
-        <div>
-          {my.follows.ids.map((id) => {
-            if(id !== my.username) 
-            return (
-              <div key={id}>
-                <label>{id}</label>
-                <input type="checkbox" onChange={handleChangeUsers} id={id} />
-              </div>
-            );
-          })}
-        </div>
-        <div>
-            <input type='text' value={message} onChange={handleChangeMessage} />
-        </div>
-        <div> 
-            <button onClick={testCreateMessage} >send</button>
-        </div>
-      </div>
+      <Stack spacing={2}>
+        <NewThreadPartyList users={users} />
+        <Box
+          component="form"
+          sx={{
+            width: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Controller
+            name="query"
+            control={control}
+            render={({ field }) => (
+              <TextField sx={{ width: "80%" }} {...field} label="search" />
+            )}
+          />
+          <IconButton
+            disabled={Object.values(users).length < 1}
+            color="primary"
+            sx={{ marginLeft: 3 }}
+            component="span"
+            onClick={testCreateMessage}
+          >
+            <SendIcon />
+          </IconButton>
+        </Box>
+        <Box>
+          <Stack>
+            {matchSorter(allUsers, searchQuery, {
+              keys: [
+                (item) => `${item.firstName} ${item.lastName}`,
+                "username",
+              ],
+            }).map((user) =>
+              user.username !== my.username ? (
+                <NewThreadUserCard
+                  key={user.username}
+                  user={user}
+                  users={users}
+                  setUsers={setUsers}
+                />
+              ) : null
+            )}
+          </Stack>
+        </Box>
+      </Stack>
     );
   }
 }

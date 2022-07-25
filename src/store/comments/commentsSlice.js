@@ -16,21 +16,29 @@ const initialState = commentsAdapter.getInitialState({
 
 export const addComment = createAsyncThunk(
   "comments/addComment",
-  async (data) => {
-    const { gameId, username, comment } = data;
-    const resp = await PugApi.addComment(gameId, username, { comment });
+  async (data, {rejectWithValue}) => {
 
-    return resp;
+    try{
+      const { gameId, username, comment } = data;
+      const newComment = await PugApi.addComment(gameId, username, { comment })
+      return newComment
+    } catch (err){
+      rejectWithValue(err[0])
+    }
+    ;
   }
 );
 
 export const deleteComment = createAsyncThunk(
   "comments/deleteComment",
-  async (data) => {
-    const { gameId, commentId } = data;
-    const resp = await PugApi.deleteComment(gameId, commentId);
-
-    return resp;
+  async (data, {rejectWithValue}) => {
+    try{
+      const { gameId, commentId } = data;
+      const oldComment = await PugApi.deleteComment(gameId, commentId);
+      return oldComment
+    } catch (err){
+      rejectWithValue(err[0])
+    }
   }
 );
 
@@ -42,7 +50,13 @@ const commentsSlice = createSlice({
       return { ...state, status: initialState.status };
     },
     updateComments(state, action) {
-      commentsAdapter.upsertMany(state, action.payload);
+      try {
+         commentsAdapter.upsertMany(state, action.payload);
+      } catch (err){
+        state.status = 'failed';
+        state.error = {message: err.message}
+      }
+     
     },
   },
   extraReducers(builder) {
@@ -56,7 +70,7 @@ const commentsSlice = createSlice({
       })
       .addCase(addComment.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       })
       .addCase(deleteComment.pending, (state, action) => {
         state.status = "loading";
@@ -69,7 +83,7 @@ const commentsSlice = createSlice({
       })
       .addCase(deleteComment.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = { message: action.payload };
       });
   },
 });

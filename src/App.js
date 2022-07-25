@@ -1,65 +1,45 @@
-import "./App.css";
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+// import "./App.css";
+import { useEffect } from "react";
 import useLocalStorage from "./hooks/useLocalStorage";
-import PugRoutes from "./routes/PugRoutes";
-import LoadingSpinner from "./common/LoadingSpinner";
 import PugApi from "./api/api";
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "./api/secretKey";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchInitialMy } from "./store/my/mySlice";
+import { fetchInitialMy} from "./store/my/mySlice";
 import { fetchGames } from "./store/games/gamesSlice";
-import { resetUserStatus } from "./store/users/usersSlice";
+import {
+  fetchUsers,
+} from "./store/users/usersSlice";
+import BottomNavigationBar from "./navigation/BottomNavigationBar";
+import { Stack, Box } from "@mui/material";
+import TopAppBar from "./navigation/TopAppBar";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
+import "./homepage/publicHomepage.css";
+import ErrorFallback from "./errors/ErrorFallback";
+import RouteWrapper from "./routes/RouteWrapper";
 
 // Key name for storing token in localStorage for "remember me" re-login
 export const TOKEN_STORAGE_ID = "pug-token";
 
-/** Jobly application.
- * - token: for logged in users, this is their authentication JWT.
- *   Is required to be set for most API calls. This is initially read from
- *   localStorage and synced to there via the useLocalStorage hook.
- *
- * App -> Routes
- */
+const theme = createTheme({
+  typography: {
+    fontFamily: "Special Elite",
+  },
+});
 
 function App() {
-
   const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
-
-  const myStatus = useSelector(state => state.my.status)
-  const my = useSelector(state => state.my)
-  const games = useSelector(state => state.games)
-  const users = useSelector(state => state.users)
-  const dispatch = useDispatch()
-
-
-
-  useEffect(() => {
-    if(token){
-      try{
-        let {username} = jwt.verify(token, SECRET_KEY)
-        PugApi.token = token 
-        console.log(`app useEffect`, myStatus)
-    
-        if(myStatus === 'idle'){
-          dispatch(fetchInitialMy(username))
-          console.log('dispatch app useEffect')
-        }
-      } catch(err){
-        console.error('App useEffect dispatch error')
-      }
-    }
-    
-  }, [dispatch, myStatus, token])
-
-
-
-
-
+  const myStatus = useSelector((state) => state.my.status);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   /** Handles site-wide logout. */
   function logout() {
+    PugApi.token = null;
     setToken(null);
+    navigate("/");
   }
 
   /** Handles site-wide signup.
@@ -85,7 +65,6 @@ function App() {
    */
   async function login(loginData) {
     try {
-      console.log(loginData);
       let token = await PugApi.login(loginData);
       setToken(token);
       return { success: true };
@@ -95,23 +74,44 @@ function App() {
     }
   }
 
-
-  console.log(my)
+  useEffect(() => {
+    if (myStatus === "idle") {
+      dispatch(fetchGames());
+      dispatch(fetchUsers());
+      if (token) {
+        let { username } = jwt.verify(token, SECRET_KEY);
+        PugApi.token = token;
+        dispatch(fetchInitialMy(username));
+      }
+    }
+  }, [dispatch, myStatus, token]);
 
 
   return (
-    <div className="App">
-      <Link to="/login">Login</Link>
-      <br></br>
-      <Link to="/">Home</Link>
-      <br></br>
-      <Link to="/users">Users</Link>
-      <br></br>
-      <Link to="/games">Games</Link>
-
-      <PugRoutes login={login} signup={signup} />
-    </div>
+    <ThemeProvider theme={theme}>
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onReset={() => {
+          window.location.reload(true);
+        }}
+        onError={myErrorHandler}
+      >
+        <Stack className="App">
+          <TopAppBar logout={logout} />
+          <Box sx={{ marginTop: 5, marginBottom: 9, width: "100%" }}>
+            <RouteWrapper token={token} login={login} signup={signup} />
+          </Box>
+          <Box>
+            <BottomNavigationBar />
+          </Box>
+        </Stack>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
+
+const myErrorHandler = (error, info) => {
+  console.log(error, info);
+};
 
 export default App;

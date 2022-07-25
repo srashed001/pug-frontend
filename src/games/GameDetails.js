@@ -1,157 +1,77 @@
-import { useEffect, useState} from "react";
+import GameDetailsNav from "./GameDetailsNav";
+import GameDetailsDescription from "./GameDetailsDescription";
+import GameDetailsAddressDate from "./GameDetailsAddressDate";
+import GameDetailsPlayers from "./GameDetailsPlayers";
+import GameDetailsComment from "./GameDetailsComments";
+import { Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams  } from "react-router-dom";
-import LoadingSpinner from "../common/LoadingSpinner";
-import {
-  fetchGame,
-  resetGameStatus,
-  selectGameById,
-  joinGame, 
-  leaveGame,
-  deactivateGame
-} from "../store/games/gamesSlice";
+import { selectGameById } from "../store/games/gamesSlice";
+import { useEffect, useState, useTransition } from "react";
+import { selectCommentsByGame } from "../store/comments/commentsSlice";
+import { fetchGame } from "../store/games/gamesSlice";
+import initialGame from "../common/initialGame";
+import { getGeocode, getLatLng } from "use-places-autocomplete";
+import GameDetailsHost from "./GameDetailsHost";
 
-import { selectCommentsByGame, addComment, deleteComment } from "../store/comments/commentsSlice";
-import { resetUserStatus } from "../store/users/usersSlice";
-
-
-function GameDetails() {
-  const { gameId } = useParams();
-
+function GameDetails({ panTo, gameId, setLocation }) {
   const dispatch = useDispatch();
-  const gameStatus = useSelector((state) => state.games.status.game);
   const game = useSelector((state) => selectGameById(state, gameId));
-  const error = useSelector((state) => state.games.errors);
-  const gameComments = useSelector(state => selectCommentsByGame(state, gameId))
-  const users = useSelector(state => state.users.entities)
-  const my = useSelector(state => state.my)
-  const [fetched, setFetched] = useState(false)
-  const navigate = useNavigate()
-  
-  console.debug("GameDetail", "gameId=", gameId);
+  const gameComments = useSelector((state) =>
+    selectCommentsByGame(state, gameId)
+  );
+  const users = useSelector((state) => state.users.entities);
+  const myUsername = useSelector((state) => state.my.username);
+  const [resource, setResource] = useState(initialGame);
+  const [isPending, setTransition] = useTransition();
 
-  function testAddPlayer(){
-    const data = {
-      gameId,
-      username: 'test1'
-    }
+  useEffect(() => {
 
-    dispatch(joinGame(data))
-  }
-  
-  function testRemovePlayer(evt){
-    const data = {
-      gameId,
-      username: evt.target.id
-    }
+      dispatch(fetchGame(gameId))
+        .unwrap()
+        .then(({ details }) => {
+          async function panToGame(game) {
+            const { address, city, state } = game;
+            try {
+              const results = await getGeocode({
+                address: `${address}, ${city}, ${state}`,
+              });
+              const { lat, lng } = await getLatLng(results[0]);
+              setLocation((state) => ({ lat, lng }));
+              panTo({ lat, lng });
+            } catch (error) {
+              console.log(error);
+            }
+          }
+          panToGame(details);
+        });
 
-    dispatch(leaveGame(data))
-  }
+  }, [dispatch, gameId,  panTo, setLocation]);
 
-  function testAddComment() {
-    const data = {
-      gameId,
-      username: "test2",
-      comment: "testComment",
-    };
-
-    dispatch(addComment(data))
-  }
-
-  function testDeleteComment(evt){
-    const data = {
-      gameId, 
-      commentId: evt.target.id
-    }
-    dispatch(deleteComment(data))
-  }
-
-  function testCreateInvites(){
-    navigate(`/invites/${gameId}`)
-    
-  }
-
-  function testUpdateGame(){
-    navigate(`/games/update/${gameId}`)
-  }
-
-  function testDeactivateGame(){
-    dispatch(deactivateGame(gameId))
-    navigate(`/inactive/g`)
-  }
-
-  // useEffect(() => {
-  //   return () => {
-  //     dispatch(resetGameStatus())
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log(`gamedetails useEffect`, gameStatus);
-  //   if(gameStatus === 'idle' && my.status === 'succeeded')
-  //     dispatch(fetchGame(gameId));
-  //     // setFetched(true)
-  //   }, [dispatch, gameId, gameStatus, my.status]);
-
-  useEffect(()=> {
-    dispatch(resetUserStatus())
-    dispatch(fetchGame(gameId))
-  }, [dispatch, gameId])
-
-  if (gameStatus === "loading"  ) {
-    return <LoadingSpinner />;
-  } else if (gameStatus === "failed") {
-    return <div>{error}</div>;
-  } else if (gameStatus === "succeeded" && my.status === 'succeeded'  ) {
-
-    console.log(game)
+  useEffect(() => {
+    setTransition(() => setResource((state) => ({ ...state, ...game })));
+  }, [game]);
 
 
-    return (
-      <div>
-        <div>
-          <h1>Game Details: {gameId}</h1>
-          <button onClick={testUpdateGame}>update game</button>
-          {game.createdBy === my.username ? <button onClick={testDeactivateGame}>deactivate</button> : <div></div>}
-          <div>
-            <button onClick={testCreateInvites}>invite players</button>
-          </div>
-          <ul>
-            <li>id: {game.id}</li>
-            <li>title: {game.title}</li>
-            <li>description: {game.description}</li>
-            <li>date: {game.date}</li>
-            <li>time: {game.time}</li>
-            <li>address: {game.address}</li>
-            <li>city: {game.city}</li>
-            <li>state: {game.state}</li>
-            <li>created on: {game.createdOn}</li>
-            <li>game host: {game.createdBy}</li>
-            <li>daysDiff: {game.daysDiff}</li>
-          </ul>
-        </div>
-        <div>
-          Players 
-          <button onClick={testAddPlayer}>add player</button>
-          <ul>
-            {game.players.map(player => (
-              <li key={users[player].username} >{users[player].username}<button id={player} onClick={testRemovePlayer}>X</button></li>
-            )) }
-          </ul>
-        </div>
-        <button onClick={testAddComment}>add comment</button>
-        <div>
-          {gameComments.map(comment => {
-            return (
-            <div key={comment.id}>
-              <li >{comment.comment}</li>
-              <button id={comment.id} onClick={testDeleteComment}>remove</button>
-            </div>)
-          })}
-        </div>
-      </div>
-    );
-  }
+  const joined = resource.players.find((player) => player === myUsername);
+
+
+  return (
+    <>
+      <Typography sx={{ padding: 1 }} component={"div"} variant={"h4"}>
+        {resource.title}
+      </Typography>
+      <GameDetailsNav game={resource} joined={joined} />
+      <GameDetailsDescription body={resource.description} />
+      <GameDetailsAddressDate game={resource} />
+      <GameDetailsHost game={resource} />
+      <GameDetailsPlayers game={resource} />
+      <GameDetailsComment
+        game={resource}
+        comments={gameComments}
+        users={users}
+      />
+    </>
+  );
 }
 
 export default GameDetails;

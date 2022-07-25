@@ -1,48 +1,64 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchThreads, resetThreadStatus } from "../store/threads/threadsSlice";
-import LoadingSpinner from "../common/LoadingSpinner";
+import { fetchThreads, selectAllThreads } from "../store/threads/threadsSlice";
 import Thread from "./Thread";
+import { Divider, Stack, Typography } from "@mui/material";
+import ThreadsListNav from "./ThreadsListNav";
+import { setTab } from "../store/my/mySlice";
 
 function ThreadsList() {
-  const my = useSelector((state) => state.my);
-  const threads = useSelector((state) => state.threads.entities);
-  const threadIds = useSelector((state) => state.threads.ids);
+  const myUsername = useSelector((state) => state.my.username);
+  const threads = useSelector(selectAllThreads);
   const threadStatus = useSelector((state) => state.threads.status);
   const error = useSelector((state) => state.threads.error);
-  const [fetched, setFetched] = useState(false)
+
+  const [openDelete, setOpenDelete] = useState(false);
+  const [resource, setResource] = useState([]);
+  const [isPending, setTransition] = useTransition();
+
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    return () => {
-      dispatch(resetThreadStatus());
-      setFetched(false)
-    };
-  }, []);
+  const toggleOpenDelete = () => {
+    setOpenDelete((state) => !state);
+  };
 
   useEffect(() => {
-    if (threadStatus === "idle" && my.status === 'succeeded') {
-      dispatch(fetchThreads(my.username));
-      setFetched(true)
+    dispatch(setTab(0));
+  });
+
+  useEffect(() => {
+    if (myUsername && threadStatus === "idle") {
+      dispatch(fetchThreads(myUsername));
     }
-  }, [dispatch, my.status, my.username, threadStatus]);
+  }, [dispatch, myUsername, threadStatus]);
 
-  if (threadStatus === "loading") {
-    return <LoadingSpinner />;
-  } else if (threadStatus === "failed") {
-    return <div>{error}</div>;
-  } else if (threadStatus === "succeeded" && fetched) {
-    console.log(threads);
+  useEffect(() => {
+    setTransition(() => setResource(threads));
+  }, [threads]);
 
-    return (
-      <div>
-        <h1>threads</h1>
-        {threadIds.map((id) => (
-          <Thread key={id} thread={threads[id]} />
-        ))}
-      </div>
-    );
-  }
+  return (
+    <Stack mt={12}>
+      <ThreadsListNav
+        handleOpenDelete={toggleOpenDelete}
+        openDelete={openDelete}
+      />
+
+      <Stack
+        sx={{ padding: 1 }}
+        divider={<Divider orientation="horizontal" flexItem />}
+      >
+        {resource.length ? (
+          resource.map((thread) => (
+            <Thread key={thread.id} thread={thread} openDelete={openDelete} />
+          ))
+        ) : (
+          <Typography sx={{ fontSize: 20, textAlign: "center" }}>
+            No messages
+          </Typography>
+        )}
+      </Stack>
+    </Stack>
+  );
 }
 
 export default ThreadsList;

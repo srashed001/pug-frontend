@@ -19,20 +19,6 @@ import '@fontsource/roboto/700.css';
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 
-// async function start() {
-//   store.dispatch(fetchGames());
-
-//   root.render(
-//     <React.StrictMode>
-//       <Provider store={store}>
-//         <BrowserRouter>
-//           <App />
-//         </BrowserRouter>
-//       </Provider>
-//     </React.StrictMode>
-//   );
-// }
-
 // start()
 
 root.render(
