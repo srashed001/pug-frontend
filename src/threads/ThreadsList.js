@@ -9,8 +9,6 @@ import { setTab } from "../store/my/mySlice";
 function ThreadsList() {
   const myUsername = useSelector((state) => state.my.username);
   const threads = useSelector(selectAllThreads);
-  const threadStatus = useSelector((state) => state.threads.status);
-  const error = useSelector((state) => state.threads.error);
 
   const [openDelete, setOpenDelete] = useState(false);
   const [resource, setResource] = useState([]);
@@ -27,10 +25,10 @@ function ThreadsList() {
   });
 
   useEffect(() => {
-    if (myUsername && threadStatus === "idle") {
+    if (myUsername) {
       dispatch(fetchThreads(myUsername));
     }
-  }, [dispatch, myUsername, threadStatus]);
+  }, [dispatch, myUsername]);
 
   useEffect(() => {
     setTransition(() => setResource(threads));
@@ -44,7 +42,7 @@ function ThreadsList() {
       />
 
       <Stack
-        sx={{ padding: 1 }}
+        sx={{ padding: 1, opacity: isPending ? 0.8 : 1 }}
         divider={<Divider orientation="horizontal" flexItem />}
       >
         {resource.length ? (

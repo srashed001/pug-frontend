@@ -65,7 +65,15 @@ function UserDetails() {
   const gamesJoinedResolved = resource.games.joined.resolved;
 
   return (
-    <Stack sx={{ marginTop: 2, width: "100%", marginBottom: 5 }} spacing={1}>
+    <Stack
+      sx={{
+        marginTop: 2,
+        width: "100%",
+        marginBottom: 5,
+        opacity: isPending ? 0.8 : 1,
+      }}
+      spacing={1}
+    >
       <UserDetailsHeader user={user} />
       <UserDetailsNav
         state={my.follows.entities[resource.username] ? `unfollow` : "follow"}

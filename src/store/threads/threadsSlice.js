@@ -121,7 +121,7 @@ const threadsSlice = createSlice({
       try {
         const threads = action.payload.map((thread) => ({
           id: thread.threadId,
-          lastMessage: thread.lastMessage[0],
+          lastMessage: thread.lastMessage,
           party: thread.party,
           messages: messagesAdapter.getInitialState(),
         }));
@@ -157,7 +157,7 @@ const threadsSlice = createSlice({
         state.status = "succeeded";
         const threads = action.payload.map((thread) => ({
           id: thread.threadId,
-          lastMessage: thread.lastMessage[0],
+          lastMessage: thread.lastMessage,
           party: thread.party,
           messages: messagesAdapter.getInitialState(),
         }));

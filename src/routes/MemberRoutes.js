@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import { useSelector } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 const GameMapAndDetails = React.lazy(() =>
   import("../games/GameMapAndDetails")
@@ -25,8 +24,6 @@ const GameInviteList = React.lazy(() => import("../invites/GameInviteList"));
 const NotFoundPage = React.lazy(() => import("./NotFoundPage"));
 
 function MemberRoutes({ login, signup }) {
-
-
   return (
     <Suspense>
       <Routes>

@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import PugApi from "../api/api";
 const GameMapAndDetails = React.lazy(() =>
   import("../games/GameMapAndDetails")
 );

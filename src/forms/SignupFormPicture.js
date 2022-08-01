@@ -3,8 +3,7 @@ import Button from "@mui/material/Button";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import Stack from "@mui/material/Stack";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { Box, Typography, Grid, Paper, Divider } from "@mui/material";
+import { Box, Typography, Grid, Paper, Divider, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 
@@ -152,6 +151,13 @@ function SignupFormPicture({
         src={state.selectedFile}
       />
       <Stack sx={{ marginTop: 10, padding: 1 }}>
+      {formErrors && (
+          <Box sx={{ position: "absolute", top: "6rem", width: "100%" }}>
+            <Alert severity="error" onClose={() => setFormErrors(null)}>
+              {formErrors}
+            </Alert>
+          </Box>
+        )}
         <Typography sx={{ fontSize: 20 }}>Review</Typography>
         <Divider />
         <Box>

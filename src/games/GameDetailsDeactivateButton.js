@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Box,
-  Button,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-} from "@mui/material";
+import { Button, Dialog, DialogTitle, DialogActions } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { deactivateGame } from "../store/games/gamesSlice";
 import { setTab } from "../store/my/mySlice";

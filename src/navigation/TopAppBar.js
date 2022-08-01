@@ -11,7 +11,7 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { resetMy, setTab } from "../store/my/mySlice";
@@ -21,7 +21,7 @@ const TopAppBar = ({ logout }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const myUsername = useSelector((state) => state.my.username);
-  const myProfileImg = useSelector(state => state.my.user?.profileImg)
+  const myProfileImg = useSelector((state) => state.my.user?.profileImg);
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -102,8 +102,6 @@ const TopAppBar = ({ logout }) => {
       },
     },
   ];
-
-
 
   return (
     <AppBar

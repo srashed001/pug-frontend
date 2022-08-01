@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Box,
   Button,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogActions,
@@ -10,7 +9,6 @@ import {
 import { useDispatch } from "react-redux";
 import {useErrorHandler} from "react-error-boundary"
 import { reactivateGame } from "../store/games/gamesSlice";
-import { setTab } from "../store/my/mySlice";
 import { useNavigate } from "react-router-dom";
 
 function ProfileGameCardReactivateButton({ game }) {

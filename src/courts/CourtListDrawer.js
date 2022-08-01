@@ -12,7 +12,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectAllCourts } from "../store/courts/courtsSlice";
 import ViewListIcon from "@mui/icons-material/ViewList";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 
 export default function CourtsListDrawer({ loadInfoWindow, handleClickOpen }) {
   const navigate = useNavigate()

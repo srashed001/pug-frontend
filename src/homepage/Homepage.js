@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PugApi from "../api/api";
 import { useDispatch, useSelector } from "react-redux";
 import { resetMyStatus, setTab } from "../store/my/mySlice";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Stack, styled, Tab, Tabs } from "@mui/material";
 import { Box } from "@mui/system";
 import HomepageGames from "./HomepageGames";
@@ -39,6 +39,7 @@ function Homepage() {
 
   useEffect(() => {
     dispatch(resetMyStatus());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!token) return <PublicHomePage />;

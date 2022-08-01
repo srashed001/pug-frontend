@@ -1,7 +1,7 @@
 import { Paper, Button, Box, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { deactivateGame, joinGame, leaveGame } from "../store/games/gamesSlice";
+import { joinGame, leaveGame } from "../store/games/gamesSlice";
 import GameDetailsDeactivateButton from "./GameDetailsDeactivateButton";
 
 function ActiveNav({ game, joined }) {
@@ -33,8 +33,6 @@ function ActiveNav({ game, joined }) {
 
     dispatch(leaveGame(data));
   }
-
-
 
   if (!myUsername) {
     return (
@@ -68,10 +66,10 @@ function ActiveNav({ game, joined }) {
     >
       {myUsername === game.createdBy.username && (
         <>
-        <Button sx={{ color: "rgba(22, 26, 29)" }} onClick={handleUpdateGame}>
-          update game
-        </Button>
-        <GameDetailsDeactivateButton gameId={game.id} />
+          <Button sx={{ color: "rgba(22, 26, 29)" }} onClick={handleUpdateGame}>
+            update game
+          </Button>
+          <GameDetailsDeactivateButton gameId={game.id} />
         </>
       )}
       <Button sx={{ color: "rgba(102, 7, 8)" }} onClick={handleCreateInvites}>

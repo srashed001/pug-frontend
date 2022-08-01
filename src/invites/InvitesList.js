@@ -10,7 +10,6 @@ import { useForm } from "react-hook-form";
 import HomepageInviteSelect from "../homepage/HomepageInviteSelect";
 
 function InvitesList() {
-  const error = useSelector((state) => state.my.error);
   const myUsername = useSelector((state) => state.my.username);
   const invitesReceived = useSelector((state) =>
     selectInvitesReceived(state, myUsername)

@@ -61,7 +61,9 @@ function GamesList() {
           Games
         </Typography>
       </Stack>
-      <Stack sx={{ position: "relative", zIndex: 0 }}>
+      <Stack
+        sx={{ position: "relative", zIndex: 0, opacity: isPending ? 0.8 : 1 }}
+      >
         {searchMode === "host" &&
           matchSorter(resource, hostQuery, {
             sorter: (rankedItems) => rankedItems,

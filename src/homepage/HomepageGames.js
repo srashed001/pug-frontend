@@ -20,7 +20,6 @@ function HomepageGames() {
     setTransition(() => setResource((state) => ({ ...state, ...my })));
   }, [my]);
 
-
   const {
     gamesHostedPending,
     gamesHostedResolved,
@@ -51,26 +50,28 @@ function HomepageGames() {
           </Button>
         </Box>
       </Stack>
-      <ProfileGamesList
-        games={Object.values(gamesHostedPending.entities)}
-        set={"gamesHostedPending"}
-      />
-      <ProfileGamesList
-        games={Object.values(gamesHostedResolved.entities)}
-        set={"gamesHostedResolved"}
-      />
-      <ProfileGamesList
-        games={Object.values(gamesJoinedPending.entities)}
-        set={"gamesJoinedPending"}
-      />
-      <ProfileGamesList
-        games={Object.values(gamesJoinedResolved.entities)}
-        set={"gamesJoinedResolved"}
-      />
-      <ProfileGamesList
-        games={Object.values(inactiveGames.entities)}
-        set={"inactiveGames"}
-      />
+      <Stack sx={{opacity: isPending ? .7 : 1}}>
+        <ProfileGamesList
+          games={Object.values(gamesHostedPending.entities)}
+          set={"gamesHostedPending"}
+        />
+        <ProfileGamesList
+          games={Object.values(gamesHostedResolved.entities)}
+          set={"gamesHostedResolved"}
+        />
+        <ProfileGamesList
+          games={Object.values(gamesJoinedPending.entities)}
+          set={"gamesJoinedPending"}
+        />
+        <ProfileGamesList
+          games={Object.values(gamesJoinedResolved.entities)}
+          set={"gamesJoinedResolved"}
+        />
+        <ProfileGamesList
+          games={Object.values(inactiveGames.entities)}
+          set={"inactiveGames"}
+        />
+      </Stack>
     </Stack>
   );
 }

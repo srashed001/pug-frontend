@@ -9,12 +9,11 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import "./login.css";
 import "../homepage/publicHomepage.css";
-import PugApi from "../api/api";
 
 const theme = createTheme({
   palette: {
@@ -39,7 +38,7 @@ function LoginForm({ login }) {
 
     control,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm({
     defaultValues: {
       username: "",

@@ -63,10 +63,12 @@ function UsersList() {
           Users
         </Typography>
       </Stack>
-      <Stack sx={{ position: "relative", zIndex: 0 }}>
+      <Stack
+        sx={{ position: "relative", zIndex: 0, opacity: isPending ? 0.8 : 1 }}
+      >
         {searchMode === "name" &&
           matchSorter(resource, nameQuery, {
-            sorter: rankedItems => rankedItems,
+            sorter: (rankedItems) => rankedItems,
             keys: [
               (item) => `${item.firstName} ${item.lastName}`,
               (item) => `${item.username}`,
@@ -74,7 +76,7 @@ function UsersList() {
           }).map((user) => <UserCard key={user.username} user={user} />)}
         {searchMode === "location" &&
           matchSorter(resource, `${cityQuery}, ${stateQuery}`, {
-            sorter: rankedItems => rankedItems,
+            sorter: (rankedItems) => rankedItems,
             keys: [(item) => `${item.city}, ${item.state}`],
           }).map((user) => <UserCard key={user.username} user={user} />)}
       </Stack>

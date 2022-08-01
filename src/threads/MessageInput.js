@@ -12,7 +12,6 @@ function MessageInput() {
     reset,
     control,
     handleSubmit,
-    formState: { errors },
   } = useForm({
     defaultValues: {
       message: "",

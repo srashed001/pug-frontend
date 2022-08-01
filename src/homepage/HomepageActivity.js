@@ -1,5 +1,5 @@
 import { Stack, Typography } from "@mui/material";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import ActivityWrapper from "../activity/ActivityWrapper";
@@ -27,9 +27,6 @@ function HomepageActivity() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myUsername]);
 
-  console.log(activities)
-  console.log(myActivities)
-
   return (
     <Stack>
       <HomepageActivitySelect control={control} />
@@ -46,7 +43,7 @@ function HomepageActivity() {
               <ActivityWrapper key={v4()} activity={activity} />
             ))
           ) : (
-            <Typography sx={{ fontSize: 20, textAlign: 'center' }}>
+            <Typography sx={{ fontSize: 20, textAlign: "center" }}>
               Currently following no users
             </Typography>
           )
@@ -55,7 +52,9 @@ function HomepageActivity() {
             <ActivityWrapper key={v4()} activity={activity} />
           ))
         ) : (
-          <Typography sx={{ fontSize: 20, textAlign: 'center' }}>You have no activity</Typography>
+          <Typography sx={{ fontSize: 20, textAlign: "center" }}>
+            You have no activity
+          </Typography>
         )}
       </Stack>
     </Stack>

@@ -6,7 +6,6 @@ import {
   updateGame,
 } from "../store/games/gamesSlice";
 import {
-  Paper,
   TextField,
   Button,
   Typography,
@@ -90,7 +89,7 @@ function UpdateGameForm() {
           reset({ title, description, date, time, address, city, state });
         });
     }
-  }, []);
+  }, [dispatch, gameId, myStatus, reset]);
 
   function dispatchUpdateGame(data) {
     dispatch(updateGame({ id: gameId, data }))

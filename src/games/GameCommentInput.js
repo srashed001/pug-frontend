@@ -7,12 +7,7 @@ function GameCommentInput({ gameId }) {
   const my = useSelector((state) => state.my);
   const dispatch = useDispatch();
 
-  const {
-    reset,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
+  const { reset, control, handleSubmit } = useForm({
     defaultValues: {
       comment: "",
     },

@@ -3,7 +3,7 @@ import GameDetailsDescription from "./GameDetailsDescription";
 import GameDetailsAddressDate from "./GameDetailsAddressDate";
 import GameDetailsPlayers from "./GameDetailsPlayers";
 import GameDetailsComment from "./GameDetailsComments";
-import { Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { selectGameById } from "../store/games/gamesSlice";
 import { useEffect, useState, useTransition } from "react";
@@ -25,38 +25,34 @@ function GameDetails({ panTo, gameId, setLocation }) {
   const [isPending, setTransition] = useTransition();
 
   useEffect(() => {
-
-      dispatch(fetchGame(gameId))
-        .unwrap()
-        .then(({ details }) => {
-          async function panToGame(game) {
-            const { address, city, state } = game;
-            try {
-              const results = await getGeocode({
-                address: `${address}, ${city}, ${state}`,
-              });
-              const { lat, lng } = await getLatLng(results[0]);
-              setLocation((state) => ({ lat, lng }));
-              panTo({ lat, lng });
-            } catch (error) {
-              console.log(error);
-            }
+    dispatch(fetchGame(gameId))
+      .unwrap()
+      .then(({ details }) => {
+        async function panToGame(game) {
+          const { address, city, state } = game;
+          try {
+            const results = await getGeocode({
+              address: `${address}, ${city}, ${state}`,
+            });
+            const { lat, lng } = await getLatLng(results[0]);
+            setLocation((state) => ({ lat, lng }));
+            panTo({ lat, lng });
+          } catch (error) {
+            console.log(error);
           }
-          panToGame(details);
-        });
-
-  }, [dispatch, gameId,  panTo, setLocation]);
+        }
+        panToGame(details);
+      });
+  }, [dispatch, gameId, panTo, setLocation]);
 
   useEffect(() => {
     setTransition(() => setResource((state) => ({ ...state, ...game })));
   }, [game]);
 
-
   const joined = resource.players.find((player) => player === myUsername);
 
-
   return (
-    <>
+    <Stack sx={{ opacity: isPending ? 0.8 : 1 }}>
       <Typography sx={{ padding: 1 }} component={"div"} variant={"h4"}>
         {resource.title}
       </Typography>
@@ -70,7 +66,7 @@ function GameDetails({ panTo, gameId, setLocation }) {
         comments={gameComments}
         users={users}
       />
-    </>
+    </Stack>
   );
 }
 

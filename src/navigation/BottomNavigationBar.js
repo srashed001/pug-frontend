@@ -5,7 +5,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Typography } from "@mui/material";

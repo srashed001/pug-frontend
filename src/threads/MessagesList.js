@@ -58,7 +58,12 @@ function MessagesList() {
         openDelete={openDelete}
       />
       <Stack
-        sx={{ marginTop: 16, marginBottom: 6, display: "flex" }}
+        sx={{
+          marginTop: 16,
+          marginBottom: 6,
+          display: "flex",
+          opacity: isPending ? 0.8 : 1,
+        }}
         spacing={1}
       >
         {Object.values(resource.messages.entities).length ? (

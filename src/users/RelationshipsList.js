@@ -40,7 +40,7 @@ function RelationshipsList({ state }) {
   return (
     <Stack>
       <RelationshipListNav control={control} username={username} />
-      <Stack mt={14}>
+      <Stack mt={14} sx={{ opactity: isPending ? 0.8 : 1 }}>
         {Object.values(relationships).length ? (
           Object.values(relationships).map((user) => (
             <UserCard key={user.username} user={user} />
