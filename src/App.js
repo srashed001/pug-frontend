@@ -5,11 +5,9 @@ import PugApi from "./api/api";
 import jwt from "jsonwebtoken";
 import environment from "./environment";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchInitialMy} from "./store/my/mySlice";
+import { fetchInitialMy } from "./store/my/mySlice";
 import { fetchGames } from "./store/games/gamesSlice";
-import {
-  fetchUsers,
-} from "./store/users/usersSlice";
+import { fetchUsers } from "./store/users/usersSlice";
 import BottomNavigationBar from "./navigation/BottomNavigationBar";
 import { Stack, Box } from "@mui/material";
 import TopAppBar from "./navigation/TopAppBar";
@@ -35,7 +33,7 @@ function App() {
   const myStatus = useSelector((state) => state.my.status);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   /** Handles site-wide logout. */
   function logout() {
     PugApi.token = null;
@@ -86,7 +84,6 @@ function App() {
       }
     }
   }, [dispatch, myStatus, token]);
-
 
   return (
     <ThemeProvider theme={theme}>
