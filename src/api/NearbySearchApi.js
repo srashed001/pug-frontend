@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const api_key = `AIzaSyApojF0t8e5G5hTZuwtV3D_3Rimwd2M-NE`
-const BASE_URL = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`;
+import { googleApiKey } from "../environment";
 
 /** API Class.
  *
@@ -11,13 +10,12 @@ const BASE_URL = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`;
 
 class NeabySearchApi {
   // the token for interactive with the API will be stored here.
-  static api_key = `AIzaSyApojF0t8e5G5hTZuwtV3D_3Rimwd2M-NE`;
 
   static async request({lat, lng}) {
 
-    const url = `${BASE_URL}`;
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`;
     const params = {
-        key: api_key, 
+        key: googleApiKey, 
         keyword: 'basketball courts',
         radius: 1500,
         location: `${lat},${lng}`

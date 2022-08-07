@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import useLocalStorage from "./hooks/useLocalStorage";
 import PugApi from "./api/api";
 import jwt from "jsonwebtoken";
-import { SECRET_KEY } from "./api/secretKey";
+import environment from "./environment";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchInitialMy} from "./store/my/mySlice";
 import { fetchGames } from "./store/games/gamesSlice";
@@ -22,6 +22,7 @@ import RouteWrapper from "./routes/RouteWrapper";
 
 // Key name for storing token in localStorage for "remember me" re-login
 export const TOKEN_STORAGE_ID = "pug-token";
+const { pugSecretKey } = environment;
 
 const theme = createTheme({
   typography: {
@@ -79,7 +80,7 @@ function App() {
       dispatch(fetchGames());
       dispatch(fetchUsers());
       if (token) {
-        let { username } = jwt.verify(token, SECRET_KEY);
+        let { username } = jwt.verify(token, pugSecretKey);
         PugApi.token = token;
         dispatch(fetchInitialMy(username));
       }
