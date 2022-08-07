@@ -17,6 +17,8 @@ const BASE_URL = `https://www.googleapis.com/geolocation/v1/geolocate?key=${goog
  */
 
 class GeoLocationApi {
+
+  static api_key = googleApiKey
   // the token for interactive with the API will be stored here.
   static async request(data = {}, method = "get") {
     console.debug("API Call:", data, method);
