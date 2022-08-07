@@ -53,7 +53,7 @@ function MessagesList() {
   return (
     <Stack>
       <MessagesListNav
-        thread={thread}
+        thread={resource}
         handleOpenDelete={toggleOpenDelete}
         openDelete={openDelete}
       />

@@ -204,7 +204,7 @@ export const gamesSlice = createSlice({
       .addCase(createGame.fulfilled, (state, action) => {
         state.status.game = "succeeded";
         const { game, createdBy } = action.payload;
-        const formattedGame = { ...game, players: [], createdBy };
+        const formattedGame = { ...game, players: [], createdBy, isActive: true };
         gamesAdapter.upsertOne(state, formattedGame);
       })
       .addCase(createGame.rejected, (state, action) => {

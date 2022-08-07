@@ -51,6 +51,8 @@ function GameDetails({ panTo, gameId, setLocation }) {
 
   const joined = resource.players.find((player) => player === myUsername);
 
+  console.log(resource)
+
   return (
     <Stack sx={{ opacity: isPending ? 0.8 : 1 }}>
       <Typography sx={{ padding: 1 }} component={"div"} variant={"h4"}>
