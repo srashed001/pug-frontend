@@ -17,7 +17,7 @@ export default function CourtListCreateGame({ open, handleClose, location }) {
 
   return (
     <div>
-      <Dialog fullScreen={fullScreen} open={open} onClose={handleClose} >
+      <Dialog fullScreen={fullScreen} open={open} maxWidth={'lg'} onClose={handleClose} >
         <DialogTitle sx={{ backgroundColor: "rgba(229, 56, 59)", textAlign: 'center', color: '#ffffff' }}>Create PUG</DialogTitle>
         <DialogContentText align="center" mt={1} >Provide details on your pick up game</DialogContentText>
         <CourtListGameForm location={location} />

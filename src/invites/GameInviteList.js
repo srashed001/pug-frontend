@@ -43,7 +43,7 @@ function GameInviteList() {
   }
 
   return (
-    <Stack spacing={1}>
+    <Stack spacing={1} sx={{marginTop: 5}}>
       <GameInvitePartyList users={users} />
       <Box
         component="form"

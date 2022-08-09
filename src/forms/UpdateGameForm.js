@@ -37,7 +37,7 @@ const libraries = ["places"];
 const inputOptions = {
   width: {
     xs: "100%",
-    sm: "80%",
+    sm: "100%",
   },
 };
 
@@ -133,7 +133,7 @@ function UpdateGameForm() {
       <Stack
       my={10}
         component="form"
-        sx={{ padding: 2 }}
+        sx={{ padding: {xs: 1, sm: 3} }}
         onSubmit={handleSubmit(dispatchUpdateGame)}
         alignItems="center"
       >

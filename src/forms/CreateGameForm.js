@@ -14,8 +14,8 @@ const api_key = GeoLocationApi.api_key;
 const libraries = ["places"];
 const inputOptions = {
   width: {
-    xs: "95%",
-    sm: "80%",
+    xs: "100%",
+    sm: "100%",
   },
 };
 
@@ -96,7 +96,7 @@ function CreateGameForm({ address, city, state }) {
       </Box>
       <Stack
         component="form"
-        sx={{}}
+        sx={{padding: {xs: 1, sm: 3}}}
         onSubmit={handleSubmit(dispatchCreateGame)}
         alignItems="center"
         mt={15}

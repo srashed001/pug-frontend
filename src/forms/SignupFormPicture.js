@@ -68,7 +68,7 @@ function SignupFormPicture({
   };
 
   const [state, setState] = useState(initialState);
-  const [formErrors, setFormErrors] = useState([]);
+  const [formErrors, setFormErrors] = useState();
   const navigate = useNavigate();
 
   const handleUploadClick = (event) => {

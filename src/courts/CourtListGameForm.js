@@ -9,7 +9,7 @@ import { createGame } from "../store/games/gamesSlice";
 const inputOptions = {
   width: {
     xs: "100%",
-    sm: "80%",
+    sm: "100%",
   },
 };
 
@@ -68,10 +68,8 @@ function CourtListGameForm({ location }) {
     <Stack
       component="form"
       onSubmit={handleSubmit(dispatchCreateGame)}
-      alignItems="center"
-      minWidth={600}
       mt={5}
-      sx={{ paddingX: { xs: 1, sm: 0 }, minWidth: { xs: "auto", sm: 600 } }}
+      sx={{ paddingX: { xs: 1, sm: 1 }, width: {sm: 600}}}
     >
       <Controller
         name="title"

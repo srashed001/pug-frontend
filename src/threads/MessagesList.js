@@ -9,7 +9,7 @@ import {
 import Message from "./Message";
 import MessagesListNav from "./MessageListNav";
 import { Stack, Box, Typography } from "@mui/material";
-import MessageBottomNav from "./MessageBottomNav";
+import MessageInput from "./MessageInput";
 
 function MessagesList() {
   const { threadId } = useParams();
@@ -51,7 +51,7 @@ function MessagesList() {
   }, [thread]);
 
   return (
-    <Stack>
+    <Stack sx={{ position: "relative", zIndex: 0 }}>
       <MessagesListNav
         thread={resource}
         handleOpenDelete={toggleOpenDelete}
@@ -59,8 +59,8 @@ function MessagesList() {
       />
       <Stack
         sx={{
-          marginTop: 16,
-          marginBottom: 6,
+          marginTop: 20,
+          marginBottom: 10,
           display: "flex",
           opacity: isPending ? 0.8 : 1,
         }}
@@ -82,7 +82,7 @@ function MessagesList() {
         )}
         <Box ref={scrollRef}></Box>
       </Stack>
-      <MessageBottomNav />
+      <MessageInput />
     </Stack>
   );
 }

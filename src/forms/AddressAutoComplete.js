@@ -11,8 +11,8 @@ import statesArr from "../common/50states";
 
 const inputOptions = {
   width: {
-    xs: "95%",
-    sm: "80%",
+    xs: "100%",
+    sm: "100%",
   },
 };
 

@@ -7,7 +7,6 @@ import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import {  useState } from "react";
 import { NavLink } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -19,9 +18,8 @@ const BottomNavigationAction = styled(MuiBottomNavigationAction)(`
 `);
 
 export default function BottomNavigationBar() {
-  const location = useLocation();
   const [value, setValue] = useState(0);
-  if (location.pathname.slice(0, 11) === "/threads/t/") return null;
+
   return (
     <Box sx={{ width: "80%" }}>
       <BottomNavigation

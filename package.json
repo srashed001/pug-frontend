@@ -16,6 +16,9 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.27.2",
     "date-fns": "^2.28.0",
+    "fs": "^0.0.1-security",
+    "heic-convert": "^1.2.4",
+    "heic2any": "^0.0.3",
     "history": "^5.3.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
@@ -30,6 +33,7 @@
     "react-scripts": "5.0.1",
     "redux": "^4.2.0",
     "use-places-autocomplete": "^3.0.0",
+    "util": "^0.12.4",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"

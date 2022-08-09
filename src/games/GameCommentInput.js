@@ -1,5 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
-import { TextField, Box } from "@mui/material";
+import { TextField, Box, Button } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { addComment } from "../store/comments/commentsSlice";
 
@@ -7,10 +7,11 @@ function GameCommentInput({ gameId }) {
   const my = useSelector((state) => state.my);
   const dispatch = useDispatch();
 
-  const { reset, control, handleSubmit } = useForm({
+  const { reset, control, handleSubmit, formState } = useForm({
     defaultValues: {
       comment: "",
     },
+    mode: 'onChange'
   });
 
   function handleAddComment(comment) {
@@ -42,6 +43,7 @@ function GameCommentInput({ gameId }) {
       <Controller
         name="comment"
         control={control}
+        rules={{required: true}}
         onChange={(e) => {
           console.log(e);
         }}
@@ -55,6 +57,7 @@ function GameCommentInput({ gameId }) {
           />
         )}
       />
+      <Button type="submit" disabled={!formState.isValid}>send</Button>
     </Box>
   );
 }

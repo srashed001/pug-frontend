@@ -52,7 +52,7 @@ function NewThread() {
 
   if (usersStatus === "succeeded") {
     return (
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={{marginTop: 5}}>
         <NewThreadPartyList users={users} />
         <Box
           component="form"

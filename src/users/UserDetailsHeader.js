@@ -1,4 +1,4 @@
-import { Grid, Box, Typography, Stack, Paper } from "@mui/material";
+import { Grid, Box, Typography, Stack, Paper, Avatar } from "@mui/material";
 import { formatDistanceToNowStrict } from "date-fns";
 function UserDetailsHeader({ user }) {
   return (
@@ -54,18 +54,16 @@ function UserDetailsHeader({ user }) {
         </Grid>
       </Grid>
 
-      <Box
+      <Avatar
         sx={{
           height: { xs: 100, sm: 100 },
           width: { xs: 100, sm: 100 },
           backgroundColor: "#ffffff",
           boxShadow: 3,
-          borderRadius: "50%",
           position: "absolute",
           top: 50,
           left: 20,
         }}
-        component="img"
         src={user.profileImg}
       />
     </Stack>

@@ -1,8 +1,8 @@
 import {
+  Avatar,
   Box,
   Card,
   CardActionArea,
-  CardMedia,
   Chip,
   Grid,
   Typography,
@@ -42,15 +42,13 @@ function GameCard({ game, disabled = false }) {
           borderRadius: 0,
         }}
       >
-        <CardMedia
-          component="img"
+        <Avatar
           sx={{
             width: { xxs: 0, xs: 70, sm: 100 },
             height: { xxs: 0, xs: 70, sm: 100 },
-            borderRadius: '50%',
             boxShadow: 3
           }}
-          image={user.profileImg}
+          src={user.profileImg}
           alt="game card img"
         />
         <Grid
