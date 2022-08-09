@@ -60,7 +60,6 @@ function MessagesList() {
       <Stack
         sx={{
           marginTop: 20,
-          marginBottom: 10,
           display: "flex",
           opacity: isPending ? 0.8 : 1,
         }}
