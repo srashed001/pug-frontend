@@ -35,8 +35,8 @@ const mapContainerStyle = {
 };
 
 const center = {
-  lat: 37.768009,
-  lng: -122.387787,
+  lat: 37.768,
+  lng: -122.387,
 };
 const options = {
   styles: mapStyles,
@@ -71,18 +71,22 @@ function CourtsList() {
   const mapRef = useRef();
 
   const getCourts = useCallback((location) => {
+
     let request = {
       location,
       rankBy: window.google.maps.places.RankBy.DISTANCE,
-      keyword: "basketball courts",
+      keyword: "basketball",
     };
 
     const timerId = setTimeout(() => {
       setMapError("Error occurred trying to find courts");
     }, 4000);
 
+    console.log(mapRef.current)
+
     const service = new window.google.maps.places.PlacesService(mapRef.current);
     service.nearbySearch(request, (results, status, next_page_token) => {
+      console.log(status)
       clearTimeout(timerId);
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         dispatch(updateCourts({ results, next_page_token }));
@@ -188,9 +192,10 @@ function CourtsList() {
               width: "100%",
               top: "5rem",
               zIndex: "tooltip",
+              marginTop: 8
             }}
           >
-            <Alert severity="error">
+            <Alert onClose={() => setMapError(null)} severity="error">
               <AlertTitle>{mapError}</AlertTitle>
               Recommendation — <strong>go home and refresh</strong>
             </Alert>
@@ -255,6 +260,7 @@ function Locate({ panTo, setValue }) {
       startIcon={<MyLocationIcon />}
       onClick={async () => {
         const res = await GeoLocationApi.get();
+        console.log(res)
         panTo(res.location);
         setValue("");
       }}
