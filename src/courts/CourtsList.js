@@ -71,9 +71,10 @@ function CourtsList() {
   const mapRef = useRef();
 
   const getCourts = useCallback((location) => {
+    const {lat, lng} = location
 
     let request = {
-      location,
+      location: typeof lat === 'function' ? location : new window.google.maps.LatLng(+lat.toFixed(3), +lng.toFixed(3)),
       rankBy: window.google.maps.places.RankBy.DISTANCE,
       keyword: "basketball",
     };

@@ -10,16 +10,12 @@ import {
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import "./login.css";
 import "../homepage/publicHomepage.css";
 
-const theme = createTheme({
-  palette: {
-    primary: { main: "#B1A7A6" },
-  },
-});
+
 
 const inputOptions = {
   width: {
@@ -67,7 +63,7 @@ function LoginForm({ login }) {
   };
 
   return (
-    <ThemeProvider theme={theme}>
+
       <Stack className="publicHomepage" sx={{ alignItems: "center" }}>
         <Box
           sx={{
@@ -123,6 +119,7 @@ function LoginForm({ login }) {
                 <TextField
                   {...field}
                   size="small"
+                  aria-label="username"
                   sx={inputOptions}
                   error={!!errors.username}
                   helperText={
@@ -140,6 +137,7 @@ function LoginForm({ login }) {
                   {...field}
                   size="small"
                   type="password"
+                  aria-label="password"
                   sx={inputOptions}
                   error={!!errors.password}
                   helperText={
@@ -162,8 +160,11 @@ function LoginForm({ login }) {
           <Button onClick={handleSignup}>Create new account</Button>
         </Stack>
       </Stack>
-    </ThemeProvider>
+
   );
 }
 
 export default LoginForm;
+
+
+

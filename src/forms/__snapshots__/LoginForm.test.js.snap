@@ -1,0 +1,164 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="publicHomepage css-163ljxj-MuiStack-root"
+  >
+    <div
+      class="MuiBox-root css-12yy1tz"
+    >
+      <div
+        class="MuiBox-root css-70qvj9"
+      >
+        <button
+          class="MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButtonBase-root  css-6inqtj-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          <span
+            class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              data-testid="ArrowBackIosIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11.67 3.87 9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z"
+              />
+            </svg>
+          </span>
+          Home
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+      </div>
+      <div
+        class="MuiBox-root css-0"
+      >
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-19wt13x-MuiTypography-root"
+        >
+          Login
+        </p>
+      </div>
+    </div>
+    <div
+      class="css-1bg9mof-MuiStack-root"
+    >
+      <form
+        class="css-nen11g-MuiStack-root"
+      >
+        <div
+          aria-label="username"
+          class="MuiFormControl-root MuiTextField-root css-zyp2ld-MuiFormControl-root-MuiTextField-root"
+        >
+          <div
+            class="MuiOutlinedInput-root MuiInputBase-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+          >
+            <input
+              aria-describedby=":r2:-helper-text"
+              aria-invalid="false"
+              class="MuiOutlinedInput-input MuiInputBase-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+              id=":r2:"
+              name="username"
+              type="text"
+              value=""
+            />
+            <fieldset
+              aria-hidden="true"
+              class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+            >
+              <legend
+                class="css-hdw1oc"
+              >
+                <span
+                  class="notranslate"
+                >
+                  ​
+                </span>
+              </legend>
+            </fieldset>
+          </div>
+          <p
+            class="MuiFormHelperText-root MuiFormHelperText-sizeSmall MuiFormHelperText-contained css-k4qjio-MuiFormHelperText-root"
+            id=":r2:-helper-text"
+          >
+            username
+          </p>
+        </div>
+        <div
+          aria-label="password"
+          class="MuiFormControl-root MuiTextField-root css-zyp2ld-MuiFormControl-root-MuiTextField-root"
+        >
+          <div
+            class="MuiOutlinedInput-root MuiInputBase-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+          >
+            <input
+              aria-describedby=":r3:-helper-text"
+              aria-invalid="false"
+              class="MuiOutlinedInput-input MuiInputBase-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+              id=":r3:"
+              name="password"
+              type="password"
+              value=""
+            />
+            <fieldset
+              aria-hidden="true"
+              class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+            >
+              <legend
+                class="css-hdw1oc"
+              >
+                <span
+                  class="notranslate"
+                >
+                  ​
+                </span>
+              </legend>
+            </fieldset>
+          </div>
+          <p
+            class="MuiFormHelperText-root MuiFormHelperText-sizeSmall MuiFormHelperText-contained css-k4qjio-MuiFormHelperText-root"
+            id=":r3:-helper-text"
+          >
+            password
+          </p>
+        </div>
+        <button
+          class="MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButtonBase-root  css-sghohy-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="submit"
+        >
+          Login
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+        <div
+          class="MuiTypography-root MuiTypography-body1 MuiBox-root css-18x9swi-MuiTypography-root"
+        >
+          Forgot Password?
+        </div>
+      </form>
+      <hr
+        class="MuiDivider-root MuiDivider-fullWidth css-9mgopn-MuiDivider-root"
+      />
+      <button
+        class="MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButtonBase-root  css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        Create new account
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;
