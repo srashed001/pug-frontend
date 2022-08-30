@@ -29,6 +29,15 @@ git pull https://github.com/srashed001/pug-frontend
 ```bash
 npm i
 ```
+## Setup Environment Variables 
+
+- Open file .env.sample, and set your environmental variables 
+- REACT_APP_API_BASE_URL= (your server base url - leave blank if running server on localhost:3000)
+- REACT_APP_GOOGLE_API_KEY= (your google maps api key [setup google account to get api key](https://developers.google.com/maps))
+- REACT_APP_PUG_SECRET= (secret key you are using for bcrypt on backend)
+- When variables are set, rename file to .env and save
+
+## Run 
 
 - Make sure server is deployed
 - Run application 
