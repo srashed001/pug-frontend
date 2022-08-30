@@ -1,4 +1,4 @@
-# PUG Front-end
+# PUG Front-end (Client-side Rendering)
 
 PUG is a communication platform that allows users to find basketball courts in their area, create games, and share the details of these games with other users.
 
