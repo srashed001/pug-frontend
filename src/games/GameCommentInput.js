@@ -15,7 +15,7 @@ function GameCommentInput({ gameId }) {
   });
 
   function handleAddComment(comment) {
-    console.log(comment);
+   
     const data = {
       gameId,
       username: my.username,
@@ -35,7 +35,7 @@ function GameCommentInput({ gameId }) {
         padding: 1,
       }}
       onSubmit={handleSubmit(({ comment }, e) => {
-        console.log(comment);
+    
         handleAddComment(comment);
         reset({ comment: "" });
       })}
@@ -45,7 +45,7 @@ function GameCommentInput({ gameId }) {
         control={control}
         rules={{required: true}}
         onChange={(e) => {
-          console.log(e);
+      
         }}
         render={({ field }) => (
           <TextField

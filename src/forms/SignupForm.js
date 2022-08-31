@@ -95,8 +95,7 @@ function SignupForm({signup}) {
       return true;
     }
   };
-  const {phoneNumber} = getValues()
-  console.log(phoneNumber)
+  
   return (
     <Stack>
       <Box

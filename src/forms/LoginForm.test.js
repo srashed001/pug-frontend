@@ -20,11 +20,10 @@ test('it matches snapshot', () => {
 test('it submits form data when filled out', async () => {
 
     const handleSubmit = jest.fn()
-    const {debug} = render(<LoginForm login={handleSubmit} />)
+    // const {debug} = render(<LoginForm login={handleSubmit} />)
     const [usernameInput, passwordInput] = screen.getAllByDisplayValue("")
     const submitButton = screen.getByRole('button', {name: /login/i})
 
-    console.log(usernameInput)
 
     
     const username = 'test1'

@@ -38,7 +38,7 @@ function GameDetails({ panTo, gameId, setLocation }) {
             setLocation((state) => ({ lat, lng }));
             panTo({ lat, lng });
           } catch (error) {
-            console.log(error);
+           
           }
         }
         panToGame(details);
@@ -51,7 +51,7 @@ function GameDetails({ panTo, gameId, setLocation }) {
 
   const joined = resource.players.find((player) => player === myUsername);
 
-  console.log(resource)
+
 
   return (
     <Stack sx={{ opacity: isPending ? 0.8 : 1 }}>
