@@ -62,6 +62,7 @@ function MessagesList() {
           marginTop: 20,
           display: "flex",
           opacity: isPending ? 0.8 : 1,
+          marginBottom: 10
         }}
         spacing={1}
       >
