@@ -53,7 +53,6 @@ function CreateGameForm({ address, city, state }) {
   }
 
   function dispatchCreateGame(data) {
-    console.log({ ...data, createdBy: my.userame });
     dispatch(createGame({ ...data, createdBy: my.username }))
       .unwrap()
       .then((data) => {

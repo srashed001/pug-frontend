@@ -91,7 +91,6 @@ export const updateProfile = createAsyncThunk(
     try {
       const update = await PugApi.editUserProfile(username, data);
       dispatch(updateUsers([update]))
-      console.log(update)
       return update;
     } catch (err) {
       return rejectWithValue(err[0]);

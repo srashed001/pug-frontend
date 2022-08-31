@@ -36,7 +36,7 @@ function GamesList() {
 
   const { searchMode, cityQuery, hostQuery, stateQuery } = watch();
 
-  console.log(resource)
+  
 
   return (
     <Stack sx={{ marginTop: { xs: 23, sm: 25 } }}>

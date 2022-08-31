@@ -20,7 +20,6 @@ function LeaveGame({ activity }) {
   const game = useSelector((state) => selectGameById(state, gameId));
   const user = useSelector((state) => selectUserById(state, primaryuser));
 
-  console.log(user);
 
   return (
     <Card elevation={3}>

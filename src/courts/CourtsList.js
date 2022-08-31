@@ -83,11 +83,9 @@ function CourtsList() {
       setMapError("Error occurred trying to find courts");
     }, 4000);
 
-    console.log(mapRef.current)
-
+  
     const service = new window.google.maps.places.PlacesService(mapRef.current);
     service.nearbySearch(request, (results, status, next_page_token) => {
-      console.log(status)
       clearTimeout(timerId);
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         dispatch(updateCourts({ results, next_page_token }));
@@ -261,7 +259,6 @@ function Locate({ panTo, setValue }) {
       startIcon={<MyLocationIcon />}
       onClick={async () => {
         const res = await GeoLocationApi.get();
-        console.log(res)
         panTo(res.location);
         setValue("");
       }}
@@ -311,10 +308,8 @@ function Search({ panTo, loadInfoWindow, location, handleClickOpen }) {
           try {
             const results = await getGeocode({ address });
             const { lat, lng } = await getLatLng(results[0]);
-            console.log(lat, lng);
             panTo({ lat, lng });
           } catch (e) {
-            console.log(e);
           }
         }}
         onInputChange={(event) => {
